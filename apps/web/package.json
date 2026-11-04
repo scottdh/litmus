@@ -1,0 +1,30 @@
+{
+  "name": "@litmus/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "next typegen && tsc",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@base-ui/react": "1.9.0",
+    "@litmus/core": "workspace:*",
+    "motion": "14.9.1",
+    "next": "16.4.5",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.4",
+    "@types/node": "catalog:",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "tailwindcss": "4.3.4",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

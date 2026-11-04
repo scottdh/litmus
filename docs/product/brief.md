@@ -1,0 +1,37 @@
+# Product brief
+
+**Pitch:** a tool that turns user story maps into a permanent, evidence-backed record of what users are trying to achieve and how well the product serves that, instead of a workshop artefact that dies after sprint planning.
+
+**Working name:** the repo is `litmus`. Earlier documents call it StoryMap.
+
+## The problem
+
+Story mapping aligns teams around user goals, but it's usually built once, used to slice tickets, then abandoned. The team's shared understanding decays while the map goes stale.
+
+## The idea
+
+A long-lived map with three properties:
+
+1. **Narrative-readable.** Anyone can read it left to right like a story, without training.
+2. **Evidence-rich.** Task cards carry personas, thinking, information needs, quotes, clips and screenshots.
+3. **Health-visible.** Every task carries a light showing how well the product supports it, backed by evidence. See `docs/product/rating-model.md`.
+
+Later mechanics:
+
+- **AI-assisted building:** paste a transcript, and AI suggests tasks, quotes and persona signals for a human to review. It never commits on its own.
+- **AI narration:** readable prose at task, activity and map level, from the structured data.
+- **Delivery link-back:** delivery work links to the task it serves.
+- **Scale:** a focus view with the backbone always visible and one activity expanded, rather than an infinite canvas.
+
+## Not in v1
+
+- A real-time multiplayer whiteboard. Workshops stay in Miro or FigJam; this is where understanding settles afterwards.
+- A release-slicing or delivery tool. Jira keeps that job.
+- A research repository. Evidence is linked, not stored.
+- Deep third-party integration. Links and manual references only.
+
+## Constraints
+
+Built by one product designer with AI coding tools, part-time. Shipped to one internal team first, then used as the validation and pitch for a funded team. One editor, many readers, no real-time sync in v1. Design polish is a primary goal.
+
+**Planned stack:** Next.js, Supabase (Postgres), Claude API, and the UI stack in `docs/adr/0002-ui-stack.md`.

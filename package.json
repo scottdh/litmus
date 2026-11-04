@@ -1,0 +1,73 @@
+{
+  "name": "litmus",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.16.1",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "prepare": "simple-git-hooks",
+    "dev": "pnpm --filter @litmus/web dev",
+    "build": "pnpm --filter @litmus/web build",
+    "check": "pnpm typecheck && pnpm lint && pnpm arch && pnpm docs:check",
+    "typecheck": "pnpm -r typecheck && tsc -p tools/tsconfig.json",
+    "lint": "eslint . --max-warnings 0",
+    "arch": "depcruise apps packages tools --config .dependency-cruiser.cjs",
+    "docs:check": "node tools/check-doc-paths.ts",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "pnpm -r test",
+    "test:related": "pnpm --filter @litmus/core exec vitest related --run --maxWorkers=2",
+    "pr": "node tools/pr.ts"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm exec lint-staged",
+    "commit-msg": "pnpm exec commitlint --edit \"$1\""
+  },
+  "lint-staged": {
+    "*": "prettier --write --ignore-unknown"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ],
+    "rules": {
+      "type-enum": [
+        2,
+        "always",
+        [
+          "feat",
+          "fix",
+          "test",
+          "refactor",
+          "docs",
+          "chore",
+          "ci",
+          "build",
+          "design",
+          "perf",
+          "revert"
+        ]
+      ],
+      "body-max-line-length": [
+        0
+      ],
+      "footer-max-line-length": [
+        0
+      ]
+    }
+  },
+  "devDependencies": {
+    "@commitlint/cli": "21.2.4",
+    "@commitlint/config-conventional": "21.2.4",
+    "@litmus/eslint-config": "workspace:*",
+    "@types/node": "catalog:",
+    "dependency-cruiser": "18.7.2",
+    "eslint": "catalog:",
+    "lint-staged": "17.6.0",
+    "prettier": "3.9.10",
+    "simple-git-hooks": "2.14.0",
+    "typescript": "catalog:"
+  }
+}

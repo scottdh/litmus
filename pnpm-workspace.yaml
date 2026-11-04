@@ -1,0 +1,19 @@
+packages:
+  - apps/*
+  - packages/*
+
+catalog:
+  '@types/node': 24.19.2
+  eslint: 10.14.0
+  typescript: 6.0.3
+  vitest: 5.1.0
+
+minimumReleaseAgeExclude:
+  - framer-motion@14.9.1
+  - motion-dom@14.9.1
+  - motion@14.9.1
+
+# Install scripts are off unless listed as true, with a reason.
+allowBuilds:
+  # Our `prepare` script installs the hooks, so its own postinstall isn't needed.
+  simple-git-hooks: false
