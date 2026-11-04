@@ -1,1 +1,127 @@
 @import 'tailwindcss';
+
+/*
+ * Tokens. Theme switches by flipping these variables, so components never use `dark:` for colour.
+ * Light pairs are checked for contrast: every on-light token is at least 4.5:1 on its fill,
+ * and every mark token is at least 3:1 on the canvas and surface.
+ */
+:root {
+  --canvas: oklch(0.975 0.006 85);
+  --surface: oklch(0.995 0.003 85);
+  --ink: oklch(0.24 0.012 85);
+  --muted: oklch(0.47 0.012 85);
+  --line: oklch(0.24 0.012 85 / 0.12);
+
+  --light-green: oklch(0.74 0.15 152);
+  --on-light-green: oklch(0.24 0.05 152);
+  --light-yellow: oklch(0.87 0.15 92);
+  --on-light-yellow: oklch(0.28 0.05 92);
+  --light-red: oklch(0.56 0.19 28);
+  --on-light-red: oklch(0.985 0.01 28);
+  --light-grey: oklch(0.9 0.006 85);
+  --on-light-grey: oklch(0.4 0.01 85);
+
+  --mark-green: oklch(0.56 0.14 152);
+  --mark-yellow: oklch(0.62 0.13 85);
+  --mark-red: oklch(0.56 0.19 28);
+  --mark-grey: oklch(0.47 0.012 85);
+
+  --elevation-raised: 0 0 0 1px oklch(0 0 0 / 0.05), 0 1px 3px oklch(0 0 0 / 0.05), 0 4px 10px -4px oklch(0 0 0 / 0.05);
+  --hairline: 1px;
+
+  color-scheme: light dark;
+}
+
+@media (min-resolution: 192dpi) {
+  :root {
+    --hairline: 0.5px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --canvas: oklch(0.17 0.006 85);
+    --surface: oklch(0.215 0.007 85);
+    --ink: oklch(0.93 0.006 85);
+    --muted: oklch(0.72 0.008 85);
+    --line: oklch(0.32 0.007 85);
+
+    --light-green: oklch(0.66 0.12 152);
+    --on-light-green: oklch(0.16 0.03 152);
+    --light-yellow: oklch(0.8 0.12 92);
+    --on-light-yellow: oklch(0.2 0.04 92);
+    --light-red: oklch(0.53 0.15 28);
+    --on-light-red: oklch(0.98 0.01 28);
+    --light-grey: oklch(0.32 0.006 85);
+    --on-light-grey: oklch(0.8 0.006 85);
+
+    --mark-green: oklch(0.66 0.12 152);
+    --mark-yellow: oklch(0.8 0.12 92);
+    --mark-red: oklch(0.62 0.15 28);
+    --mark-grey: oklch(0.72 0.008 85);
+
+    --elevation-raised: 0 0 0 1px oklch(1 0 0 / 0.09);
+  }
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-light-green: var(--light-green);
+  --color-on-light-green: var(--on-light-green);
+  --color-light-yellow: var(--light-yellow);
+  --color-on-light-yellow: var(--on-light-yellow);
+  --color-light-red: var(--light-red);
+  --color-on-light-red: var(--on-light-red);
+  --color-light-grey: var(--light-grey);
+  --color-on-light-grey: var(--on-light-grey);
+  --color-mark-green: var(--mark-green);
+  --color-mark-yellow: var(--mark-yellow);
+  --color-mark-red: var(--mark-red);
+  --color-mark-grey: var(--mark-grey);
+  --font-sans: var(--font-instrument-sans);
+  --font-story: var(--font-newsreader);
+  --shadow-raised: var(--elevation-raised);
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@layer base {
+  html {
+    font-synthesis: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--canvas);
+    color: var(--ink);
+  }
+
+  button,
+  a {
+    touch-action: manipulation;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+}
+
+@utility hatch {
+  background-image: repeating-linear-gradient(135deg, var(--line) 0 1px, transparent 1px 6px);
+}

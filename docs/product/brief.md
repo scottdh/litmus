@@ -21,6 +21,7 @@ Later mechanics:
 - **AI-assisted building:** paste a transcript, and AI suggests tasks, quotes and persona signals for a human to review. It never commits on its own.
 - **AI narration:** readable prose at task, activity and map level, from the structured data.
 - **Delivery link-back:** delivery work links to the task it serves.
+- **Dense view:** Story reads well but shows little at once, so a separate view will serve at-a-glance scanning. See `docs/designs/wall-direction.md`.
 - **Scale:** a focus view with the backbone always visible and one activity expanded, rather than an infinite canvas.
 
 ## Not in v1

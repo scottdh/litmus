@@ -15,6 +15,20 @@ The backbone describes users' work and is product-agnostic. **Lights hang off a 
 - Half-built and unfinishable is **red, not grey**. Grey stays reserved for genuine absence.
 - If a task wants two colours, it's two tasks. Splitting beats averaging.
 
+## Tasks with subtasks
+
+A task with subtasks doesn't get its own rating. Its light follows from its subtasks, so the two can never conflict, and nothing is averaged. A human still sets every subtask's light.
+
+| Subtasks                                                         | Parent |
+| ---------------------------------------------------------------- | ------ |
+| All green                                                        | Green  |
+| All red or grey                                                  | Red    |
+| Any other mix, including any yellow or red with something better | Yellow |
+
+Out-of-scope subtasks are left out of the rule, because we've chosen not to do them. If every subtask is out of scope, so is the parent.
+
+The parent also shows the mix of its subtasks, so a yellow task still shows what's inside it.
+
 ## The yardstick
 
 This goes on the face of the map, so nobody reads green as "ship it":
