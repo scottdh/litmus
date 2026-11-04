@@ -33,6 +33,6 @@ Later mechanics:
 
 ## Constraints
 
-Built by one product designer with AI coding tools, part-time. Shipped to one internal team first, then used as the validation and pitch for a funded team. One editor, many readers, no real-time sync in v1. Design polish is a primary goal.
+Built by one product designer with AI coding tools, part-time. This repo is a personal playground for refining the idea, and it isn't used for work. Any internal version at work is built separately. One editor, many readers, no real-time sync in v1. Design polish is a primary goal.
 
 **Planned stack:** Next.js, Supabase (Postgres), Claude API, and the UI stack in `docs/adr/0002-ui-stack.md`.
