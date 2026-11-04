@@ -37,6 +37,11 @@ export interface MapView {
   activities: ActivityView[];
 }
 
+const countLights = (lights: Light[]): LightCount[] =>
+  LIGHTS.map((light) => ({ light, count: lights.filter((other) => other === light).length })).filter(
+    (entry) => entry.count > 0,
+  );
+
 export const getMapView =
   (deps: { maps: MapRepository }) =>
   async (id: MapId): Promise<MapView> => {
@@ -59,19 +64,14 @@ export const getMapView =
             name: task.name,
             light: subtasks.length > 0 ? deriveParentLight(subLights) : lightOf(task.id),
             subtasks,
-            mix: LIGHTS.map((light) => ({ light, count: subLights.filter((other) => other === light).length })).filter(
-              (entry) => entry.count > 0,
-            ),
+            mix: countLights(subLights),
           };
         });
-        const taskLights = tasks.map((task) => task.light);
         return {
           id: activity.id,
           name: activity.name,
           tasks,
-          mix: LIGHTS.map((light) => ({ light, count: taskLights.filter((other) => other === light).length })).filter(
-            (entry) => entry.count > 0,
-          ),
+          mix: countLights(tasks.map((task) => task.light)),
         };
       }),
     };
