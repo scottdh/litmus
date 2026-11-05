@@ -27,6 +27,7 @@ Two faces, set in `apps/web/src/app/layout.tsx`. Use nothing else.
 | Role                | Style                                                |
 | ------------------- | ---------------------------------------------------- |
 | Chapter heading     | `font-story`, 28 px, line height 1.1, slightly tight |
+| Chapter on a rail   | `font-story`, 17 px, line height 1.2, `muted`        |
 | Page title          | Sans, 22 px, semibold                                |
 | Task                | Sans, 15 px, line height 1.35                        |
 | Subtask             | Sans, 14 px, `muted`                                 |
@@ -37,7 +38,7 @@ Names are never truncated in the Story view.
 
 ## Motion
 
-Hover and press take 150 ms `ease-out`; list the properties, because lint bans `transition-all`. Press scales to 0.96. Panels fade in with opacity and never animate height. `globals.css` handles reduced motion.
+Hover and press take 150 ms `ease-out`; list the properties, because lint bans `transition-all`. Press scales to 0.96. Panels fade in with opacity and never animate height. Chapter focus uses `--motion-focus`, 240 ms. It's the one place a width animates, which is allowed because task text sits in a fixed-width box and nothing reflows. `globals.css` handles reduced motion.
 
 ## Components
 
@@ -46,6 +47,10 @@ Shared components live in `apps/web/src/ui` and are the only place that imports 
 ### Disclosure
 
 `apps/web/src/ui/disclosure.tsx`. Use for any row that reveals nested content. Panels use `hiddenUntilFound`, so the browser's find-in-page reaches collapsed text.
+
+### Chapter
+
+`apps/web/src/features/map/chapter.tsx`. One activity in the story, in one of three states: at rest, focused, or in the background. In the background it shows only its number and name, because that's all a squad needs to add it to the focus. Don't show tasks or health there. `docs/designs/focus-direction.md` has the reasoning.
 
 ### LightMark
 
