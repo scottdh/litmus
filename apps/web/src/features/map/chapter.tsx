@@ -16,44 +16,56 @@ const DIMMED = 'opacity-30';
 
 const subtaskCount = (count: number) => `${String(count)} ${count === 1 ? 'subtask' : 'subtasks'}`;
 
+const NAME_STYLE =
+  'underline decoration-transparent decoration-from-font underline-offset-2 transition-[text-decoration-color] duration-150 ease-out group-hover/row:decoration-current group-aria-current/row:decoration-current';
+
 function TaskRow({
   task,
   open,
   dim,
+  selectedId,
+  onOpenDrawer,
   onToggle,
 }: {
   task: TaskView;
   open: boolean;
   dim: Light | null;
+  selectedId: string | null;
+  onOpenDrawer: (id: string) => void;
   onToggle: (open: boolean) => void;
 }) {
-  const row = `flex w-full items-start gap-2.5 py-2 text-[15px] leading-[1.35] text-pretty ${isTaskDimmed(task, dim) ? DIMMED : ''}`;
-  const mark = (
-    <span className={`pt-1 ${MARK_COLOUR[task.light]}`}>
-      <LightMark light={task.light} />
-      <span className="sr-only">{LIGHT_COPY[task.light].label}: </span>
-    </span>
+  const dimmed = isTaskDimmed(task, dim) ? DIMMED : '';
+  const opensDrawer = (
+    <button
+      type="button"
+      id={`open-${task.id}`}
+      aria-current={selectedId === task.id ? 'true' : undefined}
+      onClick={() => {
+        onOpenDrawer(task.id);
+      }}
+      className="group/row flex min-h-10 min-w-0 grow cursor-pointer items-start gap-2.5 py-2 text-left text-[15px] leading-[1.35] text-pretty max-lg:min-h-11"
+    >
+      <span className={`pt-1 ${MARK_COLOUR[task.light]}`}>
+        <LightMark light={task.light} />
+        <span className="sr-only">{LIGHT_COPY[task.light].label}: </span>
+      </span>
+      <span className={NAME_STYLE}>{task.name}</span>
+    </button>
   );
 
   if (task.subtasks.length === 0) {
-    return (
-      <div className={`${row} transition-opacity duration-150 ease-out`}>
-        {mark}
-        <span>{task.name}</span>
-      </div>
-    );
+    return <div className={`flex transition-opacity duration-150 ease-out ${dimmed}`}>{opensDrawer}</div>;
   }
 
   return (
     <DisclosureRoot open={open} onOpenChange={onToggle}>
-      <DisclosureTrigger
-        className={`${row} group min-h-11 cursor-pointer text-left transition-[opacity,color] duration-150 ease-out hover:text-muted`}
-      >
-        {mark}
-        <span className="grow">{task.name}</span>
-        <span className="flex shrink-0 items-center gap-1.5 pt-1 text-[12px] text-muted tabular-nums">
-          <span className="sr-only">{subtaskCount(task.subtasks.length)}: </span>
-          <MixBar mix={task.mix} className="h-1 w-8 rounded-full" />
+      <div className={`flex items-start gap-2 transition-opacity duration-150 ease-out ${dimmed}`}>
+        {opensDrawer}
+        <DisclosureTrigger
+          aria-label={`${subtaskCount(task.subtasks.length)} of ${task.name}`}
+          className="group flex min-h-10 shrink-0 cursor-pointer items-start gap-1.5 self-stretch ps-1 pt-3 text-[12px] text-muted tabular-nums transition-colors duration-150 ease-out hover:text-ink max-lg:min-h-11"
+        >
+          <MixBar mix={task.mix} className="mt-1 h-1 w-8 rounded-full" />
           <span aria-hidden="true">{task.subtasks.length}</span>
           <svg
             viewBox="0 0 12 12"
@@ -69,20 +81,30 @@ function TaskRow({
               strokeLinejoin="round"
             />
           </svg>
-        </span>
-      </DisclosureTrigger>
+        </DisclosureTrigger>
+      </div>
       <DisclosurePanel>
         <ol className="mb-2 ml-6">
           {task.subtasks.map((sub) => (
             <li
               key={sub.id}
-              className={`flex items-start gap-2 py-1 text-[14px] leading-[1.35] text-pretty text-muted transition-opacity duration-150 ease-out ${isDimmed(sub.light, dim) ? DIMMED : ''}`}
+              className={`transition-opacity duration-150 ease-out ${isDimmed(sub.light, dim) ? DIMMED : ''}`}
             >
-              <span className={`pt-1 ${MARK_COLOUR[sub.light]}`}>
-                <LightMark light={sub.light} className="size-3" />
-                <span className="sr-only">{LIGHT_COPY[sub.light].label}: </span>
-              </span>
-              <span>{sub.name}</span>
+              <button
+                type="button"
+                id={`open-${sub.id}`}
+                aria-current={selectedId === sub.id ? 'true' : undefined}
+                onClick={() => {
+                  onOpenDrawer(sub.id);
+                }}
+                className="group/row flex min-h-9 w-full cursor-pointer items-start gap-2 py-2 text-left text-[14px] leading-[1.35] text-pretty text-muted max-lg:min-h-11"
+              >
+                <span className={`pt-1 ${MARK_COLOUR[sub.light]}`}>
+                  <LightMark light={sub.light} className="size-3" />
+                  <span className="sr-only">{LIGHT_COPY[sub.light].label}: </span>
+                </span>
+                <span className={NAME_STYLE}>{sub.name}</span>
+              </button>
             </li>
           ))}
         </ol>
@@ -113,6 +135,8 @@ export function Chapter({
   animate,
   dim,
   openTasks,
+  selectedId,
+  onOpenDrawer,
   onToggleFocus,
   onToggleTask,
 }: {
@@ -122,6 +146,8 @@ export function Chapter({
   animate: boolean;
   dim: Light | null;
   openTasks: ReadonlySet<string>;
+  selectedId: string | null;
+  onOpenDrawer: (id: string) => void;
   onToggleFocus: () => void;
   onToggleTask: (id: string, open: boolean) => void;
 }) {
@@ -134,7 +160,7 @@ export function Chapter({
       className={`group/chapter relative shrink-0 lg:overflow-x-clip lg:border-l-(length:--hairline) lg:border-line lg:[overflow-clip-margin:6px] lg:first:border-l-0 lg:first:pl-0 ${inBackground ? 'lg:w-29 lg:px-3.5' : 'lg:w-68 lg:px-5'} ${animate ? COLUMN_MOTION : ''}`}
     >
       <div className="lg:w-58 lg:group-first/chapter:w-63">
-        <h2 id={`${activity.id}-name`}>
+        <h2 id={`${activity.id}-name`} className="relative">
           <button
             type="button"
             aria-pressed={state === 'focused'}
@@ -164,6 +190,20 @@ export function Chapter({
               </span>
             </span>
           </button>
+          {!inBackground && (
+            <button
+              type="button"
+              id={`open-${activity.id}`}
+              aria-label={`Rename ${activity.name}`}
+              aria-current={selectedId === activity.id ? 'true' : undefined}
+              onClick={() => {
+                onOpenDrawer(activity.id);
+              }}
+              className="absolute top-0 right-0 cursor-pointer text-[13px] text-muted opacity-0 transition-[opacity,color] duration-150 ease-out group-hover/chapter:opacity-100 before:absolute before:inset-x-0 before:-inset-y-3 hover:text-ink focus-visible:opacity-100 aria-current:text-ink aria-current:opacity-100 max-lg:opacity-100"
+            >
+              Rename
+            </button>
+          )}
         </h2>
         <div
           inert={inBackground}
@@ -180,6 +220,8 @@ export function Chapter({
                     task={task}
                     open={openTasks.has(task.id)}
                     dim={dim}
+                    selectedId={selectedId}
+                    onOpenDrawer={onOpenDrawer}
                     onToggle={(next) => {
                       onToggleTask(task.id, next);
                     }}

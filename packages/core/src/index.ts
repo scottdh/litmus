@@ -5,6 +5,8 @@ export * from './domain/map/evidence.ts';
 export * from './domain/map/light.ts';
 export * from './domain/map/parent-light.ts';
 export * from './domain/map/rating.ts';
+export * from './domain/map/rename.ts';
 export * from './domain/map/story-map.ts';
 export * from './application/get-map-view.ts';
 export * from './application/ports.ts';
+export * from './application/rename.ts';

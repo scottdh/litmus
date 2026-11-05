@@ -18,7 +18,8 @@ function write(key: string, focus: string[]) {
   }
 }
 
-export function useChapterFocus(mapId: string, chapterIds: string[]) {
+/** `escapeClears` is off while something else, like the drawer, owns Esc. */
+export function useChapterFocus(mapId: string, chapterIds: string[], escapeClears: boolean) {
   const key = `litmus:focus:${mapId}`;
   const [focus, setFocus] = useState<string[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -44,6 +45,7 @@ export function useChapterFocus(mapId: string, chapterIds: string[]) {
   }, [key, focus, loaded]);
 
   useEffect(() => {
+    if (!escapeClears) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setFocus([]);
     };
@@ -51,7 +53,7 @@ export function useChapterFocus(mapId: string, chapterIds: string[]) {
     return () => {
       document.removeEventListener('keydown', onKeyDown);
     };
-  }, []);
+  }, [escapeClears]);
 
   return {
     focus,
