@@ -54,7 +54,11 @@ Shared components live in `apps/web/src/ui` and are the only place that imports 
 
 ### Drawer
 
-`apps/web/src/features/map/drawer.tsx`. Where a task's detail lives, and where names are edited. It sits beside the story in the page flow, not over it, so the map stays usable and the page doesn't move vertically. On a phone it fills the screen. Add new task detail here rather than to the row. `docs/designs/task-drawer-direction.md` has the reasoning.
+`apps/web/src/features/map/drawer.tsx`. Where a task's detail lives, and where names are edited. It sits beside the story in the page flow, not over it, so the map stays usable and the page doesn't move vertically. On a phone it fills the screen. It holds the name, the light and the review. Add new task detail here rather than to the row. `docs/designs/task-drawer-direction.md` has the reasoning.
+
+### RatingSection
+
+`apps/web/src/features/map/rating-section.tsx`. How a light gets set: pick a light, write a review, then set it. The map waits until then. Never let a light change on the map from a single click. `docs/designs/rating-direction.md` has the reasoning.
 
 ### LightMark
 

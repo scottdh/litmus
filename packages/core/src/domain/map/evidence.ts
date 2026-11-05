@@ -6,6 +6,7 @@ export interface HeuristicViolation {
 }
 
 export type Evidence =
+  | { kind: 'note'; text: string }
   | { kind: 'heuristic-review'; violations: HeuristicViolation[] }
   | { kind: 'quote'; text: string; source: string }
   | { kind: 'clip'; url: string }

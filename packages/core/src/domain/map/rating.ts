@@ -13,7 +13,7 @@ export interface Rating {
   ratedAt: Instant;
 }
 
-const needsEvidence = (light: Light) => light === 'green' || light === 'yellow' || light === 'red';
+export const needsEvidence = (light: Light) => light === 'green' || light === 'yellow' || light === 'red';
 
 const hasMaterialViolation = (evidence: Evidence[]) =>
   evidence.some(

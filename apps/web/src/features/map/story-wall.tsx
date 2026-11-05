@@ -6,7 +6,8 @@ import { Drawer } from './drawer';
 import { chapterState, focusSummary } from './focus';
 import { LightMark } from './light-mark';
 import { FILL_COLOUR, LIGHT_COPY } from './lights';
-import type { Rename } from './rename-result';
+import type { ReviewDraft } from './rating-section';
+import type { Rate, Rename } from './rename-result';
 import { findSubject } from './subject';
 import { useChapterFocus } from './use-chapter-focus';
 
@@ -28,7 +29,18 @@ function withDrafts(map: MapView, drafts: Record<string, string>): MapView {
   };
 }
 
-export function StoryWall({ map: savedMap, isSample, rename }: { map: MapView; isSample: boolean; rename: Rename }) {
+export function StoryWall({
+  map: savedMap,
+  isSample,
+  rename,
+  rate,
+}: {
+  map: MapView;
+  isSample: boolean;
+  rename: Rename;
+  rate: Rate;
+}) {
+  const [reviewDrafts, setReviewDrafts] = useState<Record<string, ReviewDraft>>({});
   const [dim, setDim] = useState<Light | null>(null);
   const [open, setOpen] = useState<ReadonlySet<string>>(new Set());
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -69,7 +81,8 @@ export function StoryWall({ map: savedMap, isSample, rename }: { map: MapView; i
   useEffect(() => {
     if (!drawerOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') closeDrawer();
+      // A form inside the drawer may have used this Esc already.
+      if (event.key === 'Escape' && !event.defaultPrevented) closeDrawer();
     };
     document.addEventListener('keydown', onKeyDown);
     return () => {
@@ -131,7 +144,7 @@ export function StoryWall({ map: savedMap, isSample, rename }: { map: MapView; i
     <main className="mx-auto max-w-[1600px] px-4 pt-4 pb-16">
       {isSample && (
         <p className="mb-5 w-fit rounded-sm bg-light-grey px-2 py-1 text-[13px] text-on-light-grey">
-          Sample data: an invented bike workshop. These ratings aren’t real, and renames last until the server restarts.
+          Sample data: an invented bike workshop. These ratings aren’t real, and changes last until the server restarts.
         </p>
       )}
       <header
@@ -222,6 +235,20 @@ export function StoryWall({ map: savedMap, isSample, rename }: { map: MapView; i
         </div>
         {subject && (
           <Drawer
+            mapId={savedMap.id}
+            rate={rate}
+            reviewDraft={reviewDrafts[subject.id] ?? null}
+            onReviewDraft={(draft) => {
+              setReviewDrafts((current) => {
+                const rest = Object.fromEntries(Object.entries(current).filter(([key]) => key !== subject.id));
+                return draft === null ? rest : { ...rest, [subject.id]: draft };
+              });
+            }}
+            onOpenSubtask={(id) => {
+              // So the subtask's row is on show, for its underline and to return focus to.
+              toggleTask(subject.id, true);
+              openDrawer(id);
+            }}
             subject={subject}
             onDraft={(name) => {
               setDrafts((current) => ({ ...current, [subject.id]: name }));

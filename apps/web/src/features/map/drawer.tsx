@@ -2,17 +2,29 @@
 import { LightMark } from './light-mark';
 import { LIGHT_COPY, MARK_COLOUR } from './lights';
 import { NameField } from './name-field';
+import { RatingSection, type ReviewDraft } from './rating-section';
+import type { Rate } from './rename-result';
 import type { Subject } from './subject';
 
 const LABEL: Record<Subject['kind'], string> = { chapter: 'Chapter name', task: 'Task name', subtask: 'Subtask name' };
 
 /** Sits beside the story rather than over it, so the map and its controls stay usable. On a phone it fills the screen. */
 export function Drawer({
+  mapId,
+  rate,
+  reviewDraft,
+  onReviewDraft,
+  onOpenSubtask,
   subject,
   onDraft,
   onSave,
   onClose,
 }: {
+  mapId: string;
+  rate: Rate;
+  reviewDraft: ReviewDraft | null;
+  onReviewDraft: (draft: ReviewDraft | null) => void;
+  onOpenSubtask: (id: string) => void;
   subject: Subject;
   onDraft: (name: string) => void;
   onSave: (name: string) => void;
@@ -38,16 +50,50 @@ export function Drawer({
           onFinish={onClose}
         />
       </div>
-      {subject.kind !== 'chapter' && (
-        <div className="grid grid-cols-[auto_1fr] items-center gap-x-2 gap-y-0.5 text-[14px] leading-snug">
-          <span className={MARK_COLOUR[subject.light]}>
-            <LightMark light={subject.light} />
-          </span>
-          <span>{LIGHT_COPY[subject.light].label}</span>
-          <span className="col-start-2 text-pretty text-muted">
-            {LIGHT_COPY[subject.light].meaning}
-            {subject.lightFollowsSubtasks && ' Set by its subtasks.'}
-          </span>
+      {subject.kind !== 'chapter' && subject.subtasks.length === 0 && (
+        <RatingSection
+          key={subject.id}
+          mapId={mapId}
+          id={subject.id}
+          light={subject.light}
+          review={subject.review}
+          draft={reviewDraft}
+          rate={rate}
+          onDraft={onReviewDraft}
+        />
+      )}
+      {subject.kind !== 'chapter' && subject.subtasks.length > 0 && (
+        <div className="flex w-full flex-col gap-2 text-[14px] leading-snug">
+          <p className="flex items-center gap-2">
+            <span className={MARK_COLOUR[subject.light]}>
+              <LightMark light={subject.light} />
+            </span>
+            {LIGHT_COPY[subject.light].label}
+          </p>
+          <p className="text-[13px] text-pretty text-muted">
+            {LIGHT_COPY[subject.light].meaning} Set by its subtasks, so its reviews live on them.
+          </p>
+          <ul>
+            {subject.subtasks.map((sub) => (
+              <li key={sub.id}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onOpenSubtask(sub.id);
+                  }}
+                  className="group/row flex min-h-9 w-full cursor-pointer items-start gap-2 py-2 text-left text-pretty max-lg:min-h-11"
+                >
+                  <span className={`pt-1 ${MARK_COLOUR[sub.light]}`}>
+                    <LightMark light={sub.light} className="size-3" />
+                    <span className="sr-only">{LIGHT_COPY[sub.light].label}: </span>
+                  </span>
+                  <span className="underline decoration-transparent decoration-from-font underline-offset-2 transition-[text-decoration-color] duration-150 ease-out group-hover/row:decoration-current">
+                    {sub.name}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
       <button
