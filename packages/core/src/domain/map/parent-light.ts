@@ -9,6 +9,7 @@ export function deriveParentLight(subtasks: Light[]): Light {
   const counted = subtasks.filter((light) => light !== 'out-of-scope');
   if (counted.length === 0) return 'out-of-scope';
   if (counted.every((light) => light === 'green')) return 'green';
+  if (counted.every((light) => light === 'grey')) return 'grey';
   if (counted.every((light) => light === 'red' || light === 'grey')) return 'red';
   return 'yellow';
 }

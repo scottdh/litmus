@@ -22,7 +22,8 @@ A task with subtasks doesn't get its own rating. Its light follows from its subt
 | Subtasks                                                         | Parent |
 | ---------------------------------------------------------------- | ------ |
 | All green                                                        | Green  |
-| All red or grey                                                  | Red    |
+| All grey                                                         | Grey   |
+| Red, or red and grey                                             | Red    |
 | Any other mix, including any yellow or red with something better | Yellow |
 
 Out-of-scope subtasks are left out of the rule, because we've chosen not to do them. If every subtask is out of scope, so is the parent.
