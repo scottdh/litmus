@@ -54,5 +54,5 @@ How it works:
 
 - With a mouse, press and move a row to drag it. A line shows where it will land, and an outline shows it going inside a task. A plain click still opens the drawer. Esc cancels.
 - A rail takes a drop at the end of its chapter, because its tasks aren't visible to aim between.
-- The drawer has Move up, Move down and Move to, for keyboard and touch. There's no touch dragging, because it fights with scrolling.
+- The drawer has up and down arrows beside the light, and Move to on its own line, for keyboard and touch. There's no touch dragging, because it fights with scrolling.
 - A visible Undo reverses the last move. It refuses if the map has changed since, rather than lose that change.

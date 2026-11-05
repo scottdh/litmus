@@ -1,7 +1,7 @@
 'use client';
 import { LIGHTS, needsEvidence, type Light } from '@litmus/core';
-import { useRef, useState } from 'react';
-import { BUTTON } from './button-style';
+import { useRef, useState, type ReactNode } from 'react';
+import { BUTTON, ICON_BUTTON } from './button-style';
 import { LightMark } from './light-mark';
 import { FILL_COLOUR, LIGHT_COPY, MARK_COLOUR } from './lights';
 import type { Rate } from './rename-result';
@@ -29,6 +29,7 @@ export function RatingSection({
   draft,
   rate,
   onDraft,
+  beside,
 }: {
   mapId: string;
   id: string;
@@ -37,8 +38,9 @@ export function RatingSection({
   draft: ReviewDraft | null;
   rate: Rate;
   onDraft: (draft: ReviewDraft | null) => void;
+  beside: ReactNode;
 }) {
-  const section = useRef<HTMLElement>(null);
+  const section = useRef<HTMLDivElement>(null);
   const field = useRef<HTMLTextAreaElement>(null);
   const [tried, setTried] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -72,30 +74,32 @@ export function RatingSection({
   };
 
   return (
-    <section ref={section} aria-label="Light" className="flex w-full flex-col items-start gap-2.5">
-      <div role="group" aria-label="Light" className="flex flex-wrap gap-x-1 gap-y-3">
-        {LIGHTS.map((option) => {
-          const chosen = option === shown;
-          return (
-            <button
-              key={option}
-              type="button"
-              aria-pressed={chosen}
-              onClick={() => {
-                setTried(false);
-                setFailed(false);
-                onDraft({ light: option, note: draft?.note ?? '' });
-                requestAnimationFrame(() => field.current?.focus());
-              }}
-              className={`relative flex h-8 cursor-pointer items-center gap-1.5 rounded-sm px-2 text-[13px] font-medium transition-transform duration-150 ease-out before:absolute before:inset-x-0 before:-inset-y-1.5 active:scale-[0.96] ${chosen ? FILL_COLOUR[option] : 'shadow-[inset_0_0_0_1px_var(--line)]'}`}
-            >
-              <span className={chosen ? '' : MARK_COLOUR[option]}>
-                <LightMark light={option} className="size-3" />
-              </span>
-              {LIGHT_COPY[option].label}
-            </button>
-          );
-        })}
+    <div ref={section} className="flex w-full flex-col items-start gap-2.5">
+      <div className="flex w-full justify-between gap-3">
+        <div role="group" aria-label="Light" className="flex gap-1 max-lg:flex-5">
+          {LIGHTS.map((option) => {
+            const chosen = option === shown;
+            return (
+              <button
+                key={option}
+                type="button"
+                aria-label={LIGHT_COPY[option].label}
+                title={LIGHT_COPY[option].label}
+                aria-pressed={chosen}
+                onClick={() => {
+                  setTried(false);
+                  setFailed(false);
+                  onDraft({ light: option, note: draft?.note ?? '' });
+                  requestAnimationFrame(() => field.current?.focus());
+                }}
+                className={`${ICON_BUTTON} ${chosen ? FILL_COLOUR[option] : `shadow-[inset_0_0_0_1px_var(--line)] ${MARK_COLOUR[option]}`}`}
+              >
+                <LightMark light={option} />
+              </button>
+            );
+          })}
+        </div>
+        {beside}
       </div>
       <Meaning light={shown} />
 
@@ -157,6 +161,6 @@ export function RatingSection({
           </div>
         </>
       )}
-    </section>
+    </div>
   );
 }
