@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { DomainError } from '../../kernel/errors.ts';
 import { moveTaskInMap } from './move.ts';
-import type { MapId, StoryMap, TaskId } from './story-map.ts';
+import type { MapId, StepId, StoryMap, TaskId } from './story-map.ts';
 
 const id = (value: string) => value as TaskId;
 
@@ -18,8 +18,8 @@ const map: StoryMap = {
           id: id('b'),
           name: 'B',
           subtasks: [
-            { id: id('b1'), name: 'B1' },
-            { id: id('b2'), name: 'B2' },
+            { id: id('b1'), name: 'B1', steps: [] },
+            { id: id('b2'), name: 'B2', steps: [] },
           ],
         },
         { id: id('c'), name: 'C', subtasks: [] },
@@ -30,7 +30,7 @@ const map: StoryMap = {
       name: 'Second',
       tasks: [
         { id: id('d'), name: 'D', subtasks: [] },
-        { id: id('e'), name: 'E', subtasks: [{ id: id('e1'), name: 'E1' }] },
+        { id: id('e'), name: 'E', subtasks: [{ id: id('e1'), name: 'E1', steps: [] }] },
       ],
     },
     { id: 'act_3', name: 'Empty', tasks: [] },
@@ -131,6 +131,36 @@ describe('a parent losing its last child', () => {
 
   it('reports nothing when the last child only moves within its parent', () => {
     expect(moveTaskInMap(map, id('e1'), { parentId: id('e'), before: null }).emptiedParent).toBeNull();
+  });
+});
+
+describe('a subtask with steps', () => {
+  const step = { id: 'stp_1' as StepId, name: 'A step', note: 'A note' };
+  const withSteps: StoryMap = {
+    ...map,
+    activities: map.activities.map((activity) => ({
+      ...activity,
+      tasks: activity.tasks.map((task) => ({
+        ...task,
+        subtasks: task.subtasks.map((sub) => (sub.id === 'b1' ? { ...sub, steps: [step] } : sub)),
+      })),
+    })),
+  };
+
+  it('keeps them when reordered among its siblings', () => {
+    const { map: moved } = moveTaskInMap(withSteps, id('b1'), { parentId: id('b'), before: null });
+    expect(moved.activities[0]?.tasks[1]?.subtasks[1]).toEqual({ id: 'b1', name: 'B1', steps: [step] });
+  });
+
+  it('takes them to another parent', () => {
+    const { map: moved } = moveTaskInMap(withSteps, id('b1'), { parentId: id('e'), before: null });
+    expect(moved.activities[1]?.tasks[1]?.subtasks[1]?.steps).toEqual([step]);
+  });
+
+  it('can’t become a task, because only subtasks hold steps', () => {
+    expect(codeOf(() => moveTaskInMap(withSteps, id('b1'), { chapterId: 'act_1', before: null }))).toBe(
+      'STEPS_NEED_A_SUBTASK',
+    );
   });
 });
 

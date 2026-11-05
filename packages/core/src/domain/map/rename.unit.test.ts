@@ -14,7 +14,11 @@ const map: StoryMap = {
       name: 'First',
       tasks: [
         { id: id('tsk_leaf'), name: 'On its own', subtasks: [] },
-        { id: id('tsk_parent'), name: 'With children', subtasks: [{ id: id('tsk_child'), name: 'A child' }] },
+        {
+          id: id('tsk_parent'),
+          name: 'With children',
+          subtasks: [{ id: id('tsk_child'), name: 'A child', steps: [] }],
+        },
       ],
     },
     { id: 'act_2', name: 'Second', tasks: [] },

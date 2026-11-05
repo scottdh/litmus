@@ -9,7 +9,13 @@ const task = (id: string, name: string, subtasks: string[] = []) => ({
   review: null,
   earlierReview: null,
   mix: [],
-  subtasks: subtasks.map((sub) => ({ id: sub, name: sub.toUpperCase(), light: 'grey' as const, review: null })),
+  subtasks: subtasks.map((sub) => ({
+    id: sub,
+    name: sub.toUpperCase(),
+    light: 'grey' as const,
+    review: null,
+    steps: [] as { id: string; name: string; note: string }[],
+  })),
 });
 
 const map: MapView = {
@@ -116,5 +122,36 @@ describe('moveChoices', () => {
 
   it('groups choices by chapter, in story order', () => {
     expect(moveChoices(map, 'a').map((group) => group.chapter)).toEqual(['First', 'Second']);
+  });
+});
+
+describe('a subtask with steps', () => {
+  const withSteps: MapView = {
+    ...map,
+    activities: map.activities.map((chapter) => ({
+      ...chapter,
+      tasks: chapter.tasks.map((item) => ({
+        ...item,
+        subtasks: item.subtasks.map((sub) =>
+          sub.id === 'b1' ? { ...sub, steps: [{ id: 'stp_1', name: 'A step', note: '' }] } : sub,
+        ),
+      })),
+    })),
+  };
+
+  it('can’t be dropped among tasks or at the end of a chapter', () => {
+    expect(destinationFor(withSteps, 'b1', { overId: 'a', zone: 'before' })).toBeNull();
+    expect(destinationFor(withSteps, 'b1', { overId: 'act_2', zone: 'end' })).toBeNull();
+  });
+
+  it('can still go among subtasks or inside another task', () => {
+    expect(destinationFor(withSteps, 'b1', { overId: 'b2', zone: 'after' })).toEqual({ parentId: 'b', before: null });
+    expect(destinationFor(withSteps, 'b1', { overId: 'c', zone: 'inside' })).toEqual({ parentId: 'c', before: null });
+  });
+
+  it('isn’t offered the end of a chapter in Move to', () => {
+    const labels = moveChoices(withSteps, 'b1').flatMap((group) => group.choices.map((choice) => choice.label));
+    expect(labels).not.toContain('End of First');
+    expect(labels).toContain('Inside C');
   });
 });

@@ -14,7 +14,11 @@ const map: StoryMap = {
       name: 'First',
       tasks: [
         { id: id('tsk_leaf'), name: 'On its own', subtasks: [] },
-        { id: id('tsk_parent'), name: 'With children', subtasks: [{ id: id('tsk_child'), name: 'A child' }] },
+        {
+          id: id('tsk_parent'),
+          name: 'With children',
+          subtasks: [{ id: id('tsk_child'), name: 'A child', steps: [] }],
+        },
       ],
     },
     { id: 'act_2', name: 'Second', tasks: [] },
@@ -48,7 +52,7 @@ describe('addTask', () => {
 
   it('adds the first subtask to a plain task', () => {
     const added = addTask(map, { id: id('tsk_new'), name: 'New', to: { parentId: id('tsk_leaf') } });
-    expect(added.activities[0]?.tasks[0]?.subtasks).toEqual([{ id: 'tsk_new', name: 'New' }]);
+    expect(added.activities[0]?.tasks[0]?.subtasks).toEqual([{ id: 'tsk_new', name: 'New', steps: [] }]);
   });
 
   it('tidies the name', () => {

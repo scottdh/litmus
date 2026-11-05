@@ -8,6 +8,7 @@ import {
   type Light,
   type MapId,
   type ProductId,
+  type StepId,
   type StoryMap,
   type TaskId,
 } from '../../src/index.ts';
@@ -35,8 +36,8 @@ const map: StoryMap = {
           id: id('tsk_parent'),
           name: 'A task with subtasks',
           subtasks: [
-            { id: id('tsk_a'), name: 'Works' },
-            { id: id('tsk_b'), name: 'Fails' },
+            { id: id('tsk_a'), name: 'Works', steps: [] },
+            { id: id('tsk_b'), name: 'Fails', steps: [{ id: 'stp_1' as StepId, name: 'A step', note: 'A note' }] },
           ],
         },
         { id: id('tsk_unrated'), name: 'Not judged yet', subtasks: [] },
@@ -91,6 +92,17 @@ describe('getMapView', () => {
     const parent = view.activities[0]?.tasks[1];
     expect(parent?.light).toBe('yellow');
     expect(parent?.subtasks.map((sub) => sub.light)).toEqual(['green', 'red']);
+  });
+
+  it('shows a subtask’s steps, and leaves its light and every mix to the ratings', async () => {
+    const view = await getMapView({ maps })(MAP_ID);
+    const parent = view.activities[0]?.tasks[1];
+    expect(parent?.subtasks[1]?.steps).toEqual([{ id: 'stp_1', name: 'A step', note: 'A note' }]);
+    expect(parent?.subtasks[1]?.light).toBe('red');
+    expect(parent?.mix).toEqual([
+      { light: 'green', count: 1 },
+      { light: 'red', count: 1 },
+    ]);
   });
 
   it('shows anything unrated as grey', async () => {

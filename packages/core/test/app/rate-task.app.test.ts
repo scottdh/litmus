@@ -9,6 +9,7 @@ import {
   type MapId,
   type MapRepository,
   type ProductId,
+  type StepId,
   type TaskId,
 } from '../../src/index.ts';
 import { createInMemoryMapRepository } from '../../src/adapters/in-memory/index.ts';
@@ -36,8 +37,8 @@ function repository(): MapRepository {
                 id: PARENT,
                 name: 'With children',
                 subtasks: [
-                  { id: CHILD_A, name: 'One' },
-                  { id: CHILD_B, name: 'Two' },
+                  { id: CHILD_A, name: 'One', steps: [] },
+                  { id: CHILD_B, name: 'Two', steps: [{ id: 'stp_1' as StepId, name: 'A step', note: '' }] },
                 ],
               },
             ],
@@ -62,6 +63,13 @@ const codeOf = async (attempt: Promise<unknown>) => {
 };
 
 describe('rating a task', () => {
+  it('still rates a subtask with steps, because steps take no light', async () => {
+    const maps = repository();
+    await rateTask({ maps, clock })({ mapId: MAP_ID, taskId: CHILD_B, light: 'green', note: 'Fine on the test site.' });
+    const view = await getMapView({ maps })(MAP_ID);
+    expect(view.activities[0]?.tasks[1]?.subtasks[1]?.light).toBe('green');
+  });
+
   it('sets the light and shows the review', async () => {
     const maps = repository();
     await set(maps, LEAF, 'yellow', 'Prices are buried three steps in.');
