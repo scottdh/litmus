@@ -1,4 +1,5 @@
 'use client';
+import { BUTTON } from './button-style';
 import { LightMark } from './light-mark';
 import { LIGHT_COPY, MARK_COLOUR } from './lights';
 import { NameField } from './name-field';
@@ -96,11 +97,7 @@ export function Drawer({
           </ul>
         </div>
       )}
-      <button
-        type="button"
-        onClick={onClose}
-        className="relative mt-2 h-8 cursor-pointer rounded-sm px-2 text-[13px] font-medium shadow-raised transition-transform duration-150 ease-out before:absolute before:inset-x-0 before:-inset-y-1.5 active:scale-[0.96]"
-      >
+      <button type="button" onClick={onClose} className={`${BUTTON} mt-2 shadow-raised`}>
         Done
       </button>
     </aside>

@@ -1,6 +1,7 @@
 'use client';
 import { LIGHTS, type Light, type MapView } from '@litmus/core';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { BUTTON } from './button-style';
 import { Chapter } from './chapter';
 import { Drawer } from './drawer';
 import { chapterState, focusSummary } from './focus';
@@ -10,9 +11,6 @@ import type { ReviewDraft } from './rating-section';
 import type { Rate, Rename } from './rename-result';
 import { findSubject } from './subject';
 import { useChapterFocus } from './use-chapter-focus';
-
-const TOOLBAR_BUTTON =
-  'relative h-8 shrink-0 cursor-pointer rounded-sm px-2 text-[13px] font-medium shadow-raised transition-transform duration-150 ease-out before:absolute before:inset-x-0 before:-inset-y-1.5 active:scale-[0.96]';
 
 /** Puts typed-but-unsaved names over the map, so it follows what's being typed. */
 function withDrafts(map: MapView, drafts: Record<string, string>): MapView {
@@ -197,12 +195,12 @@ export function StoryWall({
                 // This button is about to disappear, so keyboard users need somewhere to land.
                 expandAll.current?.focus();
               }}
-              className={TOOLBAR_BUTTON}
+              className={`${BUTTON} shrink-0 shadow-raised`}
             >
               Show the whole story
             </button>
           )}
-          <button ref={expandAll} type="button" onClick={toggleAll} className={TOOLBAR_BUTTON}>
+          <button ref={expandAll} type="button" onClick={toggleAll} className={`${BUTTON} shrink-0 shadow-raised`}>
             {allOpen ? 'Collapse all' : 'Expand all'}
           </button>
         </div>

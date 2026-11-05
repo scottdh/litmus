@@ -1,6 +1,7 @@
 'use client';
 import { LIGHTS, needsEvidence, type Light } from '@litmus/core';
 import { useRef, useState } from 'react';
+import { BUTTON } from './button-style';
 import { LightMark } from './light-mark';
 import { FILL_COLOUR, LIGHT_COPY, MARK_COLOUR } from './lights';
 import type { Rate } from './rename-result';
@@ -9,9 +10,6 @@ export interface ReviewDraft {
   light: Light;
   note: string;
 }
-
-const SECONDARY_BUTTON =
-  'relative h-8 cursor-pointer rounded-sm px-2 text-[13px] font-medium transition-transform duration-150 ease-out before:absolute before:inset-x-0 before:-inset-y-1.5 active:scale-[0.96]';
 
 function Meaning({ light }: { light: Light }) {
   return (
@@ -149,15 +147,11 @@ export function RatingSection({
               onClick={() => {
                 void save();
               }}
-              className={`${SECONDARY_BUTTON} shadow-raised aria-disabled:cursor-not-allowed aria-disabled:text-muted`}
+              className={`${BUTTON} shadow-raised aria-disabled:cursor-not-allowed aria-disabled:text-muted`}
             >
               {draft.light === light ? 'Save review' : `Set to ${LIGHT_COPY[draft.light].label.toLowerCase()}`}
             </button>
-            <button
-              type="button"
-              onClick={finish}
-              className={`${SECONDARY_BUTTON} text-muted transition-colors hover:text-ink`}
-            >
+            <button type="button" onClick={finish} className={`${BUTTON} text-muted transition-colors hover:text-ink`}>
               Cancel
             </button>
           </div>
