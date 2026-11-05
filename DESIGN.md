@@ -50,7 +50,11 @@ Shared components live in `apps/web/src/ui` and are the only place that imports 
 
 ### Chapter
 
-`apps/web/src/features/map/chapter.tsx`. One activity in the story, in one of three states: at rest, focused, or in the background. In the background it shows only its number and name, because that's all a squad needs to add it to the focus. Don't show tasks or health there. `docs/designs/focus-direction.md` has the reasoning.
+`apps/web/src/features/map/chapter.tsx`. One activity in the story, in one of three states: at rest, focused, or in the background. In the background it shows only its number and name, because that's all a squad needs to add it to the focus. Don't show tasks or health there. A row opens the drawer, and only the chevron and mix bar expand subtasks. `docs/designs/focus-direction.md` has the reasoning.
+
+### Drawer
+
+`apps/web/src/features/map/drawer.tsx`. Where a task's detail lives, and where names are edited. It sits beside the story in the page flow, not over it, so the map stays usable and the page doesn't move vertically. On a phone it fills the screen. Add new task detail here rather than to the row. `docs/designs/task-drawer-direction.md` has the reasoning.
 
 ### LightMark
 

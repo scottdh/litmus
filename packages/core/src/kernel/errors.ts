@@ -15,4 +15,5 @@ export class DomainError extends Error {
 
 export const invariantViolation = (code: string, message: string) =>
   new DomainError('InvariantViolation', code, message);
+export const validationError = (code: string, message: string) => new DomainError('ValidationError', code, message);
 export const notFound = (code: string, message: string) => new DomainError('NotFound', code, message);

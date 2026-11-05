@@ -9,4 +9,5 @@ export interface MapRecord {
 
 export interface MapRepository {
   find(id: MapId): Promise<MapRecord | null>;
+  save(record: MapRecord): Promise<void>;
 }
