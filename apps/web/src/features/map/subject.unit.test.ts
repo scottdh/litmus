@@ -28,7 +28,15 @@ const map: MapView = {
           light: 'yellow',
           review: null,
           earlierReview: null,
-          subtasks: [{ id: 'tsk_child', name: 'A child', light: 'green', review: 'Fine.' }],
+          subtasks: [
+            {
+              id: 'tsk_child',
+              name: 'A child',
+              light: 'green',
+              review: 'Fine.',
+              steps: [{ id: 'stp_1', name: 'A step', note: 'A note' }],
+            },
+          ],
           mix: [],
         },
       ],
@@ -58,6 +66,7 @@ describe('findSubject', () => {
       review: 'Broken.',
       earlierReview: null,
       subtasks: [],
+      steps: [],
     });
   });
 
@@ -79,6 +88,18 @@ describe('findSubject', () => {
       review: 'Fine.',
       earlierReview: null,
       subtasks: [],
+      steps: [{ id: 'stp_1', name: 'A step', note: 'A note' }],
+    });
+  });
+
+  it('finds a step, with its subtask in the path', () => {
+    expect(findSubject(map, 'stp_1')).toEqual({
+      kind: 'step',
+      id: 'stp_1',
+      name: 'A step',
+      note: 'A note',
+      chapterId: 'act_2',
+      path: 'Chapter 2 · Second · With children · A child',
     });
   });
 

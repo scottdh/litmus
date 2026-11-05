@@ -43,7 +43,7 @@ function repository(): MapRepository {
             tasks: [
               { id: id('a'), name: 'A', subtasks: [] },
               { id: id('b'), name: 'B', subtasks: [] },
-              { id: id('p'), name: 'P', subtasks: [{ id: id('p1'), name: 'P1' }] },
+              { id: id('p'), name: 'P', subtasks: [{ id: id('p1'), name: 'P1', steps: [] }] },
             ],
           },
         ],
