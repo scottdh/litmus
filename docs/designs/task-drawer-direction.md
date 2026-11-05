@@ -46,7 +46,7 @@ An X at the top closes it. The prototype had a Done button under the content; Sc
 
 Scott's decisions, on 2026-11-05:
 
-1. Tasks nest two levels deep. A drop that would make three is blocked, because the parent light rule and the row layout both assume two.
+1. Tasks nest two levels deep. A drop that would make three is blocked, because the parent light rule and the row layout both assume two. Steps sit under subtasks without changing this, because they aren't tasks and take no light (`docs/designs/steps-direction.md`).
 2. When a task becomes a parent, its review stays in the drawer, marked as no longer driving the colour.
 3. When a parent loses its last child, it becomes a plain task showing grey, which matches "unrated". Any rating from before it was a parent goes with it.
 

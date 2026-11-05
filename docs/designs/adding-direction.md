@@ -7,7 +7,7 @@ Built on 2026-11-05 at Scott's request, without a prototype round, because the p
 How it works:
 
 - **Task:** every chapter ends in Add task. It's always visible, because hover-only controls fail on touch. Enter adds and clears the field for the next, so a chapter can be typed out in one go. Enter on an empty field or Esc finishes. Leaving the field adds anything typed.
-- **Subtask:** Add subtask in a task's drawer, working the same way. It isn't on subtasks, because tasks nest two levels at most.
+- **Subtask:** Add subtask in a task's drawer, working the same way. It isn't on subtasks, because tasks nest two levels at most. A subtask's drawer has Add step instead, which works the same way (`docs/designs/steps-direction.md`).
 - **Chapter:** Add chapter ends the story, and a chapter's drawer has Add chapter before and after, because chapters can't be moved yet and narrative order matters. Enter adds it and goes straight to its first task. If a focus is on, the new chapter joins it, otherwise it would land on a rail where it can't take tasks.
 - **Mistakes:** the latest add has the same Undo as a move, because nothing can be deleted yet.
 
