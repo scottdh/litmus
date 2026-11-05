@@ -11,15 +11,6 @@ export interface ReviewDraft {
   note: string;
 }
 
-function Meaning({ light }: { light: Light }) {
-  return (
-    <p className="text-[13px] leading-snug text-pretty text-muted">
-      {LIGHT_COPY[light].meaning}
-      {light === 'green' && ' Deployed to a real environment, with realistic data. Mocks don’t count.'}
-    </p>
-  );
-}
-
 /** Pick a light, say why, then set it. The map keeps the old light until then. */
 export function RatingSection({
   mapId,
@@ -101,7 +92,7 @@ export function RatingSection({
         </div>
         {beside}
       </div>
-      <Meaning light={shown} />
+      <p className="text-[13px] leading-snug text-pretty text-muted">{LIGHT_COPY[shown].meaning}</p>
 
       {draft === null ? (
         review !== null && <p className="text-[14px] leading-snug text-pretty whitespace-pre-wrap">{review}</p>
