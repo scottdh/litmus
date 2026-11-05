@@ -1,6 +1,6 @@
 'use client';
 import { LIGHTS, type Light, type MapView } from '@litmus/core';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Chapter } from './chapter';
 import { Drawer } from './drawer';
 import { chapterState, focusSummary } from './focus';
@@ -49,10 +49,12 @@ export function StoryWall({ map: savedMap, isSample, rename }: { map: MapView; i
   // A chapter that's gone to the background has no tasks on show, so its drawer closes too.
   const subject = found && (focus.length === 0 || focus.includes(found.chapterId)) ? found : null;
 
-  const closeDrawer = () => {
-    if (selectedId !== null) document.getElementById(`open-${selectedId}`)?.focus({ preventScroll: true });
-    setSelectedId(null);
-  };
+  const closeDrawer = useCallback(() => {
+    setSelectedId((id) => {
+      if (id !== null) document.getElementById(`open-${id}`)?.focus({ preventScroll: true });
+      return null;
+    });
+  }, []);
 
   const openDrawer = (id: string) => {
     setSaveFailed(false);
@@ -63,18 +65,17 @@ export function StoryWall({ map: savedMap, isSample, rename }: { map: MapView; i
     });
   };
 
+  const drawerOpen = selectedId !== null;
   useEffect(() => {
-    if (selectedId === null) return;
+    if (!drawerOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return;
-      document.getElementById(`open-${selectedId}`)?.focus({ preventScroll: true });
-      setSelectedId(null);
+      if (event.key === 'Escape') closeDrawer();
     };
     document.addEventListener('keydown', onKeyDown);
     return () => {
       document.removeEventListener('keydown', onKeyDown);
     };
-  }, [selectedId]);
+  }, [drawerOpen, closeDrawer]);
 
   const dropDraft = (id: string) => {
     setDrafts((current) => Object.fromEntries(Object.entries(current).filter(([key]) => key !== id)));
