@@ -1,7 +1,16 @@
 'use server';
 import { DomainError, LIGHTS, type AddDestination, type Light, type MoveDestination, type TaskId } from '@litmus/core';
 import { revalidatePath } from 'next/cache';
-import { addChapterOnMap, addTaskOnMap, moveOnMap, rateOnMap, renameOnMap, undoChangeOnMap } from '../composition';
+import {
+  addChapterOnMap,
+  addStepOnMap,
+  addTaskOnMap,
+  moveOnMap,
+  rateOnMap,
+  renameOnMap,
+  setStepNoteOnMap,
+  undoChangeOnMap,
+} from '../composition';
 import type { AddResult, MoveResult, RenameResult } from '../features/map/rename-result';
 
 /** Domain failures go back as stable codes, so a raw message never reaches the page. */
@@ -28,7 +37,7 @@ export async function renameAction(input: {
     typeof mapId !== 'string' ||
     typeof id !== 'string' ||
     typeof name !== 'string' ||
-    (kind !== 'chapter' && kind !== 'task')
+    (kind !== 'chapter' && kind !== 'task' && kind !== 'step')
   ) {
     return { ok: false, code: 'INVALID_INPUT' };
   }
@@ -100,6 +109,22 @@ export async function addTaskAction(input: { mapId: unknown; name: unknown; to: 
     return { ok: false, code: 'INVALID_INPUT' };
   }
   return runAdd(() => addTaskOnMap({ mapId, name, to }));
+}
+
+export async function addStepAction(input: { mapId: unknown; name: unknown; subtaskId: unknown }): Promise<AddResult> {
+  const { mapId, name, subtaskId } = input;
+  if (typeof mapId !== 'string' || typeof name !== 'string' || typeof subtaskId !== 'string') {
+    return { ok: false, code: 'INVALID_INPUT' };
+  }
+  return runAdd(() => addStepOnMap({ mapId, name, subtaskId }));
+}
+
+export async function noteStepAction(input: { mapId: unknown; id: unknown; note: unknown }): Promise<RenameResult> {
+  const { mapId, id, note } = input;
+  if (typeof mapId !== 'string' || typeof id !== 'string' || typeof note !== 'string') {
+    return { ok: false, code: 'INVALID_INPUT' };
+  }
+  return run(() => setStepNoteOnMap({ mapId, id, note }));
 }
 
 export async function addChapterAction(input: { mapId: unknown; name: unknown; before: unknown }): Promise<AddResult> {

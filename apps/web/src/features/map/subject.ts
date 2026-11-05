@@ -3,6 +3,7 @@ import type { Light, MapView } from '@litmus/core';
 /** Whatever the drawer is showing. */
 export type Subject =
   | { kind: 'chapter'; id: string; name: string; chapterId: string; path: string }
+  | { kind: 'step'; id: string; name: string; note: string; chapterId: string; path: string }
   | {
       kind: 'task' | 'subtask';
       id: string;
@@ -14,6 +15,8 @@ export type Subject =
       earlierReview: string | null;
       /** Empty unless this task's light follows from its subtasks. */
       subtasks: { id: string; name: string; light: Light }[];
+      /** Only a subtask has these. */
+      steps: { id: string; name: string }[];
     };
 
 export function findSubject(map: MapView, id: string): Subject | null {
@@ -33,21 +36,35 @@ export function findSubject(map: MapView, id: string): Subject | null {
           review: task.review,
           earlierReview: task.earlierReview,
           subtasks: task.subtasks,
+          steps: [],
         };
       }
-      const sub = task.subtasks.find((other) => other.id === id);
-      if (sub) {
-        return {
-          kind: 'subtask',
-          id,
-          name: sub.name,
-          chapterId: chapter.id,
-          path: `${place} · ${chapter.name} · ${task.name}`,
-          light: sub.light,
-          review: sub.review,
-          earlierReview: null,
-          subtasks: [],
-        };
+      for (const sub of task.subtasks) {
+        if (sub.id === id) {
+          return {
+            kind: 'subtask',
+            id,
+            name: sub.name,
+            chapterId: chapter.id,
+            path: `${place} · ${chapter.name} · ${task.name}`,
+            light: sub.light,
+            review: sub.review,
+            earlierReview: null,
+            subtasks: [],
+            steps: sub.steps,
+          };
+        }
+        const step = sub.steps.find((other) => other.id === id);
+        if (step) {
+          return {
+            kind: 'step',
+            id,
+            name: step.name,
+            note: step.note,
+            chapterId: chapter.id,
+            path: `${place} · ${chapter.name} · ${task.name} · ${sub.name}`,
+          };
+        }
       }
     }
   }

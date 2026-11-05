@@ -7,7 +7,6 @@ import {
   type MapId,
   type MapRepository,
   type ProductId,
-  type StepId,
   type TaskId,
 } from '../../src/index.ts';
 import { createInMemoryMapRepository } from '../../src/adapters/in-memory/index.ts';
@@ -57,14 +56,14 @@ describe('steps', () => {
   it('keeps a renamed step', async () => {
     const maps = repository();
     const { id } = await addStepToMap({ maps, newId })({ mapId: MAP_ID, name: 'Fresh', subtaskId: CHILD });
-    await renameStepInMap({ maps })({ mapId: MAP_ID, stepId: id as StepId, name: 'Renamed' });
+    await renameStepInMap({ maps })({ mapId: MAP_ID, stepId: id, name: 'Renamed' });
     expect((await stepsOf(maps))?.[0]?.name).toBe('Renamed');
   });
 
   it('keeps a step’s note', async () => {
     const maps = repository();
     const { id } = await addStepToMap({ maps, newId })({ mapId: MAP_ID, name: 'Fresh', subtaskId: CHILD });
-    await setStepNoteInMap({ maps })({ mapId: MAP_ID, stepId: id as StepId, note: 'Invented research.' });
+    await setStepNoteInMap({ maps })({ mapId: MAP_ID, stepId: id, note: 'Invented research.' });
     expect((await stepsOf(maps))?.[0]?.note).toBe('Invented research.');
   });
 

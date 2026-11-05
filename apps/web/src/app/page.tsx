@@ -1,6 +1,15 @@
 import { loadMap } from '../composition';
 import { StoryWall } from '../features/map/story-wall';
-import { addChapterAction, addTaskAction, moveAction, rateAction, renameAction, undoChangeAction } from './actions';
+import {
+  addChapterAction,
+  addStepAction,
+  addTaskAction,
+  moveAction,
+  noteStepAction,
+  rateAction,
+  renameAction,
+  undoChangeAction,
+} from './actions';
 
 // The map can change, so it isn't prerendered.
 export const dynamic = 'force-dynamic';
@@ -16,6 +25,8 @@ export default async function HomePage() {
       move={moveAction}
       undoChange={undoChangeAction}
       addTask={addTaskAction}
+      addStep={addStepAction}
+      noteStep={noteStepAction}
       addChapter={addChapterAction}
     />
   );
