@@ -10,7 +10,17 @@ import { chapterState, focusSummary } from './focus';
 import { LightMark } from './light-mark';
 import { FILL_COLOUR, LIGHT_COPY } from './lights';
 import type { ReviewDraft } from './rating-section';
-import type { AddChapter, AddResult, AddTask, Move, Rate, Rename, UndoChange } from './rename-result';
+import type {
+  AddChapter,
+  AddResult,
+  AddStep,
+  AddTask,
+  Move,
+  NoteStep,
+  Rate,
+  Rename,
+  UndoChange,
+} from './rename-result';
 import { findSubject } from './subject';
 import { useChapterFocus } from './use-chapter-focus';
 import { useTaskDrag } from './use-task-drag';
@@ -27,7 +37,10 @@ function withDrafts(map: MapView, drafts: Record<string, string>): MapView {
     ...map,
     activities: map.activities.map((activity) => ({
       ...apply(activity),
-      tasks: activity.tasks.map((task) => ({ ...apply(task), subtasks: task.subtasks.map(apply) })),
+      tasks: activity.tasks.map((task) => ({
+        ...apply(task),
+        subtasks: task.subtasks.map((sub) => ({ ...apply(sub), steps: sub.steps.map(apply) })),
+      })),
     })),
   };
 }
@@ -40,6 +53,8 @@ export function StoryWall({
   move,
   undoChange,
   addTask,
+  addStep,
+  noteStep,
   addChapter,
 }: {
   map: MapView;
@@ -49,6 +64,8 @@ export function StoryWall({
   move: Move;
   undoChange: UndoChange;
   addTask: AddTask;
+  addStep: AddStep;
+  noteStep: NoteStep;
   addChapter: AddChapter;
 }) {
   const [reviewDrafts, setReviewDrafts] = useState<Record<string, ReviewDraft>>({});
@@ -174,7 +191,7 @@ export function StoryWall({
     setDrafts((current) => Object.fromEntries(Object.entries(current).filter(([key]) => key !== id)));
   };
 
-  const saveName = (id: string, kind: 'chapter' | 'task', name: string) => {
+  const saveName = (id: string, kind: 'chapter' | 'task' | 'step', name: string) => {
     setSaveFailed(false);
     void rename({ mapId: savedMap.id, kind, id, name }).then(
       (result) => {
@@ -381,8 +398,8 @@ export function StoryWall({
                 return draft === null ? rest : { ...rest, [subject.id]: draft };
               });
             }}
-            onOpenSubtask={(id) => {
-              // So the subtask's row is on show, for its underline and to return focus to.
+            onOpenChild={(id) => {
+              // So the child's row is on show, for its underline and to return focus to.
               toggleTask(subject.id, true);
               openDrawer(id);
             }}
@@ -391,7 +408,8 @@ export function StoryWall({
               setDrafts((current) => ({ ...current, [subject.id]: name }));
             }}
             onSave={(name) => {
-              saveName(subject.id, subject.kind === 'chapter' ? 'chapter' : 'task', name);
+              const kind = subject.kind === 'subtask' ? 'task' : subject.kind;
+              saveName(subject.id, kind, name);
             }}
             onClose={closeDrawer}
             onAddSubtask={(name) => {
@@ -399,6 +417,12 @@ export function StoryWall({
                 toggleTask(subject.id, true);
               });
             }}
+            onAddStep={(name) => {
+              report(name, addStep({ mapId: savedMap.id, name, subtaskId: subject.id }), () => {
+                toggleTask(subject.id, true);
+              });
+            }}
+            onNote={(note) => noteStep({ mapId: savedMap.id, id: subject.id, note })}
             onAddChapter={(where) => {
               const index = map.activities.findIndex((activity) => activity.id === subject.id);
               setSelectedId(null);

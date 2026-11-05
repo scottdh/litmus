@@ -1,12 +1,15 @@
 import {
   addChapter,
+  addStepToMap,
   addTaskToMap,
   getMapView,
   invariantViolation,
   moveTask,
   rateTask,
   renameChapter,
+  renameStepInMap,
   renameTaskInMap,
+  setStepNoteInMap,
   undoChange,
   type AddDestination,
   type Clock,
@@ -16,6 +19,7 @@ import {
   type MapRecord,
   type MapRepository,
   type MoveDestination,
+  type StepId,
   type TaskId,
 } from '@litmus/core';
 import { SAMPLE_MAP_ID, createSampleMapRepository } from '@litmus/core/in-memory';
@@ -42,11 +46,12 @@ export async function renameOnMap({
   name,
 }: {
   mapId: string;
-  kind: 'chapter' | 'task';
+  kind: 'chapter' | 'task' | 'step';
   id: string;
   name: string;
 }) {
   if (kind === 'chapter') await renameChapter({ maps })({ mapId: mapId as MapId, activityId: id, name });
+  else if (kind === 'step') await renameStepInMap({ maps })({ mapId: mapId as MapId, stepId: id as StepId, name });
   else await renameTaskInMap({ maps })({ mapId: mapId as MapId, taskId: id as TaskId, name });
 }
 
@@ -70,6 +75,19 @@ function remember(mapId: MapId, before: MapRecord, after: MapRecord) {
 export async function addTaskOnMap({ mapId, name, to }: { mapId: string; name: string; to: AddDestination }) {
   const { id, before, after } = await addTaskToMap({ maps, newId })({ mapId: mapId as MapId, name, to });
   return { id, undoToken: remember(mapId as MapId, before, after) };
+}
+
+export async function addStepOnMap({ mapId, name, subtaskId }: { mapId: string; name: string; subtaskId: string }) {
+  const { id, before, after } = await addStepToMap({ maps, newId })({
+    mapId: mapId as MapId,
+    name,
+    subtaskId: subtaskId as TaskId,
+  });
+  return { id, undoToken: remember(mapId as MapId, before, after) };
+}
+
+export async function setStepNoteOnMap({ mapId, id, note }: { mapId: string; id: string; note: string }) {
+  await setStepNoteInMap({ maps })({ mapId: mapId as MapId, stepId: id as StepId, note });
 }
 
 export async function addChapterOnMap({
