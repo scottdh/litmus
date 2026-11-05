@@ -4,6 +4,18 @@ import { revalidatePath } from 'next/cache';
 import { moveOnMap, rateOnMap, renameOnMap, undoMoveOnMap } from '../composition';
 import type { MoveResult, RenameResult } from '../features/map/rename-result';
 
+/** Domain failures go back as stable codes, so a raw message never reaches the page. */
+async function run(change: () => Promise<void>): Promise<RenameResult> {
+  try {
+    await change();
+  } catch (error) {
+    if (error instanceof DomainError) return { ok: false, code: error.code };
+    throw error;
+  }
+  revalidatePath('/');
+  return { ok: true };
+}
+
 /** Reachable by anyone who can reach the server, so nothing about the input is assumed. */
 export async function renameAction(input: {
   mapId: unknown;
@@ -20,14 +32,7 @@ export async function renameAction(input: {
   ) {
     return { ok: false, code: 'INVALID_INPUT' };
   }
-  try {
-    await renameOnMap({ mapId, kind, id, name });
-  } catch (error) {
-    if (error instanceof DomainError) return { ok: false, code: error.code };
-    throw error;
-  }
-  revalidatePath('/');
-  return { ok: true };
+  return run(() => renameOnMap({ mapId, kind, id, name }));
 }
 
 const isLight = (value: unknown): value is Light => LIGHTS.some((light) => light === value);
@@ -42,14 +47,7 @@ export async function rateAction(input: {
   if (typeof mapId !== 'string' || typeof id !== 'string' || typeof note !== 'string' || !isLight(light)) {
     return { ok: false, code: 'INVALID_INPUT' };
   }
-  try {
-    await rateOnMap({ mapId, id, light, note });
-  } catch (error) {
-    if (error instanceof DomainError) return { ok: false, code: error.code };
-    throw error;
-  }
-  revalidatePath('/');
-  return { ok: true };
+  return run(() => rateOnMap({ mapId, id, light, note }));
 }
 
 function readDestination(to: unknown): MoveDestination | null {
@@ -78,12 +76,5 @@ export async function moveAction(input: { mapId: unknown; id: unknown; to: unkno
 
 export async function undoMoveAction(token: unknown): Promise<RenameResult> {
   if (typeof token !== 'string') return { ok: false, code: 'INVALID_INPUT' };
-  try {
-    await undoMoveOnMap(token);
-  } catch (error) {
-    if (error instanceof DomainError) return { ok: false, code: error.code };
-    throw error;
-  }
-  revalidatePath('/');
-  return { ok: true };
+  return run(() => undoMoveOnMap(token));
 }
