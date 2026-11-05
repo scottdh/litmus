@@ -13,12 +13,21 @@ const map: MapView = {
       name: 'Second',
       mix: [],
       tasks: [
-        { id: 'tsk_leaf', name: 'On its own', light: 'red', review: 'Broken.', subtasks: [], mix: [] },
+        {
+          id: 'tsk_leaf',
+          name: 'On its own',
+          light: 'red',
+          review: 'Broken.',
+          earlierReview: null,
+          subtasks: [],
+          mix: [],
+        },
         {
           id: 'tsk_parent',
           name: 'With children',
           light: 'yellow',
           review: null,
+          earlierReview: null,
           subtasks: [{ id: 'tsk_child', name: 'A child', light: 'green', review: 'Fine.' }],
           mix: [],
         },
@@ -47,6 +56,7 @@ describe('findSubject', () => {
       path: 'Chapter 2 · Second',
       light: 'red',
       review: 'Broken.',
+      earlierReview: null,
       subtasks: [],
     });
   });
@@ -67,6 +77,7 @@ describe('findSubject', () => {
       path: 'Chapter 2 · Second · With children',
       light: 'green',
       review: 'Fine.',
+      earlierReview: null,
       subtasks: [],
     });
   });

@@ -1,7 +1,10 @@
 'use client';
+import type { MapView } from '@litmus/core';
 import { BUTTON } from './button-style';
 import { LightMark } from './light-mark';
 import { LIGHT_COPY, MARK_COLOUR } from './lights';
+import type { Destination } from './drop';
+import { MoveSection } from './move-section';
 import { NameField } from './name-field';
 import { RatingSection, type ReviewDraft } from './rating-section';
 import type { Rate } from './rename-result';
@@ -11,6 +14,8 @@ const LABEL: Record<Subject['kind'], string> = { chapter: 'Chapter name', task: 
 
 /** Sits beside the story rather than over it, so the map and its controls stay usable. On a phone it fills the screen. */
 export function Drawer({
+  map,
+  onMove,
   mapId,
   rate,
   reviewDraft,
@@ -21,6 +26,8 @@ export function Drawer({
   onSave,
   onClose,
 }: {
+  map: MapView;
+  onMove: (to: Destination) => void;
   mapId: string;
   rate: Rate;
   reviewDraft: ReviewDraft | null;
@@ -95,8 +102,17 @@ export function Drawer({
               </li>
             ))}
           </ul>
+          {subject.earlierReview !== null && (
+            <div className="mt-2 flex flex-col gap-1">
+              <p className="text-[13px] text-pretty text-muted">
+                Earlier review, from before it had subtasks. It no longer sets the colour.
+              </p>
+              <p className="text-pretty whitespace-pre-wrap text-muted">{subject.earlierReview}</p>
+            </div>
+          )}
         </div>
       )}
+      {subject.kind !== 'chapter' && <MoveSection map={map} id={subject.id} onMove={onMove} />}
       <button type="button" onClick={onClose} className={`${BUTTON} mt-2 shadow-raised`}>
         Done
       </button>

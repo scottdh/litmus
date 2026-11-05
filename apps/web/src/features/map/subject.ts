@@ -11,6 +11,7 @@ export type Subject =
       path: string;
       light: Light;
       review: string | null;
+      earlierReview: string | null;
       /** Empty unless this task's light follows from its subtasks. */
       subtasks: { id: string; name: string; light: Light }[];
     };
@@ -30,6 +31,7 @@ export function findSubject(map: MapView, id: string): Subject | null {
           path: `${place} · ${chapter.name}`,
           light: task.light,
           review: task.review,
+          earlierReview: task.earlierReview,
           subtasks: task.subtasks,
         };
       }
@@ -43,6 +45,7 @@ export function findSubject(map: MapView, id: string): Subject | null {
           path: `${place} · ${chapter.name} · ${task.name}`,
           light: sub.light,
           review: sub.review,
+          earlierReview: null,
           subtasks: [],
         };
       }

@@ -1,5 +1,6 @@
 'use client';
 import type { ActivityView, Light, TaskView } from '@litmus/core';
+import type { PointerEvent } from 'react';
 import { DisclosurePanel, DisclosureRoot, DisclosureTrigger } from '../../ui/disclosure';
 import type { ChapterState } from './focus';
 import { LightMark } from './light-mark';
@@ -24,6 +25,8 @@ function TaskRow({
   open,
   dim,
   selectedId,
+  draggingId,
+  onStartDrag,
   onOpenDrawer,
   onToggle,
 }: {
@@ -31,15 +34,20 @@ function TaskRow({
   open: boolean;
   dim: Light | null;
   selectedId: string | null;
+  draggingId: string | null;
+  onStartDrag: (id: string, name: string, event: PointerEvent) => void;
   onOpenDrawer: (id: string) => void;
   onToggle: (open: boolean) => void;
 }) {
-  const dimmed = isTaskDimmed(task, dim) ? DIMMED : '';
+  const dimmed = isTaskDimmed(task, dim) || draggingId === task.id ? DIMMED : '';
   const opensDrawer = (
     <button
       type="button"
       id={`open-${task.id}`}
       aria-current={selectedId === task.id ? 'true' : undefined}
+      onPointerDown={(event) => {
+        onStartDrag(task.id, task.name, event);
+      }}
       onClick={() => {
         onOpenDrawer(task.id);
       }}
@@ -54,12 +62,19 @@ function TaskRow({
   );
 
   if (task.subtasks.length === 0) {
-    return <div className={`flex transition-opacity duration-150 ease-out ${dimmed}`}>{opensDrawer}</div>;
+    return (
+      <div data-drop-task={task.id} className={`flex transition-opacity duration-150 ease-out ${dimmed}`}>
+        {opensDrawer}
+      </div>
+    );
   }
 
   return (
     <DisclosureRoot open={open} onOpenChange={onToggle}>
-      <div className={`flex items-start gap-2 transition-opacity duration-150 ease-out ${dimmed}`}>
+      <div
+        data-drop-task={task.id}
+        className={`flex items-start gap-2 transition-opacity duration-150 ease-out ${dimmed}`}
+      >
         {opensDrawer}
         <DisclosureTrigger
           aria-label={`${subtaskCount(task.subtasks.length)} of ${task.name}`}
@@ -88,12 +103,16 @@ function TaskRow({
           {task.subtasks.map((sub) => (
             <li
               key={sub.id}
-              className={`transition-opacity duration-150 ease-out ${isDimmed(sub.light, dim) ? DIMMED : ''}`}
+              data-drop-task={sub.id}
+              className={`transition-opacity duration-150 ease-out ${isDimmed(sub.light, dim) || draggingId === sub.id ? DIMMED : ''}`}
             >
               <button
                 type="button"
                 id={`open-${sub.id}`}
                 aria-current={selectedId === sub.id ? 'true' : undefined}
+                onPointerDown={(event) => {
+                  onStartDrag(sub.id, sub.name, event);
+                }}
                 onClick={() => {
                   onOpenDrawer(sub.id);
                 }}
@@ -136,6 +155,8 @@ export function Chapter({
   dim,
   openTasks,
   selectedId,
+  draggingId,
+  onStartDrag,
   onOpenDrawer,
   onToggleFocus,
   onToggleTask,
@@ -147,6 +168,8 @@ export function Chapter({
   dim: Light | null;
   openTasks: ReadonlySet<string>;
   selectedId: string | null;
+  draggingId: string | null;
+  onStartDrag: (id: string, name: string, event: PointerEvent) => void;
   onOpenDrawer: (id: string) => void;
   onToggleFocus: () => void;
   onToggleTask: (id: string, open: boolean) => void;
@@ -157,6 +180,7 @@ export function Chapter({
   return (
     <section
       aria-labelledby={`${activity.id}-name`}
+      data-drop-chapter={activity.id}
       className={`group/chapter relative shrink-0 lg:overflow-x-clip lg:border-l-(length:--hairline) lg:border-line lg:[overflow-clip-margin:6px] lg:first:border-l-0 lg:first:pl-0 ${inBackground ? 'lg:w-29 lg:px-3.5' : 'lg:w-68 lg:px-5'} ${animate ? COLUMN_MOTION : ''}`}
     >
       <div className="lg:w-58 lg:group-first/chapter:w-63">
@@ -221,6 +245,8 @@ export function Chapter({
                     open={openTasks.has(task.id)}
                     dim={dim}
                     selectedId={selectedId}
+                    draggingId={draggingId}
+                    onStartDrag={onStartDrag}
                     onOpenDrawer={onOpenDrawer}
                     onToggle={(next) => {
                       onToggleTask(task.id, next);
