@@ -37,7 +37,9 @@ This goes on the face of the map, so nobody reads green as "ship it":
 
 ## Evidence
 
-Evidence is one of: a heuristic review, a quote, a clip or a metric.
+Evidence is one of: a review note, a heuristic review, a quote, a clip or a metric.
+
+**A review note is what people write today.** It's a line or two saying why the task has its light, typed when the light is set, and it's enough to pass the evidence rule. The structured kinds aren't entered in the product yet. They're a later iteration, most likely added by AI from research such as interview transcripts, and a human still sets the colour. See `docs/designs/rating-direction.md`.
 
 **Record violations, not scores.** A heuristic review lists only the heuristics actually violated, each with a severity (cosmetic, minor or major). A review with no violations is valid evidence for green. Green can carry a cosmetic violation, but nothing above that.
 
