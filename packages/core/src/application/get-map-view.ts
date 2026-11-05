@@ -13,12 +13,15 @@ export interface SubtaskView {
   id: string;
   name: string;
   light: Light;
+  review: string | null;
 }
 
 export interface TaskView {
   id: string;
   name: string;
   light: Light;
+  /** Why it has this light. Always null for a task with subtasks, whose light follows from them. */
+  review: string | null;
   subtasks: SubtaskView[];
   mix: LightCount[];
 }
@@ -48,8 +51,12 @@ export const getMapView =
     const record = await deps.maps.find(id);
     if (record === null) throw notFound('MAP_NOT_FOUND', `No map with id ${id}.`);
 
-    const lights = new Map<TaskId, Light>(record.ratings.map((rating) => [rating.subjectId, rating.light]));
-    const lightOf = (taskId: TaskId): Light => lights.get(taskId) ?? 'grey';
+    const ratings = new Map(record.ratings.map((rating) => [rating.subjectId, rating]));
+    const lightOf = (taskId: TaskId): Light => ratings.get(taskId)?.light ?? 'grey';
+    const reviewOf = (taskId: TaskId): string | null => {
+      const note = ratings.get(taskId)?.evidence.find((item) => item.kind === 'note');
+      return note?.text ?? null;
+    };
 
     return {
       id: record.map.id,
@@ -57,12 +64,18 @@ export const getMapView =
       productName: record.product.name,
       activities: record.map.activities.map((activity) => {
         const tasks = activity.tasks.map((task) => {
-          const subtasks = task.subtasks.map((sub) => ({ id: sub.id, name: sub.name, light: lightOf(sub.id) }));
+          const subtasks = task.subtasks.map((sub) => ({
+            id: sub.id,
+            name: sub.name,
+            light: lightOf(sub.id),
+            review: reviewOf(sub.id),
+          }));
           const subLights = subtasks.map((sub) => sub.light);
           return {
             id: task.id,
             name: task.name,
             light: subtasks.length > 0 ? deriveParentLight(subLights) : lightOf(task.id),
+            review: subtasks.length > 0 ? null : reviewOf(task.id),
             subtasks,
             mix: countLights(subLights),
           };

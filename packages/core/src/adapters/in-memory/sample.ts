@@ -178,14 +178,22 @@ const ROWS: [activity: string, tasks: TaskRow[]][] = [
   ['Come back', []],
 ];
 
+// One is long on purpose, to find out what breaks.
 function evidenceFor(light: Light): Evidence[] {
   switch (light) {
     case 'green':
-      return [{ kind: 'heuristic-review', violations: [] }];
+      return [{ kind: 'note', text: 'Tried it on the test site with a realistic booking. Nothing to report.' }];
     case 'yellow':
-      return [{ kind: 'heuristic-review', violations: [{ heuristic: 'Efficiency of use', severity: 'minor' }] }];
+      return [
+        {
+          kind: 'note',
+          text: 'You can finish it, but the error messages don’t say what to fix, so most people go back at least once before it works. It also calls the same thing by two different names.',
+        },
+      ];
     case 'red':
-      return [{ kind: 'heuristic-review', violations: [{ heuristic: 'Error prevention', severity: 'major' }] }];
+      return [
+        { kind: 'note', text: 'Works on a good day. Falls over if you make a mistake, because there’s no way back.' },
+      ];
     case 'grey':
     case 'out-of-scope':
       return [];

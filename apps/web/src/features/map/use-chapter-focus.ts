@@ -47,7 +47,7 @@ export function useChapterFocus(mapId: string, chapterIds: string[], escapeClear
   useEffect(() => {
     if (!escapeClears) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setFocus([]);
+      if (event.key === 'Escape' && !event.defaultPrevented) setFocus([]);
     };
     document.addEventListener('keydown', onKeyDown);
     return () => {

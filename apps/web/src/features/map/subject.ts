@@ -10,7 +10,9 @@ export type Subject =
       chapterId: string;
       path: string;
       light: Light;
-      lightFollowsSubtasks: boolean;
+      review: string | null;
+      /** Empty unless this task's light follows from its subtasks. */
+      subtasks: { id: string; name: string; light: Light }[];
     };
 
 export function findSubject(map: MapView, id: string): Subject | null {
@@ -27,7 +29,8 @@ export function findSubject(map: MapView, id: string): Subject | null {
           chapterId: chapter.id,
           path: `${place} · ${chapter.name}`,
           light: task.light,
-          lightFollowsSubtasks: task.subtasks.length > 0,
+          review: task.review,
+          subtasks: task.subtasks,
         };
       }
       const sub = task.subtasks.find((other) => other.id === id);
@@ -39,7 +42,8 @@ export function findSubject(map: MapView, id: string): Subject | null {
           chapterId: chapter.id,
           path: `${place} · ${chapter.name} · ${task.name}`,
           light: sub.light,
-          lightFollowsSubtasks: false,
+          review: sub.review,
+          subtasks: [],
         };
       }
     }
