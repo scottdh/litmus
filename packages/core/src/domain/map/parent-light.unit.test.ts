@@ -9,7 +9,8 @@ describe('deriveParentLight', () => {
     [['green', 'green', 'green'], 'green'],
     [['red'], 'red'],
     [['red', 'red'], 'red'],
-    [['grey', 'grey'], 'red'],
+    [['grey'], 'grey'],
+    [['grey', 'grey'], 'grey'],
     [['red', 'grey'], 'red'],
     [['yellow'], 'yellow'],
     [['yellow', 'yellow'], 'yellow'],
@@ -27,6 +28,7 @@ describe('deriveParentLight', () => {
     expect(deriveParentLight(['green', 'out-of-scope'])).toBe('green');
     expect(deriveParentLight(['red', 'out-of-scope'])).toBe('red');
     expect(deriveParentLight(['green', 'red', 'out-of-scope'])).toBe('yellow');
+    expect(deriveParentLight(['grey', 'out-of-scope'])).toBe('grey');
   });
 
   it('is out of scope when every subtask is', () => {
