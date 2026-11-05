@@ -5,7 +5,7 @@ import {
   getMapView,
   moveTask,
   renameTaskInMap,
-  undoMove,
+  undoChange,
   type Evidence,
   type Instant,
   type Light,
@@ -139,11 +139,11 @@ describe('undoing a move', () => {
       taskId: id('a'),
       to: { chapterId: 'act_1', before: null },
     });
-    await undoMove({ maps })({ mapId: MAP_ID, ...second });
+    await undoChange({ maps })({ mapId: MAP_ID, ...second });
     const parent = (await viewOf(maps))('B');
     expect(parent?.subtasks.map((sub) => sub.name)).toEqual(['A']);
     expect(parent?.earlierReview).toBe('B is broken.');
-    await undoMove({ maps })({ mapId: MAP_ID, ...move });
+    await undoChange({ maps })({ mapId: MAP_ID, ...move });
     const view = await getMapView({ maps })(MAP_ID);
     expect(view.activities[0]?.tasks.map((task) => task.name)).toEqual(['A', 'B', 'P']);
     expect(view.activities[0]?.tasks[1]?.light).toBe('red');
@@ -153,7 +153,7 @@ describe('undoing a move', () => {
     const maps = repository();
     const move = await moveTask({ maps })({ mapId: MAP_ID, taskId: id('a'), to: { chapterId: 'act_1', before: null } });
     await renameTaskInMap({ maps })({ mapId: MAP_ID, taskId: id('b'), name: 'Renamed' });
-    const error: unknown = await undoMove({ maps })({ mapId: MAP_ID, ...move }).catch((caught: unknown) => caught);
+    const error: unknown = await undoChange({ maps })({ mapId: MAP_ID, ...move }).catch((caught: unknown) => caught);
     expect(error).toBeInstanceOf(DomainError);
     expect((error as DomainError).code).toBe('UNDO_OUT_OF_DATE');
     expect((await viewOf(maps))('Renamed')).toBeDefined();

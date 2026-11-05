@@ -7,7 +7,7 @@ import {
   rateTask,
   renameChapter,
   renameTaskInMap,
-  undoMove,
+  undoChange,
   type AddDestination,
   type Clock,
   type Instant,
@@ -23,7 +23,7 @@ import { SAMPLE_MAP_ID, createSampleMapRepository } from '@litmus/core/in-memory
 // Kept on globalThis so a dev reload of this module doesn't lose changes. They last until the server restarts.
 const store = globalThis as typeof globalThis & {
   litmusMaps?: MapRepository;
-  litmusLastMove?: { token: string; mapId: MapId; before: MapRecord; after: MapRecord };
+  litmusLastChange?: { token: string; mapId: MapId; before: MapRecord; after: MapRecord };
 };
 const maps = (store.litmusMaps ??= createSampleMapRepository());
 
@@ -63,7 +63,7 @@ const newId = () => crypto.randomUUID();
 
 function remember(mapId: MapId, before: MapRecord, after: MapRecord) {
   const token = crypto.randomUUID();
-  store.litmusLastMove = { token, mapId, before, after };
+  store.litmusLastChange = { token, mapId, before, after };
   return token;
 }
 
@@ -86,9 +86,9 @@ export async function addChapterOnMap({
 }
 
 /** Only the latest move or add can be undone. */
-export async function undoMoveOnMap(token: string) {
-  const last = store.litmusLastMove;
-  if (last?.token !== token) throw invariantViolation('UNDO_OUT_OF_DATE', 'That move can no longer be undone.');
-  await undoMove({ maps })({ mapId: last.mapId, before: last.before, after: last.after });
-  delete store.litmusLastMove;
+export async function undoChangeOnMap(token: string) {
+  const last = store.litmusLastChange;
+  if (last?.token !== token) throw invariantViolation('UNDO_OUT_OF_DATE', 'That change can no longer be undone.');
+  await undoChange({ maps })({ mapId: last.mapId, before: last.before, after: last.after });
+  delete store.litmusLastChange;
 }

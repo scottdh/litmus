@@ -1,7 +1,7 @@
 'use server';
 import { DomainError, LIGHTS, type AddDestination, type Light, type MoveDestination, type TaskId } from '@litmus/core';
 import { revalidatePath } from 'next/cache';
-import { addChapterOnMap, addTaskOnMap, moveOnMap, rateOnMap, renameOnMap, undoMoveOnMap } from '../composition';
+import { addChapterOnMap, addTaskOnMap, moveOnMap, rateOnMap, renameOnMap, undoChangeOnMap } from '../composition';
 import type { AddResult, MoveResult, RenameResult } from '../features/map/rename-result';
 
 /** Domain failures go back as stable codes, so a raw message never reaches the page. */
@@ -110,7 +110,7 @@ export async function addChapterAction(input: { mapId: unknown; name: unknown; b
   return runAdd(() => addChapterOnMap({ mapId, name, before }));
 }
 
-export async function undoMoveAction(token: unknown): Promise<RenameResult> {
+export async function undoChangeAction(token: unknown): Promise<RenameResult> {
   if (typeof token !== 'string') return { ok: false, code: 'INVALID_INPUT' };
-  return run(() => undoMoveOnMap(token));
+  return run(() => undoChangeOnMap(token));
 }
