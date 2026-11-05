@@ -1,7 +1,7 @@
 import type { Light, LightCount } from '@litmus/core';
 
 export const LIGHT_COPY: Record<Light, { label: string; meaning: string }> = {
-  green: { label: 'Green', meaning: 'Finishable, and nothing material was found.' },
+  green: { label: 'Green', meaning: 'Finishable, with nothing material found.' },
   yellow: { label: 'Yellow', meaning: 'Finishable, with known problems.' },
   red: { label: 'Red', meaning: 'A path exists, but people can’t reliably finish it.' },
   grey: { label: 'Grey', meaning: 'No path yet.' },
