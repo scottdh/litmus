@@ -2,7 +2,7 @@ import { notFound, validationError } from '../../kernel/errors.ts';
 import type { StoryMap, TaskId } from './story-map.ts';
 
 /** Names are one line, so pasted line breaks and stray spaces are tidied rather than refused. */
-function tidyName(name: string): string {
+export function tidyName(name: string): string {
   const tidied = name.replace(/\s+/g, ' ').trim();
   if (tidied === '') throw validationError('NAME_EMPTY', 'A name can’t be empty.');
   return tidied;

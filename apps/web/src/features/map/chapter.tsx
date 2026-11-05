@@ -2,6 +2,7 @@
 import type { ActivityView, Light, TaskView } from '@litmus/core';
 import type { PointerEvent } from 'react';
 import { DisclosurePanel, DisclosureRoot, DisclosureTrigger } from '../../ui/disclosure';
+import { AddControl } from './add-field';
 import type { ChapterState } from './focus';
 import { LightMark } from './light-mark';
 import { LIGHT_COPY, MARK_COLOUR } from './lights';
@@ -160,6 +161,8 @@ export function Chapter({
   onOpenDrawer,
   onToggleFocus,
   onToggleTask,
+  startAdding,
+  onAddTask,
 }: {
   activity: ActivityView;
   position: number;
@@ -173,6 +176,8 @@ export function Chapter({
   onOpenDrawer: (id: string) => void;
   onToggleFocus: () => void;
   onToggleTask: (id: string, open: boolean) => void;
+  startAdding: boolean;
+  onAddTask: (name: string) => void;
 }) {
   const inBackground = state === 'background';
   const tasksMotion = inBackground ? TASKS_LEAVING_MOTION : TASKS_MOTION;
@@ -256,6 +261,17 @@ export function Chapter({
               ))}
             </ol>
           )}
+          <div className="mt-1 flex min-h-10 items-center">
+            <AddControl
+              action="Add task"
+              label={`New task in ${activity.name}`}
+              placeholder="Task name"
+              startOpen={startAdding}
+              buttonClassName="-ms-2 text-muted hover:text-ink max-lg:h-11"
+              fieldClassName="py-2 text-base leading-[1.35] lg:text-[15px]"
+              onAdd={onAddTask}
+            />
+          </div>
         </div>
       </div>
     </section>
