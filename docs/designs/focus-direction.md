@@ -20,6 +20,6 @@ Decided by Scott on 2026-11-05, from a live prototype with three working directi
 - **Depth** (columns stay in place, shrink 5% and fade to greyscale). The most stable layout, but focused chapters gain no room, so non-adjacent chapters can still sit off-screen.
 - **Pull forward** (background columns shrink to 66% and fade, focused columns widen to 384 px). The most literal "receding", but task text rewraps as columns widen, and it's the busiest to watch.
 
-**Not decided by Scott, assumed in the build:** on a phone the columns stack, so background chapters collapse to their name in place in the stack. The prototype was desktop only.
+**On a phone** the columns stack, so background chapters collapse to their name in place in the stack. The prototype was desktop only, so this was built first and then confirmed by Scott after trying it.
 
 **Later, if the interaction holds up:** named squads that own chapters, which would add a concept to the domain.
