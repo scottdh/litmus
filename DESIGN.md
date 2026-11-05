@@ -64,6 +64,10 @@ Shared components live in `apps/web/src/ui` and are the only place that imports 
 
 `apps/web/src/features/map/use-task-drag.ts` and `move-section.tsx`. Press and move a row to drag it with a mouse or pen. A line shows where it lands, and an outline shows it going inside a task or to the end of a chapter. Anything draggable must also be reachable from the drawer's Move controls, for keyboard and touch. Every move gets a visible Undo.
 
+### Adding
+
+`apps/web/src/features/map/add-field.tsx`. How anything new gets on the map. A name goes straight into a field where the item will appear, with no empty item saved first. Enter adds, Esc gives up, and leaving adds anything typed. Tasks and subtasks stay open for the next one, and Enter on an empty field finishes. New items take no light, so they show grey. Every add gets the same visible Undo as a move. `docs/designs/adding-direction.md` has the reasoning.
+
 ### LightMark
 
 `apps/web/src/features/map/light-mark.tsx`. Use wherever a light appears. The fill rises with the level of support, so it reads without colour. Don't use a coloured dot instead. Pair it with screen-reader text unless a visible label sits beside it.
