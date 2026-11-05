@@ -7,6 +7,9 @@ import { LightMark } from './light-mark';
 import { FILL_COLOUR, LIGHT_COPY } from './lights';
 import { useChapterFocus } from './use-chapter-focus';
 
+const TOOLBAR_BUTTON =
+  'relative h-8 shrink-0 cursor-pointer rounded-sm px-2 text-[13px] font-medium shadow-raised transition-transform duration-150 ease-out before:absolute before:inset-x-0 before:-inset-y-1.5 active:scale-[0.96]';
+
 export function StoryWall({ map, isSample }: { map: MapView; isSample: boolean }) {
   const [dim, setDim] = useState<Light | null>(null);
   const [open, setOpen] = useState<ReadonlySet<string>>(new Set());
@@ -97,17 +100,12 @@ export function StoryWall({ map, isSample }: { map: MapView; isSample: boolean }
                 // This button is about to disappear, so keyboard users need somewhere to land.
                 expandAll.current?.focus();
               }}
-              className="relative h-8 shrink-0 cursor-pointer rounded-sm px-2 text-[13px] font-medium shadow-raised transition-transform duration-150 ease-out before:absolute before:inset-x-0 before:-inset-y-1.5 active:scale-[0.96]"
+              className={TOOLBAR_BUTTON}
             >
               Show the whole story
             </button>
           )}
-          <button
-            ref={expandAll}
-            type="button"
-            onClick={toggleAll}
-            className="relative h-8 shrink-0 cursor-pointer rounded-sm px-2 text-[13px] font-medium shadow-raised transition-transform duration-150 ease-out before:absolute before:inset-x-0 before:-inset-y-1.5 active:scale-[0.96]"
-          >
+          <button ref={expandAll} type="button" onClick={toggleAll} className={TOOLBAR_BUTTON}>
             {allOpen ? 'Collapse all' : 'Expand all'}
           </button>
         </div>
