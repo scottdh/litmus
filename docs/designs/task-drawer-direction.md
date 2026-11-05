@@ -38,12 +38,17 @@ The drawer sits beside the story rather than over it, below the header and toolb
 2. Rating and evidence in the drawer.
 3. Moving tasks.
 
-## Open for Scott, before moving tasks
+## Moving tasks
 
-Recommendations first.
+Scott's decisions, on 2026-11-05:
 
-1. How deep can tasks nest? Keep two levels, and block a drop that would make three, because the parent light rule and the row layout both assume two.
-2. What happens to a task's rating when it becomes a parent? Keep its evidence in the drawer, marked as no longer driving the colour.
-3. What happens when a parent loses its last child? It becomes a plain task showing grey, which matches "unrated".
+1. Tasks nest two levels deep. A drop that would make three is blocked, because the parent light rule and the row layout both assume two.
+2. When a task becomes a parent, its review stays in the drawer, marked as no longer driving the colour.
+3. When a parent loses its last child, it becomes a plain task showing grey, which matches "unrated". Any rating from before it was a parent goes with it.
 
-Moving also needs a visible undo, because a wall that's mostly read shouldn't lose a task's place to a stray drag, and a "Move to…" control in the drawer for keyboard and touch.
+How it works:
+
+- With a mouse, press and move a row to drag it. A line shows where it will land, and an outline shows it going inside a task. A plain click still opens the drawer. Esc cancels.
+- A rail takes a drop at the end of its chapter, because its tasks aren't visible to aim between.
+- The drawer has Move up, Move down and Move to, for keyboard and touch. There's no touch dragging, because it fights with scrolling.
+- A visible Undo reverses the last move. It refuses if the map has changed since, rather than lose that change.
