@@ -5,7 +5,7 @@ import { BUTTON } from './button-style';
 import { LightMark } from './light-mark';
 import { LIGHT_COPY, MARK_COLOUR } from './lights';
 import type { Destination } from './drop';
-import { MoveSection } from './move-section';
+import { MoveArrows, MoveTo } from './move-section';
 import { NameField } from './name-field';
 import { RatingSection, type ReviewDraft } from './rating-section';
 import type { Rate } from './rename-result';
@@ -94,16 +94,22 @@ export function Drawer({
           draft={reviewDraft}
           rate={rate}
           onDraft={onReviewDraft}
+          beside={<MoveArrows map={map} id={subject.id} onMove={onMove} />}
         />
       )}
       {subject.kind !== 'chapter' && subject.subtasks.length > 0 && (
         <div className="flex w-full flex-col gap-2 text-[14px] leading-snug">
-          <p className="flex items-center gap-2">
-            <span className={MARK_COLOUR[subject.light]}>
-              <LightMark light={subject.light} />
-            </span>
-            {LIGHT_COPY[subject.light].label}
-          </p>
+          <div className="flex items-center justify-between gap-3">
+            <p className="flex items-center gap-2">
+              <span className={MARK_COLOUR[subject.light]}>
+                <LightMark light={subject.light} />
+              </span>
+              {LIGHT_COPY[subject.light].label}
+            </p>
+            <div className="flex max-lg:w-24">
+              <MoveArrows map={map} id={subject.id} onMove={onMove} />
+            </div>
+          </div>
           <p className="text-[13px] text-pretty text-muted">
             {LIGHT_COPY[subject.light].meaning} Set by its subtasks, so its reviews live on them.
           </p>
@@ -171,7 +177,7 @@ export function Drawer({
           </button>
         </div>
       )}
-      {subject.kind !== 'chapter' && <MoveSection map={map} id={subject.id} onMove={onMove} />}
+      {subject.kind !== 'chapter' && <MoveTo map={map} id={subject.id} onMove={onMove} />}
     </aside>
   );
 }
