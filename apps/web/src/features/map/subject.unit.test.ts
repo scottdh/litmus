@@ -13,12 +13,13 @@ const map: MapView = {
       name: 'Second',
       mix: [],
       tasks: [
-        { id: 'tsk_leaf', name: 'On its own', light: 'red', subtasks: [], mix: [] },
+        { id: 'tsk_leaf', name: 'On its own', light: 'red', review: 'Broken.', subtasks: [], mix: [] },
         {
           id: 'tsk_parent',
           name: 'With children',
           light: 'yellow',
-          subtasks: [{ id: 'tsk_child', name: 'A child', light: 'green' }],
+          review: null,
+          subtasks: [{ id: 'tsk_child', name: 'A child', light: 'green', review: 'Fine.' }],
           mix: [],
         },
       ],
@@ -45,12 +46,16 @@ describe('findSubject', () => {
       chapterId: 'act_2',
       path: 'Chapter 2 · Second',
       light: 'red',
-      lightFollowsSubtasks: false,
+      review: 'Broken.',
+      subtasks: [],
     });
   });
 
-  it('says when a task’s light follows from its subtasks', () => {
-    expect(findSubject(map, 'tsk_parent')).toMatchObject({ light: 'yellow', lightFollowsSubtasks: true });
+  it('lists the subtasks a task’s light follows from', () => {
+    expect(findSubject(map, 'tsk_parent')).toMatchObject({
+      light: 'yellow',
+      subtasks: [{ id: 'tsk_child', name: 'A child', light: 'green' }],
+    });
   });
 
   it('finds a subtask, with its parent in the path', () => {
@@ -61,7 +66,8 @@ describe('findSubject', () => {
       chapterId: 'act_2',
       path: 'Chapter 2 · Second · With children',
       light: 'green',
-      lightFollowsSubtasks: false,
+      review: 'Fine.',
+      subtasks: [],
     });
   });
 

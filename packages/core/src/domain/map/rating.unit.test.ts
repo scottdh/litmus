@@ -7,6 +7,7 @@ import type { Light } from './light.ts';
 import { createRating } from './rating.ts';
 
 const quote: Evidence = { kind: 'quote', text: 'I gave up and rang them', source: 'Invented interview' };
+const note: Evidence = { kind: 'note', text: 'Prices are buried three steps in.' };
 const clean: Evidence = { kind: 'heuristic-review', violations: [] };
 const reviewWith = (severity: 'cosmetic' | 'minor' | 'major'): Evidence => ({
   kind: 'heuristic-review',
@@ -61,5 +62,15 @@ describe('createRating', () => {
   it('lets yellow and red carry material violations', () => {
     expect(rate('yellow', [reviewWith('major')]).light).toBe('yellow');
     expect(rate('red', [reviewWith('major')]).light).toBe('red');
+  });
+});
+
+describe('a review note', () => {
+  it('counts as evidence for yellow', () => {
+    expect(rate('yellow', [note]).evidence).toEqual([note]);
+  });
+
+  it('counts as evidence for green', () => {
+    expect(rate('green', [note]).light).toBe('green');
   });
 });
