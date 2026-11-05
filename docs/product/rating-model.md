@@ -29,6 +29,8 @@ Out-of-scope subtasks are left out of the rule, because we've chosen not to do t
 
 The parent also shows the mix of its subtasks, so a yellow task still shows what's inside it.
 
+When a task becomes a parent, any review it had stays in its drawer, marked as no longer driving the colour. When a parent loses its last child, it becomes a plain task showing grey, and any earlier rating goes with it.
+
 ## The yardstick
 
 This goes on the face of the map, so nobody reads green as "ship it":
