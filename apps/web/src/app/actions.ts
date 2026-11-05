@@ -1,8 +1,8 @@
 'use server';
-import { DomainError, LIGHTS, type Light, type MoveDestination, type TaskId } from '@litmus/core';
+import { DomainError, LIGHTS, type AddDestination, type Light, type MoveDestination, type TaskId } from '@litmus/core';
 import { revalidatePath } from 'next/cache';
-import { moveOnMap, rateOnMap, renameOnMap, undoMoveOnMap } from '../composition';
-import type { MoveResult, RenameResult } from '../features/map/rename-result';
+import { addChapterOnMap, addTaskOnMap, moveOnMap, rateOnMap, renameOnMap, undoMoveOnMap } from '../composition';
+import type { AddResult, MoveResult, RenameResult } from '../features/map/rename-result';
 
 /** Domain failures go back as stable codes, so a raw message never reaches the page. */
 async function run(change: () => Promise<void>): Promise<RenameResult> {
@@ -72,6 +72,42 @@ export async function moveAction(input: { mapId: unknown; id: unknown; to: unkno
     if (error instanceof DomainError) return { ok: false, code: error.code };
     throw error;
   }
+}
+
+async function runAdd(add: () => Promise<{ id: string; undoToken: string }>): Promise<AddResult> {
+  try {
+    const added = await add();
+    revalidatePath('/');
+    return { ok: true, ...added };
+  } catch (error) {
+    if (error instanceof DomainError) return { ok: false, code: error.code };
+    throw error;
+  }
+}
+
+function readAddDestination(to: unknown): AddDestination | null {
+  if (typeof to !== 'object' || to === null) return null;
+  const { chapterId, parentId } = to as { chapterId?: unknown; parentId?: unknown };
+  if (typeof chapterId === 'string') return { chapterId };
+  if (typeof parentId === 'string') return { parentId: parentId as TaskId };
+  return null;
+}
+
+export async function addTaskAction(input: { mapId: unknown; name: unknown; to: unknown }): Promise<AddResult> {
+  const { mapId, name } = input;
+  const to = readAddDestination(input.to);
+  if (typeof mapId !== 'string' || typeof name !== 'string' || to === null) {
+    return { ok: false, code: 'INVALID_INPUT' };
+  }
+  return runAdd(() => addTaskOnMap({ mapId, name, to }));
+}
+
+export async function addChapterAction(input: { mapId: unknown; name: unknown; before: unknown }): Promise<AddResult> {
+  const { mapId, name, before } = input;
+  if (typeof mapId !== 'string' || typeof name !== 'string' || (before !== null && typeof before !== 'string')) {
+    return { ok: false, code: 'INVALID_INPUT' };
+  }
+  return runAdd(() => addChapterOnMap({ mapId, name, before }));
 }
 
 export async function undoMoveAction(token: unknown): Promise<RenameResult> {

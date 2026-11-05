@@ -1,5 +1,6 @@
 'use client';
 import type { MapView } from '@litmus/core';
+import { AddControl } from './add-field';
 import { BUTTON } from './button-style';
 import { LightMark } from './light-mark';
 import { LIGHT_COPY, MARK_COLOUR } from './lights';
@@ -25,6 +26,8 @@ export function Drawer({
   onDraft,
   onSave,
   onClose,
+  onAddSubtask,
+  onAddChapter,
 }: {
   map: MapView;
   onMove: (to: Destination) => void;
@@ -37,6 +40,8 @@ export function Drawer({
   onDraft: (name: string) => void;
   onSave: (name: string) => void;
   onClose: () => void;
+  onAddSubtask: (name: string) => void;
+  onAddChapter: (where: 'before' | 'after') => void;
 }) {
   return (
     <aside
@@ -110,6 +115,39 @@ export function Drawer({
               <p className="text-pretty whitespace-pre-wrap text-muted">{subject.earlierReview}</p>
             </div>
           )}
+        </div>
+      )}
+      {subject.kind === 'task' && (
+        <AddControl
+          key={`add-${subject.id}`}
+          action="Add subtask"
+          label={`New subtask of ${subject.name}`}
+          placeholder="Subtask name"
+          buttonClassName="shadow-raised"
+          fieldClassName="py-1 text-base leading-[1.35] lg:text-[14px]"
+          onAdd={onAddSubtask}
+        />
+      )}
+      {subject.kind === 'chapter' && (
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              onAddChapter('before');
+            }}
+            className={`${BUTTON} shadow-raised`}
+          >
+            Add chapter before
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              onAddChapter('after');
+            }}
+            className={`${BUTTON} shadow-raised`}
+          >
+            Add chapter after
+          </button>
         </div>
       )}
       {subject.kind !== 'chapter' && <MoveSection map={map} id={subject.id} onMove={onMove} />}

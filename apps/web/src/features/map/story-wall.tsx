@@ -1,6 +1,7 @@
 'use client';
 import { LIGHTS, type Light, type MapView } from '@litmus/core';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AddField } from './add-field';
 import { BUTTON } from './button-style';
 import { Chapter } from './chapter';
 import { Drawer } from './drawer';
@@ -9,10 +10,12 @@ import { chapterState, focusSummary } from './focus';
 import { LightMark } from './light-mark';
 import { FILL_COLOUR, LIGHT_COPY } from './lights';
 import type { ReviewDraft } from './rating-section';
-import type { Move, Rate, Rename, UndoMove } from './rename-result';
+import type { AddChapter, AddResult, AddTask, Move, Rate, Rename, UndoMove } from './rename-result';
 import { findSubject } from './subject';
 import { useChapterFocus } from './use-chapter-focus';
 import { useTaskDrag } from './use-task-drag';
+
+const CHAPTER_END = 'shrink-0 lg:border-l-(length:--hairline) lg:border-line lg:px-5 lg:first:border-l-0 lg:first:pl-0';
 
 /** Puts typed-but-unsaved names over the map, so it follows what's being typed. */
 function withDrafts(map: MapView, drafts: Record<string, string>): MapView {
@@ -36,6 +39,8 @@ export function StoryWall({
   rate,
   move,
   undoMove,
+  addTask,
+  addChapter,
 }: {
   map: MapView;
   isSample: boolean;
@@ -43,6 +48,8 @@ export function StoryWall({
   rate: Rate;
   move: Move;
   undoMove: UndoMove;
+  addTask: AddTask;
+  addChapter: AddChapter;
 }) {
   const [reviewDrafts, setReviewDrafts] = useState<Record<string, ReviewDraft>>({});
   const [dim, setDim] = useState<Light | null>(null);
@@ -67,6 +74,38 @@ export function StoryWall({
 
   const [lastMove, setLastMove] = useState<{ token: string; message: string } | null>(null);
   const [moveProblem, setMoveProblem] = useState<string | null>(null);
+  /** Where a new chapter's field is showing: in front of this chapter, or at the end if null. */
+  const [newChapterBefore, setNewChapterBefore] = useState<string | null | undefined>(undefined);
+  const [newChapterId, setNewChapterId] = useState<string | null>(null);
+  const addChapterButton = useRef<HTMLButtonElement>(null);
+  const addingChapter = newChapterBefore !== undefined;
+  const newChapterIndex = !addingChapter
+    ? -1
+    : newChapterBefore === null
+      ? map.activities.length
+      : map.activities.findIndex((activity) => activity.id === newChapterBefore);
+
+  // Once it's on the wall, a new chapter joins any focus, because it's what you're working on.
+  const newChapterArrived = newChapterId !== null && chapterIds.includes(newChapterId);
+  useEffect(() => {
+    // Only when it arrives, so taking it back out of the focus afterwards sticks.
+    if (newChapterArrived && focusing) toggleChapter(newChapterId);
+  }, [newChapterArrived, newChapterId]);
+
+  const report = (name: string, result: Promise<AddResult>, added: (id: string) => void) => {
+    const failed = () => {
+      setMoveProblem(`“${name}” couldn’t be added.`);
+    };
+    setMoveProblem(null);
+    void result.then((outcome) => {
+      if (!outcome.ok) {
+        failed();
+        return;
+      }
+      added(outcome.id);
+      setLastMove({ token: outcome.undoToken, message: `Added ${name}.` });
+    }, failed);
+  };
 
   const moveTask = (id: string, to: Destination) => {
     const name = findSubject(map, id)?.name ?? '';
@@ -181,6 +220,31 @@ export function StoryWall({
     });
   };
 
+  const newChapterField = addingChapter && (
+    <section
+      aria-label="New chapter"
+      className="relative shrink-0 lg:w-68 lg:border-l-(length:--hairline) lg:border-line lg:px-5 lg:first:border-l-0 lg:first:pl-0"
+    >
+      <div className="lg:w-58">
+        <p className="text-[13px] text-muted tabular-nums">Chapter {newChapterIndex + 1}</p>
+        <div className="mt-1 font-story text-[28px] leading-[1.1] tracking-[-0.01em] lg:min-h-16">
+          <AddField
+            keepGoing={false}
+            label="New chapter name"
+            placeholder="Chapter name"
+            onAdd={(name) => {
+              report(name, addChapter({ mapId: savedMap.id, name, before: newChapterBefore ?? null }), setNewChapterId);
+            }}
+            onFinish={(byKey) => {
+              setNewChapterBefore(undefined);
+              if (byKey) addChapterButton.current?.focus({ preventScroll: true });
+            }}
+          />
+        </div>
+      </div>
+    </section>
+  );
+
   return (
     <main className="mx-auto max-w-[1600px] px-4 pt-4 pb-16">
       {isSample && (
@@ -264,24 +328,43 @@ export function StoryWall({
           className={`flex min-w-0 grow flex-col lg:-ms-4 lg:flex-row lg:gap-0 lg:overflow-x-auto lg:ps-4 lg:pb-4 ${subject ? 'max-lg:invisible lg:me-0' : 'lg:-me-4 lg:pe-4'} ${focusing ? 'gap-5' : 'gap-10'}`}
         >
           {map.activities.map((activity, index) => (
-            <Chapter
-              key={activity.id}
-              activity={activity}
-              position={index + 1}
-              state={chapterState(focus, activity.id)}
-              animate={animate}
-              dim={dim}
-              openTasks={open}
-              selectedId={subject?.id ?? null}
-              draggingId={dragging?.id ?? null}
-              onStartDrag={startDrag}
-              onOpenDrawer={openDrawer}
-              onToggleFocus={() => {
-                toggleChapter(activity.id);
-              }}
-              onToggleTask={toggleTask}
-            />
+            <Fragment key={activity.id}>
+              {newChapterIndex === index && newChapterField}
+              <Chapter
+                activity={activity}
+                position={index + 1 + (addingChapter && newChapterIndex <= index ? 1 : 0)}
+                state={chapterState(focus, activity.id)}
+                animate={animate}
+                dim={dim}
+                openTasks={open}
+                selectedId={subject?.id ?? null}
+                draggingId={dragging?.id ?? null}
+                onStartDrag={startDrag}
+                onOpenDrawer={openDrawer}
+                onToggleFocus={() => {
+                  toggleChapter(activity.id);
+                }}
+                onToggleTask={toggleTask}
+                startAdding={newChapterId === activity.id}
+                onAddTask={(name) => {
+                  report(name, addTask({ mapId: savedMap.id, name, to: { chapterId: activity.id } }), () => undefined);
+                }}
+              />
+            </Fragment>
           ))}
+          {newChapterIndex === map.activities.length && newChapterField}
+          <div className={CHAPTER_END}>
+            <button
+              ref={addChapterButton}
+              type="button"
+              onClick={() => {
+                setNewChapterBefore(null);
+              }}
+              className={`${BUTTON} shadow-raised`}
+            >
+              Add chapter
+            </button>
+          </div>
         </div>
         {subject && (
           <Drawer
@@ -311,6 +394,16 @@ export function StoryWall({
               saveName(subject.id, subject.kind === 'chapter' ? 'chapter' : 'task', name);
             }}
             onClose={closeDrawer}
+            onAddSubtask={(name) => {
+              report(name, addTask({ mapId: savedMap.id, name, to: { parentId: subject.id } }), () => {
+                toggleTask(subject.id, true);
+              });
+            }}
+            onAddChapter={(where) => {
+              const index = map.activities.findIndex((activity) => activity.id === subject.id);
+              setSelectedId(null);
+              setNewChapterBefore(where === 'before' ? subject.id : (map.activities[index + 1]?.id ?? null));
+            }}
           />
         )}
       </div>
