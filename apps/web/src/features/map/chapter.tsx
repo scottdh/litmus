@@ -286,7 +286,8 @@ export function Chapter({
             className={`group/head block w-full cursor-pointer text-left ${inBackground ? 'after:absolute after:inset-0 after:z-1' : ''}`}
           >
             <span className="block text-[13px] text-muted tabular-nums">
-              Chapter {position}
+              <span className="sr-only">Chapter </span>
+              {position}
               <span
                 aria-hidden="true"
                 className={`ms-2 ${animate ? 'transition-opacity duration-150 ease-out' : ''} ${CUE_STYLE[state]}`}
