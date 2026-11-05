@@ -22,6 +22,8 @@ export interface TaskView {
   light: Light;
   /** Why it has this light. Always null for a task with subtasks, whose light follows from them. */
   review: string | null;
+  /** A review from before this task had subtasks. It no longer sets the colour. */
+  earlierReview: string | null;
   subtasks: SubtaskView[];
   mix: LightCount[];
 }
@@ -76,6 +78,7 @@ export const getMapView =
             name: task.name,
             light: subtasks.length > 0 ? deriveParentLight(subLights) : lightOf(task.id),
             review: subtasks.length > 0 ? null : reviewOf(task.id),
+            earlierReview: subtasks.length > 0 ? reviewOf(task.id) : null,
             subtasks,
             mix: countLights(subLights),
           };

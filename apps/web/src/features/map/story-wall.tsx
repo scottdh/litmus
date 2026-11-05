@@ -4,13 +4,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BUTTON } from './button-style';
 import { Chapter } from './chapter';
 import { Drawer } from './drawer';
+import { describeDestination, type Destination } from './drop';
 import { chapterState, focusSummary } from './focus';
 import { LightMark } from './light-mark';
 import { FILL_COLOUR, LIGHT_COPY } from './lights';
 import type { ReviewDraft } from './rating-section';
-import type { Rate, Rename } from './rename-result';
+import type { Move, Rate, Rename, UndoMove } from './rename-result';
 import { findSubject } from './subject';
 import { useChapterFocus } from './use-chapter-focus';
+import { useTaskDrag } from './use-task-drag';
 
 /** Puts typed-but-unsaved names over the map, so it follows what's being typed. */
 function withDrafts(map: MapView, drafts: Record<string, string>): MapView {
@@ -32,11 +34,15 @@ export function StoryWall({
   isSample,
   rename,
   rate,
+  move,
+  undoMove,
 }: {
   map: MapView;
   isSample: boolean;
   rename: Rename;
   rate: Rate;
+  move: Move;
+  undoMove: UndoMove;
 }) {
   const [reviewDrafts, setReviewDrafts] = useState<Record<string, ReviewDraft>>({});
   const [dim, setDim] = useState<Light | null>(null);
@@ -58,6 +64,43 @@ export function StoryWall({
   const found = selectedId === null ? null : findSubject(map, selectedId);
   // A chapter that's gone to the background has no tasks on show, so its drawer closes too.
   const subject = found && (focus.length === 0 || focus.includes(found.chapterId)) ? found : null;
+
+  const [lastMove, setLastMove] = useState<{ token: string; message: string } | null>(null);
+  const [moveProblem, setMoveProblem] = useState<string | null>(null);
+
+  const moveTask = (id: string, to: Destination) => {
+    const name = findSubject(map, id)?.name ?? '';
+    setMoveProblem(null);
+    void move({ mapId: savedMap.id, id, to }).then(
+      (result) => {
+        if (!result.ok) {
+          setMoveProblem('That move didn’t work, so nothing changed.');
+          return;
+        }
+        if ('parentId' in to) toggleTask(to.parentId, true);
+        setLastMove({ token: result.undoToken, message: `Moved ${name} to ${describeDestination(map, to)}.` });
+      },
+      () => {
+        setMoveProblem('That move didn’t work, so nothing changed.');
+      },
+    );
+  };
+
+  const undoLastMove = () => {
+    if (lastMove === null) return;
+    const { token } = lastMove;
+    setLastMove(null);
+    void undoMove(token).then(
+      (result) => {
+        setMoveProblem(result.ok ? null : 'That can’t be undone, because the map has changed since.');
+      },
+      () => {
+        setMoveProblem('That can’t be undone, because the map has changed since.');
+      },
+    );
+  };
+
+  const { start: startDrag, dragging, indicator, ghost } = useTaskDrag(map, moveTask);
 
   const closeDrawer = useCallback(() => {
     setSelectedId((id) => {
@@ -180,6 +223,8 @@ export function StoryWall({
         <p aria-live="polite" className="min-w-48 flex-1 text-[14px] leading-snug text-pretty text-muted">
           {[
             saveFailed ? 'That name couldn’t be saved, so the old one is back.' : '',
+            moveProblem ?? '',
+            lastMove?.message ?? '',
             summary,
             dim !== null ? `${LIGHT_COPY[dim].label}: ${LIGHT_COPY[dim].meaning}` : '',
           ]
@@ -187,6 +232,11 @@ export function StoryWall({
             .join(' ')}
         </p>
         <div className="ms-auto flex shrink-0 gap-2">
+          {lastMove && (
+            <button type="button" onClick={undoLastMove} className={`${BUTTON} shrink-0 shadow-raised`}>
+              Undo
+            </button>
+          )}
           {focusing && (
             <button
               type="button"
@@ -223,6 +273,8 @@ export function StoryWall({
               dim={dim}
               openTasks={open}
               selectedId={subject?.id ?? null}
+              draggingId={dragging?.id ?? null}
+              onStartDrag={startDrag}
               onOpenDrawer={openDrawer}
               onToggleFocus={() => {
                 toggleChapter(activity.id);
@@ -233,6 +285,10 @@ export function StoryWall({
         </div>
         {subject && (
           <Drawer
+            map={map}
+            onMove={(to) => {
+              moveTask(subject.id, to);
+            }}
             mapId={savedMap.id}
             rate={rate}
             reviewDraft={reviewDrafts[subject.id] ?? null}
@@ -258,6 +314,27 @@ export function StoryWall({
           />
         )}
       </div>
+      {dragging && (
+        <div
+          ref={ghost}
+          aria-hidden="true"
+          className="pointer-events-none fixed top-0 left-0 z-20 max-w-60 truncate rounded-sm bg-surface px-2 py-1 text-[13px] shadow-raised"
+        >
+          {dragging.name}
+        </div>
+      )}
+      {indicator && (
+        <div
+          aria-hidden="true"
+          style={{
+            left: indicator.left,
+            top: indicator.top,
+            width: indicator.width,
+            height: indicator.height,
+          }}
+          className={`pointer-events-none fixed z-20 rounded-sm ${indicator.kind === 'line' ? 'bg-ink' : 'outline-2 outline-ink'}`}
+        />
+      )}
     </main>
   );
 }
