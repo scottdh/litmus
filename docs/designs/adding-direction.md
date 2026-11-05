@@ -17,6 +17,5 @@ New tasks go at the end of their list, and dragging puts them anywhere else. The
 
 **Known costs:**
 
-- Adding the first subtask to a grey task turns it red, because of the all-grey parent rule. See entry 8 in `docs/agents/open-conflicts.md`.
 - Add chapter is at the far end of a long story.
 - Switching windows mid-name adds what's typed so far.
