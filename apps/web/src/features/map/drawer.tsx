@@ -13,7 +13,7 @@ import type { Subject } from './subject';
 
 const LABEL: Record<Subject['kind'], string> = { chapter: 'Chapter name', task: 'Task name', subtask: 'Subtask name' };
 
-/** Sits beside the story rather than over it, so the map and its controls stay usable. On a phone it fills the screen. */
+/** Runs the full height of the window, with the page making room so the map and its controls stay usable. On a phone it fills the screen. */
 export function Drawer({
   map,
   onMove,
@@ -46,9 +46,30 @@ export function Drawer({
   return (
     <aside
       aria-label={`Details of ${subject.name}`}
-      className="flex flex-col items-start gap-4 bg-surface p-6 shadow-raised max-lg:fixed max-lg:inset-0 max-lg:z-10 max-lg:overflow-y-auto lg:sticky lg:top-4 lg:max-h-[calc(100dvh-2rem)] lg:w-96 lg:shrink-0 lg:self-start lg:overflow-y-auto lg:rounded-md starting:opacity-0 [transition:opacity_var(--motion-focus)]"
+      className="fixed inset-y-0 right-0 z-10 flex w-full flex-col items-start gap-4 overflow-y-auto bg-surface p-6 shadow-raised lg:w-96 starting:translate-x-full [transition:translate_var(--motion-focus)]"
     >
-      <p className="text-[13px] leading-snug text-pretty text-muted">{subject.path}</p>
+      {/* Stays in view, because a long review can push the rest of the drawer off screen. */}
+      <div className="sticky -top-6 z-1 -mx-6 -mt-6 -mb-2 flex w-[calc(100%+3rem)] items-start justify-between gap-2 bg-surface px-6 pt-6 pb-2">
+        <p className="text-[13px] leading-snug text-pretty text-muted">{subject.path}</p>
+        <button
+          type="button"
+          aria-label="Close"
+          onClick={onClose}
+          className="relative -me-1.5 -mt-1.5 grid size-8 shrink-0 cursor-pointer place-items-center rounded-sm text-muted transition-[color,scale] duration-150 ease-out before:absolute before:-inset-1.5 hover:text-ink active:scale-[0.96]"
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 16 16"
+            className="size-4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          >
+            <path d="M3.5 3.5l9 9M12.5 3.5l-9 9" />
+          </svg>
+        </button>
+      </div>
       <div
         className={`w-full ${subject.kind === 'chapter' ? 'font-story text-[28px] leading-[1.1] tracking-[-0.01em]' : 'text-[20px] leading-[1.3]'}`}
       >
@@ -151,9 +172,6 @@ export function Drawer({
         </div>
       )}
       {subject.kind !== 'chapter' && <MoveSection map={map} id={subject.id} onMove={onMove} />}
-      <button type="button" onClick={onClose} className={`${BUTTON} mt-2 shadow-raised`}>
-        Done
-      </button>
     </aside>
   );
 }

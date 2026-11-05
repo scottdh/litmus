@@ -23,7 +23,11 @@ Chapters:
 - A chapter's click is taken by focus, so a Rename action opens the same drawer, with the name selected.
 - Chapters on rails can't be renamed until they're focused.
 
-The drawer sits beside the story rather than over it, below the header and toolbar. That keeps the light controls reachable and means opening it doesn't move the page vertically. On a phone it fills the screen.
+The drawer runs the full height of the window at the right edge, as it did in the prototype, and slides in. The page makes room for it, so the light controls stay reachable. On a phone it fills the screen.
+
+An X at the top closes it. The prototype had a Done button under the content; Scott chose the X on 2026-11-05 when reviewing the build. Clicking it saves the name, as leaving the field does.
+
+**Known cost of full height:** the narrower page can make the header wrap, which moves the story down when the drawer opens. Measured in the sample map: 39 px at 1024 px wide, 5.5 px at 1280 px, none at 1440 px and above. The first build avoided this by putting the drawer below the header, but Scott preferred the full-height drawer.
 
 **Rejected:**
 
