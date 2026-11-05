@@ -129,9 +129,7 @@ export function Drawer({
               <MoveArrows map={map} id={subject.id} onMove={onMove} />
             </div>
           </div>
-          <p className="text-[13px] text-pretty text-muted">
-            {LIGHT_COPY[subject.light].meaning} Set by its subtasks, so its reviews live on them.
-          </p>
+          <p className="text-[13px] text-pretty text-muted">Set by its subtasks.</p>
           <ul>
             {subject.subtasks.map((sub) => (
               <li key={sub.id}>
