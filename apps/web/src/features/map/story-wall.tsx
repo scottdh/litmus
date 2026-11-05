@@ -246,7 +246,7 @@ export function StoryWall({
   );
 
   return (
-    <main className="mx-auto max-w-[1600px] px-4 pt-4 pb-16">
+    <main className={`mx-auto max-w-[1600px] px-4 pt-4 pb-16 ${subject ? 'lg:pe-100' : ''}`}>
       {isSample && (
         <p className="mb-5 w-fit rounded-sm bg-light-grey px-2 py-1 text-[13px] text-on-light-grey">
           Sample data: an invented bike workshop. These ratings aren’t real, and changes last until the server restarts.
@@ -320,7 +320,7 @@ export function StoryWall({
         </div>
       </div>
 
-      <div className="flex items-start gap-4">
+      <div className="flex items-start">
         <div
           tabIndex={0}
           role="region"

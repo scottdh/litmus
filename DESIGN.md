@@ -38,7 +38,7 @@ Names are never truncated in the Story view.
 
 ## Motion
 
-Hover and press take 150 ms `ease-out`; list the properties, because lint bans `transition-all`. Press scales to 0.96. Panels fade in with opacity and never animate height. Chapter focus uses `--motion-focus`, 240 ms. It's the one place a width animates, which is allowed because task text sits in a fixed-width box and nothing reflows. `globals.css` handles reduced motion.
+Hover and press take 150 ms `ease-out`; list the properties, because lint bans `transition-all`. Press scales to 0.96. Panels fade in with opacity and never animate height. The drawer is the exception: it slides in from the right with `--motion-focus`. Chapter focus uses `--motion-focus`, 240 ms. It's the one place a width animates, which is allowed because task text sits in a fixed-width box and nothing reflows. `globals.css` handles reduced motion.
 
 ## Components
 
@@ -54,7 +54,7 @@ Shared components live in `apps/web/src/ui` and are the only place that imports 
 
 ### Drawer
 
-`apps/web/src/features/map/drawer.tsx`. Where a task's detail lives, and where names are edited. It sits beside the story in the page flow, not over it, so the map stays usable and the page doesn't move vertically. On a phone it fills the screen. It holds the name, the light and the review. Add new task detail here rather than to the row. `docs/designs/task-drawer-direction.md` has the reasoning.
+`apps/web/src/features/map/drawer.tsx`. Where a task's detail lives, and where names are edited. It runs the full height of the window at the right edge, and the page makes room for it, so the map and its controls stay usable. On a phone it fills the screen. An X at the top closes it and stays in view while the drawer scrolls. It holds the name, the light and the review. Add new task detail here rather than to the row. `docs/designs/task-drawer-direction.md` has the reasoning.
 
 ### RatingSection
 
