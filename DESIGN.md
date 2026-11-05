@@ -31,6 +31,7 @@ Two faces, set in `apps/web/src/app/layout.tsx`. Use nothing else.
 | Page title          | Sans, 22 px, semibold                                |
 | Task                | Sans, 15 px, line height 1.35                        |
 | Subtask             | Sans, 14 px, `muted`                                 |
+| Step                | Sans, 13 px, `muted`                                 |
 | Labels and captions | Sans, 13 px                                          |
 | Counts              | 12 px or 13 px, always `tabular-nums`                |
 
@@ -50,11 +51,11 @@ Shared components live in `apps/web/src/ui` and are the only place that imports 
 
 ### Chapter
 
-`apps/web/src/features/map/chapter.tsx`. One activity in the story, in one of three states: at rest, focused, or in the background. In the background it shows only its number and name, because that's all a squad needs to add it to the focus. Don't show tasks or health there. A row opens the drawer, and only the chevron and mix bar expand subtasks. `docs/designs/focus-direction.md` has the reasoning.
+`apps/web/src/features/map/chapter.tsx`. One activity in the story, in one of three states: at rest, focused, or in the background. In the background it shows only its number and name, because that's all a squad needs to add it to the focus. Don't show tasks or health there. A row opens the drawer, and only the chevron and mix bar expand subtasks. A subtask's chevron and count expand its steps in the same way. `docs/designs/focus-direction.md` has the reasoning.
 
 ### Drawer
 
-`apps/web/src/features/map/drawer.tsx`. Where a task's detail lives, and where names are edited. It runs the full height of the window at the right edge, and the page makes room for it, so the map and its controls stay usable. On a phone it fills the screen. An X at the top closes it and stays in view while the drawer scrolls. It holds the name, the light and the review. Add new task detail here rather than to the row. `docs/designs/task-drawer-direction.md` has the reasoning.
+`apps/web/src/features/map/drawer.tsx`. Where a task's detail lives, and where names are edited. It runs the full height of the window at the right edge, and the page makes room for it, so the map and its controls stay usable. On a phone it fills the screen. An X at the top closes it and stays in view while the drawer scrolls. It holds the name, the light and the review, and a step's name and note. Add new task detail here rather than to the row. `docs/designs/task-drawer-direction.md` has the reasoning.
 
 ### RatingSection
 
@@ -67,6 +68,10 @@ Shared components live in `apps/web/src/ui` and are the only place that imports 
 ### Adding
 
 `apps/web/src/features/map/add-field.tsx`. How anything new gets on the map. A name goes straight into a field where the item will appear, with no empty item saved first. Enter adds, Esc gives up, and leaving adds anything typed. Tasks and subtasks stay open for the next one, and Enter on an empty field finishes. New items take no light, so they show grey. Every add gets the same visible Undo as a move. `docs/designs/adding-direction.md` has the reasoning.
+
+### Steps
+
+`apps/web/src/features/map/step-mark.tsx` and `note-field.tsx`. A breakdown under a subtask, with a name and a note. Steps take no light, so they get a dash, never a `LightMark`, and don't count in a `MixBar`. `docs/designs/steps-direction.md` has the reasoning.
 
 ### LightMark
 

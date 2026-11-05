@@ -32,6 +32,10 @@ The parent also shows the mix of its subtasks, so a yellow task still shows what
 
 When a task becomes a parent, any review it had stays in its drawer, marked as no longer driving the colour. When a parent loses its last child, it becomes a plain task showing grey, and any earlier rating goes with it.
 
+## Steps
+
+A subtask can hold steps, which break it down further. Steps take no light and aren't rated. They change nothing about a subtask's light, a parent's light or a mix, so a person still rates the subtask as a whole. A step's note isn't evidence. See `docs/designs/steps-direction.md`.
+
 ## The yardstick
 
 This goes on the face of the map, so nobody reads green as "ship it":
