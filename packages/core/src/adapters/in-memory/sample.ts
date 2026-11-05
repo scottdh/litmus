@@ -3,7 +3,7 @@ import type { MapRepository } from '../../application/ports.ts';
 import type { Evidence } from '../../domain/map/evidence.ts';
 import type { Light } from '../../domain/map/light.ts';
 import { createRating, type Rating } from '../../domain/map/rating.ts';
-import type { Activity, MapId, ProductId, TaskId } from '../../domain/map/story-map.ts';
+import type { Activity, MapId, ProductId, Step, StepId, TaskId } from '../../domain/map/story-map.ts';
 import { createInMemoryMapRepository } from './map-repository.ts';
 
 // Invented: a repair app for a neighbourhood bike workshop. Worst-case content on purpose. Never put real data here.
@@ -178,6 +178,53 @@ const ROWS: [activity: string, tasks: TaskRow[]][] = [
   ['Come back', []],
 ];
 
+const STEPS: Record<string, [name: string, note: string][]> = {
+  'Find a compatible alternative when the exact part is discontinued': [
+    [
+      'Work out which measurements actually decide whether a part fits, because the manufacturer’s own compatibility chart stops at 2019',
+      'Three mechanics at the workshop each check something different first. One goes by axle standard, one by freehub body, and one by whatever the last bike of that model took. None of them trusts the chart for anything older than about five years, and all of them keep their own paper notes on it. If the product is going to suggest alternatives, it has to show the measurement it matched on, or they will check it by hand anyway and the suggestion saves nothing.\n\nOne of them also pointed out that a part can fit and still be wrong: a cheaper cassette changes the gearing enough that the customer notices on the first hill.',
+    ],
+    [
+      'Look up the part by the old code',
+      'The old code is often only on the box, which has gone by the time the bike comes in.',
+    ],
+    ['Compare what’s left in stock against those measurements', ''],
+    ['Check the alternative with a second mechanic', 'Only done for brakes and anything on a child’s bike.'],
+    ['Tell the customer it’s a different part, and why', ''],
+    ['Note the swap on the job sheet', 'If it isn’t written down, the next repair starts from the wrong assumption.'],
+    ['Remember the match for next time', ''],
+  ],
+  'Scan a barcode': [
+    ['Open the camera from the stock screen', ''],
+    ['Handle a label that’s damaged or oily', 'Labels in the back room often won’t scan first time.'],
+    ['Fall back to typing the code', ''],
+  ],
+  'Approve some and decline the rest': [
+    ['See each repair on its own line', ''],
+    [
+      'Understand what happens if I decline the brake pads but approve the rest',
+      'It isn’t clear whether declining one repair changes the labour charge on the others.',
+    ],
+    ['Change my mind before work starts', ''],
+    ['Get a new total straight away', ''],
+  ],
+  'Split the bill between two people': [
+    ['Say how it’s split', 'By item or by amount.'],
+    ['Take the first payment', ''],
+    ['Keep the job open until the second payment', ''],
+    ['Send one receipt each', ''],
+    ['Handle one card being declined', ''],
+  ],
+  'Say what I’ve already tried, in case it changes the quote': [['Pick from what people usually try', '']],
+};
+
+const stepsFor = (subtaskId: string, name: string): Step[] =>
+  (STEPS[name] ?? []).map(([stepName, note], index) => ({
+    id: `stp_${subtaskId}_${String(index)}` as StepId,
+    name: stepName,
+    note,
+  }));
+
 // One is long on purpose, to find out what breaks.
 function evidenceFor(light: Light): Evidence[] {
   switch (light) {
@@ -219,7 +266,11 @@ function build() {
       return {
         id: id as TaskId,
         name: taskName,
-        subtasks: detail.map(([subName, light], s) => ({ id: rate(`${id}_${String(s)}`, light), name: subName })),
+        subtasks: detail.map(([subName, light], s) => ({
+          id: rate(`${id}_${String(s)}`, light),
+          name: subName,
+          steps: stepsFor(`${id}_${String(s)}`, subName),
+        })),
       };
     }),
   }));

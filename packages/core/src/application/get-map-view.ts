@@ -9,11 +9,18 @@ export interface LightCount {
   count: number;
 }
 
+export interface StepView {
+  id: string;
+  name: string;
+  note: string;
+}
+
 export interface SubtaskView {
   id: string;
   name: string;
   light: Light;
   review: string | null;
+  steps: StepView[];
 }
 
 export interface TaskView {
@@ -71,6 +78,7 @@ export const getMapView =
             name: sub.name,
             light: lightOf(sub.id),
             review: reviewOf(sub.id),
+            steps: sub.steps,
           }));
           const subLights = subtasks.map((sub) => sub.light);
           return {

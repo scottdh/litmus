@@ -31,7 +31,7 @@ export function addTask(map: StoryMap, input: { id: TaskId; name: string; to: Ad
             ? [...activity.tasks, { id, name, subtasks: [] }]
             : activity.tasks
           : activity.tasks.map((task) =>
-              task.id === to.parentId ? { ...task, subtasks: [...task.subtasks, { id, name }] } : task,
+              task.id === to.parentId ? { ...task, subtasks: [...task.subtasks, { id, name, steps: [] }] } : task,
             ),
     })),
   };
