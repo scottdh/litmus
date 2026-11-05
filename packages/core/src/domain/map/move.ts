@@ -8,9 +8,12 @@ export type MoveDestination =
 function locate(map: StoryMap, id: TaskId) {
   for (const activity of map.activities) {
     for (const task of activity.tasks) {
-      if (task.id === id) return { task, parentId: null };
+      if (task.id === id) return { task, steps: [], parentId: null };
       const sub = task.subtasks.find((other) => other.id === id);
-      if (sub) return { task: { ...sub, subtasks: [] } as Task, parentId: task.id };
+      if (sub) {
+        const asTask: Task = { id: sub.id, name: sub.name, subtasks: [] };
+        return { task: asTask, steps: sub.steps, parentId: task.id };
+      }
     }
   }
   return null;
@@ -27,7 +30,7 @@ const isTopLevel = (map: StoryMap, id: TaskId) =>
   map.activities.some((activity) => activity.tasks.some((task) => task.id === id));
 
 /**
- * Moves a task, with any subtasks, keeping two levels at most.
+ * Moves a task, with any subtasks or steps, keeping two levels of tasks at most.
  * `emptiedParent` is a task that has just lost its last child, because its old rating shouldn't come back.
  */
 export function moveTaskInMap(
@@ -44,8 +47,11 @@ export function moveTaskInMap(
       throw invariantViolation('WOULD_NEST_TOO_DEEP', 'Tasks nest two levels deep at most.');
     }
     if (!isTopLevel(map, to.parentId)) throw notFound('DESTINATION_NOT_FOUND', `No task with id ${to.parentId}.`);
-  } else if (!map.activities.some((activity) => activity.id === to.chapterId)) {
-    throw notFound('DESTINATION_NOT_FOUND', `No activity with id ${to.chapterId}.`);
+  } else {
+    if (found.steps.length > 0) throw invariantViolation('STEPS_NEED_A_SUBTASK', 'Only subtasks hold steps.');
+    if (!map.activities.some((activity) => activity.id === to.chapterId)) {
+      throw notFound('DESTINATION_NOT_FOUND', `No activity with id ${to.chapterId}.`);
+    }
   }
 
   const activities = map.activities.map((activity) => {
@@ -56,7 +62,7 @@ export function moveTaskInMap(
         const landing = 'parentId' in to && to.parentId === task.id;
         return {
           ...task,
-          subtasks: landing ? insert(subtasks, { id, name: found.task.name }, to.before) : subtasks,
+          subtasks: landing ? insert(subtasks, { id, name: found.task.name, steps: found.steps }, to.before) : subtasks,
         };
       });
     const landing = 'chapterId' in to && to.chapterId === activity.id;
