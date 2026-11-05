@@ -15,3 +15,4 @@ export * from './application/move-task.ts';
 export * from './application/ports.ts';
 export * from './application/rate-task.ts';
 export * from './application/rename.ts';
+export * from './application/undo-change.ts';

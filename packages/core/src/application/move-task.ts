@@ -1,4 +1,4 @@
-import { invariantViolation, notFound } from '../kernel/errors.ts';
+import { notFound } from '../kernel/errors.ts';
 import { moveTaskInMap, type MoveDestination } from '../domain/map/move.ts';
 import type { MapId, TaskId } from '../domain/map/story-map.ts';
 import type { MapRecord, MapRepository } from './ports.ts';
@@ -26,16 +26,4 @@ export const moveTask =
     };
     await deps.maps.save(after);
     return { before, after };
-  };
-
-/** Puts the map back, unless it has changed since, in which case that change would be lost. */
-export const undoMove =
-  (deps: { maps: MapRepository }) =>
-  async ({ mapId, before, after }: { mapId: MapId; before: MapRecord; after: MapRecord }) => {
-    const current = await deps.maps.find(mapId);
-    if (current === null) throw notFound('MAP_NOT_FOUND', `No map with id ${mapId}.`);
-    if (JSON.stringify(current) !== JSON.stringify(after)) {
-      throw invariantViolation('UNDO_OUT_OF_DATE', 'The map has changed since this move.');
-    }
-    await deps.maps.save(before);
   };

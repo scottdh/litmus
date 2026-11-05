@@ -10,7 +10,7 @@ import { chapterState, focusSummary } from './focus';
 import { LightMark } from './light-mark';
 import { FILL_COLOUR, LIGHT_COPY } from './lights';
 import type { ReviewDraft } from './rating-section';
-import type { AddChapter, AddResult, AddTask, Move, Rate, Rename, UndoMove } from './rename-result';
+import type { AddChapter, AddResult, AddTask, Move, Rate, Rename, UndoChange } from './rename-result';
 import { findSubject } from './subject';
 import { useChapterFocus } from './use-chapter-focus';
 import { useTaskDrag } from './use-task-drag';
@@ -38,7 +38,7 @@ export function StoryWall({
   rename,
   rate,
   move,
-  undoMove,
+  undoChange,
   addTask,
   addChapter,
 }: {
@@ -47,7 +47,7 @@ export function StoryWall({
   rename: Rename;
   rate: Rate;
   move: Move;
-  undoMove: UndoMove;
+  undoChange: UndoChange;
   addTask: AddTask;
   addChapter: AddChapter;
 }) {
@@ -72,8 +72,8 @@ export function StoryWall({
   // A chapter that's gone to the background has no tasks on show, so its drawer closes too.
   const subject = found && (focus.length === 0 || focus.includes(found.chapterId)) ? found : null;
 
-  const [lastMove, setLastMove] = useState<{ token: string; message: string } | null>(null);
-  const [moveProblem, setMoveProblem] = useState<string | null>(null);
+  const [lastChange, setLastChange] = useState<{ token: string; message: string } | null>(null);
+  const [changeProblem, setChangeProblem] = useState<string | null>(null);
   /** Where a new chapter's field is showing: in front of this chapter, or at the end if null. */
   const [newChapterBefore, setNewChapterBefore] = useState<string | null | undefined>(undefined);
   const [newChapterId, setNewChapterId] = useState<string | null>(null);
@@ -94,47 +94,47 @@ export function StoryWall({
 
   const report = (name: string, result: Promise<AddResult>, added: (id: string) => void) => {
     const failed = () => {
-      setMoveProblem(`“${name}” couldn’t be added.`);
+      setChangeProblem(`“${name}” couldn’t be added.`);
     };
-    setMoveProblem(null);
+    setChangeProblem(null);
     void result.then((outcome) => {
       if (!outcome.ok) {
         failed();
         return;
       }
       added(outcome.id);
-      setLastMove({ token: outcome.undoToken, message: `Added ${name}.` });
+      setLastChange({ token: outcome.undoToken, message: `Added ${name}.` });
     }, failed);
   };
 
   const moveTask = (id: string, to: Destination) => {
     const name = findSubject(map, id)?.name ?? '';
-    setMoveProblem(null);
+    setChangeProblem(null);
     void move({ mapId: savedMap.id, id, to }).then(
       (result) => {
         if (!result.ok) {
-          setMoveProblem('That move didn’t work, so nothing changed.');
+          setChangeProblem('That move didn’t work, so nothing changed.');
           return;
         }
         if ('parentId' in to) toggleTask(to.parentId, true);
-        setLastMove({ token: result.undoToken, message: `Moved ${name} to ${describeDestination(map, to)}.` });
+        setLastChange({ token: result.undoToken, message: `Moved ${name} to ${describeDestination(map, to)}.` });
       },
       () => {
-        setMoveProblem('That move didn’t work, so nothing changed.');
+        setChangeProblem('That move didn’t work, so nothing changed.');
       },
     );
   };
 
-  const undoLastMove = () => {
-    if (lastMove === null) return;
-    const { token } = lastMove;
-    setLastMove(null);
-    void undoMove(token).then(
+  const undoLastChange = () => {
+    if (lastChange === null) return;
+    const { token } = lastChange;
+    setLastChange(null);
+    void undoChange(token).then(
       (result) => {
-        setMoveProblem(result.ok ? null : 'That can’t be undone, because the map has changed since.');
+        setChangeProblem(result.ok ? null : 'That can’t be undone, because the map has changed since.');
       },
       () => {
-        setMoveProblem('That can’t be undone, because the map has changed since.');
+        setChangeProblem('That can’t be undone, because the map has changed since.');
       },
     );
   };
@@ -287,8 +287,8 @@ export function StoryWall({
         <p aria-live="polite" className="min-w-48 flex-1 text-[14px] leading-snug text-pretty text-muted">
           {[
             saveFailed ? 'That name couldn’t be saved, so the old one is back.' : '',
-            moveProblem ?? '',
-            lastMove?.message ?? '',
+            changeProblem ?? '',
+            lastChange?.message ?? '',
             summary,
             dim !== null ? `${LIGHT_COPY[dim].label}: ${LIGHT_COPY[dim].meaning}` : '',
           ]
@@ -296,8 +296,8 @@ export function StoryWall({
             .join(' ')}
         </p>
         <div className="ms-auto flex shrink-0 gap-2">
-          {lastMove && (
-            <button type="button" onClick={undoLastMove} className={`${BUTTON} shrink-0 shadow-raised`}>
+          {lastChange && (
+            <button type="button" onClick={undoLastChange} className={`${BUTTON} shrink-0 shadow-raised`}>
               Undo
             </button>
           )}

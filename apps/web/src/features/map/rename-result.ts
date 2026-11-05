@@ -16,7 +16,7 @@ export type MoveResult = { ok: true; undoToken: string } | { ok: false; code: st
 
 export type Move = (input: { mapId: string; id: string; to: Destination }) => Promise<MoveResult>;
 
-export type UndoMove = (token: string) => Promise<RenameResult>;
+export type UndoChange = (token: string) => Promise<RenameResult>;
 
 export type AddResult = { ok: true; id: string; undoToken: string } | { ok: false; code: string };
 
