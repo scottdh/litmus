@@ -3,6 +3,7 @@ import type { MapId, PersonaId, StepId, StoryMap, TaskId, TeamId } from './story
 import { setPersona } from './persona.ts';
 import { moveTaskInMap } from './move.ts';
 import { assignTeam, removeTeam } from './team.ts';
+import { addTask } from './add.ts';
 
 const RIDER = 'ps_rider' as PersonaId;
 const DESK = 'ps_desk' as PersonaId;
@@ -117,5 +118,39 @@ describe('teams leave personas alone', () => {
 
   it('when its team is removed from the map', () => {
     expect(task(removeTeam(map, BENCH), 'tsk_1')?.personaIds).toEqual([RIDER]);
+  });
+});
+
+describe('adding a task for a persona', () => {
+  it('gives the new task the persona', () => {
+    const added = addTask(map, {
+      id: 'tsk_new' as TaskId,
+      name: 'New',
+      to: { chapterId: 'act_1' },
+      personaIds: [DESK],
+    });
+    expect(task(added, 'tsk_new')?.personaIds).toEqual([DESK]);
+  });
+
+  it('gives it a team as well when one is picked', () => {
+    const added = addTask(map, {
+      id: 'tsk_new' as TaskId,
+      name: 'New',
+      to: { chapterId: 'act_1' },
+      teamId: BENCH,
+      personaIds: [DESK],
+    });
+    expect(task(added, 'tsk_new')).toMatchObject({ teamId: BENCH, personaIds: [DESK] });
+  });
+
+  it('refuses a persona that isn’t on the map', () => {
+    expect(() =>
+      addTask(map, {
+        id: 'tsk_new' as TaskId,
+        name: 'New',
+        to: { chapterId: 'act_1' },
+        personaIds: ['ps_none' as PersonaId],
+      }),
+    ).toThrow(expect.objectContaining({ code: 'PERSONA_NOT_FOUND' }));
   });
 });
