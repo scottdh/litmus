@@ -1,5 +1,14 @@
 'use server';
-import { DomainError, LIGHTS, type AddDestination, type Light, type MoveDestination, type TaskId } from '@litmus/core';
+import {
+  DomainError,
+  LIGHTS,
+  type AddDestination,
+  type Light,
+  type MoveDestination,
+  type StepDestination,
+  type StepId,
+  type TaskId,
+} from '@litmus/core';
 import { revalidatePath } from 'next/cache';
 import {
   addChapterOnMap,
@@ -59,13 +68,19 @@ export async function rateAction(input: {
   return run(() => rateOnMap({ mapId, id, light, note }));
 }
 
-function readDestination(to: unknown): MoveDestination | null {
+function readDestination(to: unknown): MoveDestination | StepDestination | null {
   if (typeof to !== 'object' || to === null) return null;
-  const { chapterId, parentId, before } = to as { chapterId?: unknown; parentId?: unknown; before?: unknown };
+  const { chapterId, parentId, subtaskId, before } = to as {
+    chapterId?: unknown;
+    parentId?: unknown;
+    subtaskId?: unknown;
+    before?: unknown;
+  };
   if (before !== null && typeof before !== 'string') return null;
   const place = before as TaskId | null;
   if (typeof chapterId === 'string') return { chapterId, before: place };
   if (typeof parentId === 'string') return { parentId: parentId as TaskId, before: place };
+  if (typeof subtaskId === 'string') return { subtaskId: subtaskId as TaskId, before: before as StepId | null };
   return null;
 }
 

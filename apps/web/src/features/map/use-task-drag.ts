@@ -1,7 +1,7 @@
 'use client';
 import type { MapView } from '@litmus/core';
 import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
-import { canHoldSubtasks, destinationFor, hasSubtasks, zoneFor, type Destination, type Hover } from './drop';
+import { destinationFor, hoverZone, isStep, type Destination, type Hover } from './drop';
 
 export interface DropIndicator {
   kind: 'line' | 'box';
@@ -22,12 +22,13 @@ const SCROLL_STEP = 12;
 
 function readHover(map: MapView, draggedId: string, x: number, y: number) {
   const element = document.elementFromPoint(x, y);
-  const row = element?.closest<HTMLElement>('[data-drop-task]');
-  if (row?.dataset.dropTask) {
-    const overId = row.dataset.dropTask;
+  // Only a step looks at step rows. Anything else treats a subtask and its steps as one block.
+  const rows = isStep(map, draggedId) ? '[data-drop-step], [data-drop-task]' : '[data-drop-task]';
+  const row = element?.closest<HTMLElement>(rows);
+  const overId = row?.dataset.dropStep ?? row?.dataset.dropTask;
+  if (row && overId) {
     const rect = row.getBoundingClientRect();
-    const canNest = overId !== draggedId && canHoldSubtasks(map, overId) && !hasSubtasks(map, draggedId);
-    const hover: Hover = { overId, zone: zoneFor((y - rect.top) / rect.height, canNest) };
+    const hover: Hover = { overId, zone: hoverZone(map, draggedId, overId, (y - rect.top) / rect.height) };
     return { hover, rect };
   }
   const chapter = element?.closest<HTMLElement>('[data-drop-chapter]');

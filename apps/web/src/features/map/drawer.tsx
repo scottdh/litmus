@@ -96,7 +96,12 @@ export function Drawer({
         />
       </div>
       {subject.kind === 'step' && (
-        <NoteField key={`note-${subject.id}`} id={subject.id} value={subject.note} onSave={onNote} />
+        <>
+          <NoteField key={`note-${subject.id}`} id={subject.id} value={subject.note} onSave={onNote} />
+          <div className="flex max-lg:w-24">
+            <MoveArrows map={map} id={subject.id} onMove={onMove} />
+          </div>
+        </>
       )}
       {(subject.kind === 'task' || subject.kind === 'subtask') && subject.subtasks.length === 0 && (
         <RatingSection
@@ -224,7 +229,7 @@ export function Drawer({
           </button>
         </div>
       )}
-      {(subject.kind === 'task' || subject.kind === 'subtask') && <MoveTo map={map} id={subject.id} onMove={onMove} />}
+      {subject.kind !== 'chapter' && <MoveTo map={map} id={subject.id} onMove={onMove} />}
     </aside>
   );
 }
