@@ -1,5 +1,6 @@
 import { notFound } from '../kernel/errors.ts';
 import { addActivity, addTask, type AddDestination } from '../domain/map/add.ts';
+import { addPersona } from '../domain/map/persona.ts';
 import { addTeam } from '../domain/map/team.ts';
 import type { MapId, PersonaId, StoryMap, TaskId, TeamId } from '../domain/map/story-map.ts';
 import type { MapRecord, MapRepository } from './ports.ts';
@@ -49,4 +50,11 @@ export const addTeamToMap =
   ({ mapId, name }: { mapId: MapId; name: string }) => {
     const id = `tm_${newId()}` as TeamId;
     return change(maps, mapId, id, (map) => addTeam(map, { id, name }));
+  };
+
+export const addPersonaToMap =
+  ({ maps, newId }: Deps) =>
+  ({ mapId, name }: { mapId: MapId; name: string }) => {
+    const id = `ps_${newId()}` as PersonaId;
+    return change(maps, mapId, id, (map) => addPersona(map, { id, name }));
   };
