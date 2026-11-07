@@ -39,7 +39,7 @@ export function TeamPopover({
                   onClick={() => {
                     onToggle(team.id);
                   }}
-                  className="flex min-h-11 w-full cursor-pointer items-center gap-2.5 rounded-sm px-1.5 text-start text-[14px] transition-colors duration-150 ease-out hover:bg-canvas aria-pressed:bg-canvas"
+                  className="flex min-h-11 w-full cursor-pointer items-center gap-2.5 rounded-sm px-1.5 text-start text-[14px] transition-colors duration-150 ease-out hover:bg-canvas"
                 >
                   <span
                     aria-hidden="true"

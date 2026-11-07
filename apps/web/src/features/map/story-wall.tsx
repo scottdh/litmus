@@ -104,6 +104,13 @@ export function StoryWall({
         ? `${TEAM_NAMES.format(teamNames)} ${teamNames.length === 1 ? 'has' : 'have'} no tasks yet.`
         : `Chapters without ${TEAM_NAMES.format(teamNames)}’s tasks are folded away.`;
 
+  const teamLabel = teamNames.length >= 3 ? `${String(teamNames.length)} teams` : TEAM_NAMES.format(teamNames);
+  // Esc, or unfocusing every chapter, opens the whole story, so the teams that folded it go too.
+  const teamsFoldSomething = chaptersWithTeams(map.activities, teams).length > 0;
+  useEffect(() => {
+    if (teams.size > 0 && focus.length === 0 && teamsFoldSomething) setTeams(new Set());
+  }, [focus.length, teams.size, teamsFoldSomething]);
+
   /** Picking teams folds away every chapter they have nothing in, by setting the focus. */
   const toggleTeam = (id: string) => {
     const next = new Set(teams);
@@ -356,7 +363,7 @@ export function StoryWall({
               aria-label={`Stop showing only ${TEAM_NAMES.format(teamNames)}`}
               className={`${BUTTON} flex shrink-0 items-center gap-1.5 bg-ink text-canvas`}
             >
-              {TEAM_NAMES.format(teamNames)} only
+              {teamLabel} only
               <span aria-hidden="true" className="opacity-70">
                 ×
               </span>
