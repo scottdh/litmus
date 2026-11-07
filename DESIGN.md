@@ -90,7 +90,7 @@ Esc inside any popover only closes it: page-wide Esc handlers skip events from i
 
 ### Drawer
 
-`apps/web/src/features/map/drawer.tsx`. Where a task's detail lives, and where names are edited. It runs the full height of the window at the right edge, and the page makes room for it, so the map and its controls stay usable. On a phone it fills the screen. An X at the top closes it and stays in view while the drawer scrolls. It holds the name, the team, the personas, the light and the review, a step's name and note, and a team's name with its tasks under their chapters and a Remove team button, which keeps the tasks and clears their team, with the usual Undo. Add new task detail here rather than to the row. `docs/designs/task-drawer-direction.md` has the reasoning.
+`apps/web/src/features/map/drawer.tsx`. Where a task's detail lives, and where names are edited. It runs the full height of the window at the right edge, and the page makes room for it, so the map and its controls stay usable. On a phone it fills the screen. An X at the top closes it and stays in view while the drawer scrolls. It holds the name, the team, the personas, the light and the review, a step's name and note, and a team's name with its tasks under their chapters and a Remove team button, which asks in a popover on the button, then keeps the tasks and clears their team, with the usual Undo. Add new task detail here rather than to the row. `docs/designs/task-drawer-direction.md` has the reasoning.
 
 ### RatingSection
 
