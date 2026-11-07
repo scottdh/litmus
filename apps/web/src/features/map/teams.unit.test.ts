@@ -1,6 +1,6 @@
 import type { ActivityView, TaskView } from '@litmus/core';
 import { describe, expect, it } from 'vitest';
-import { chaptersWithTeams, isOffTeam, teamChipLabel, teamForNewTask } from './teams';
+import { NO_TEAM, chaptersWithTeams, isOffTeam, teamChipLabel, teamForNewTask } from './teams';
 
 const task = (id: string, teamId: string | null): TaskView => ({
   id,
@@ -76,5 +76,28 @@ describe('teamChipLabel', () => {
 
   it('keeps only for the one team on a map with one team', () => {
     expect(teamChipLabel(['Till'], 1)).toBe('Till only');
+  });
+});
+
+describe('picking No team', () => {
+  it('keeps tasks with no team at full strength, and fades the rest', () => {
+    const picked = new Set([NO_TEAM]);
+    expect(isOffTeam(task('b', null), picked)).toBe(false);
+    expect(isOffTeam(task('a', 'bench'), picked)).toBe(true);
+  });
+
+  it('works alongside a team', () => {
+    const picked = new Set(['bench', NO_TEAM]);
+    expect(isOffTeam(task('a', 'bench'), picked)).toBe(false);
+    expect(isOffTeam(task('b', null), picked)).toBe(false);
+    expect(isOffTeam(task('c', 'till'), picked)).toBe(true);
+  });
+
+  it('folds chapters that have no unowned tasks', () => {
+    expect(chaptersWithTeams(activities, new Set([NO_TEAM]))).toEqual(['act_1', 'act_3']);
+  });
+
+  it('gives a new task no team when it is the only pick', () => {
+    expect(teamForNewTask(new Set([NO_TEAM]))).toBeNull();
   });
 });

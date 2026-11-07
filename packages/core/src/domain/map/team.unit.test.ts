@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { MapId, StoryMap, TaskId, TeamId } from './story-map.ts';
-import { addTeam, assignTeam, renameTeam } from './team.ts';
+import { addTeam, assignTeam, removeTeam, renameTeam } from './team.ts';
 import { moveTaskInMap } from './move.ts';
 import { addTask } from './add.ts';
 
@@ -106,5 +106,37 @@ describe('renameTeam', () => {
     expect(() => renameTeam(map, 'tm_none' as TeamId, 'Name')).toThrow(
       expect.objectContaining({ code: 'TEAM_NOT_FOUND' }),
     );
+  });
+});
+
+describe('removeTeam', () => {
+  const two: StoryMap = {
+    ...map,
+    teams: [...map.teams, { id: 'tm_till' as TeamId, name: 'Till' }],
+    activities: [
+      {
+        ...map.activities[0]!,
+        tasks: [
+          ...map.activities[0]!.tasks,
+          { id: 'tsk_3' as TaskId, name: 'Tills', teamId: 'tm_till' as TeamId, subtasks: [] },
+        ],
+      },
+    ],
+  };
+
+  it('takes the team off the map', () => {
+    expect(removeTeam(two, BENCH).teams).toEqual([{ id: 'tm_till', name: 'Till' }]);
+  });
+
+  it('leaves its tasks with no team, and everything else as it was', () => {
+    const removed = removeTeam(two, BENCH);
+    expect(teamOf(removed, 'tsk_1')).toBeNull();
+    expect('teamId' in (removed.activities[0]?.tasks[0] ?? {})).toBe(false);
+    expect(removed.activities[0]?.tasks[0]?.subtasks).toHaveLength(1);
+    expect(teamOf(removed, 'tsk_3')).toBe('tm_till');
+  });
+
+  it('refuses a team that isn’t on the map', () => {
+    expect(() => removeTeam(map, 'tm_none' as TeamId)).toThrow(expect.objectContaining({ code: 'TEAM_NOT_FOUND' }));
   });
 });
