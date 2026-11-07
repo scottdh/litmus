@@ -1,14 +1,17 @@
 import { invariantViolation, notFound } from '../../kernel/errors.ts';
 import { tidyName } from './rename.ts';
-import type { StoryMap, Task, TaskId, TeamId } from './story-map.ts';
+import type { PersonaId, StoryMap, Task, TaskId, TeamId } from './story-map.ts';
 
 /** New tasks go at the end of their list. Dragging puts them anywhere else. */
 export type AddDestination = { chapterId: string } | { parentId: TaskId };
 
-/** `teamId` only applies to a new top-level task, because a subtask shares its task's team. */
+/**
+ * `teamId` only applies to a new top-level task, because a subtask shares its task's team.
+ * `personaIds` go on with the add, so undoing it takes them away too.
+ */
 export function addTask(
   map: StoryMap,
-  input: { id: TaskId; name: string; to: AddDestination; teamId?: TeamId | null },
+  input: { id: TaskId; name: string; to: AddDestination; teamId?: TeamId | null; personaIds?: PersonaId[] },
 ): StoryMap {
   const name = tidyName(input.name);
   const { id, to } = input;
@@ -17,7 +20,11 @@ export function addTask(
     if (!('chapterId' in to)) throw invariantViolation('TEAM_IS_ON_THE_TASK', 'A subtask shares its task’s team.');
     if (!map.teams.some((team) => team.id === teamId)) throw notFound('TEAM_NOT_FOUND', `No team with id ${teamId}.`);
   }
-  const added: Task = teamId === null ? { id, name, subtasks: [] } : { id, name, teamId, subtasks: [] };
+  const personaIds = input.personaIds ?? [];
+  const unknown = personaIds.find((personaId) => !map.personas.some((persona) => persona.id === personaId));
+  if (unknown !== undefined) throw notFound('PERSONA_NOT_FOUND', `No persona with id ${unknown}.`);
+  const carried = personaIds.length > 0 ? { personaIds } : {};
+  const added: Task = { id, name, ...(teamId === null ? {} : { teamId }), ...carried, subtasks: [] };
   if ('chapterId' in to) {
     if (!map.activities.some((activity) => activity.id === to.chapterId)) {
       throw notFound('ACTIVITY_NOT_FOUND', `No activity with id ${to.chapterId}.`);
@@ -41,7 +48,9 @@ export function addTask(
             ? [...activity.tasks, added]
             : activity.tasks
           : activity.tasks.map((task) =>
-              task.id === to.parentId ? { ...task, subtasks: [...task.subtasks, { id, name, steps: [] }] } : task,
+              task.id === to.parentId
+                ? { ...task, subtasks: [...task.subtasks, { id, name, ...carried, steps: [] }] }
+                : task,
             ),
     })),
   };

@@ -76,11 +76,14 @@ export function PersonaName({
   className,
   personas,
   ids,
+  picked,
 }: {
   name: string;
   className: string;
   personas: PersonaView[];
   ids: string[];
+  /** Drawn in ink while picked, so they stand out from the rest. */
+  picked?: ReadonlySet<string>;
 }) {
   if (ids.length === 0) return <span className={className}>{name}</span>;
   const cut = name.lastIndexOf(' ') + 1;
@@ -89,11 +92,16 @@ export function PersonaName({
       {cut > 0 && <span className={className}>{name.slice(0, cut)}</span>}
       <span className="whitespace-nowrap">
         <span className={className}>{name.slice(cut)}</span>
-        <span className="ms-1.5 inline-flex translate-y-[0.15em] items-center gap-1 align-baseline text-muted">
+        <span className="ms-1.5 inline-flex translate-y-[0.15em] items-center gap-1 align-baseline">
           {personas
             .filter((persona) => ids.includes(persona.id))
             .map((persona) => (
-              <PersonaGlyph key={persona.id} icon={persona.icon} label={persona.name} />
+              <PersonaGlyph
+                key={persona.id}
+                icon={persona.icon}
+                label={persona.name}
+                className={`size-3.5 transition-colors duration-150 ease-out ${picked?.has(persona.id) ? 'text-ink' : 'text-muted'}`}
+              />
             ))}
         </span>
       </span>

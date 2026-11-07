@@ -126,19 +126,22 @@ export async function addTaskAction(input: {
   name: unknown;
   to: unknown;
   teamId?: unknown;
+  personaId?: unknown;
 }): Promise<AddResult> {
   const { mapId, name } = input;
   const to = readAddDestination(input.to);
   const teamId = input.teamId ?? null;
+  const personaId = input.personaId ?? null;
   if (
     typeof mapId !== 'string' ||
     typeof name !== 'string' ||
     to === null ||
-    (teamId !== null && typeof teamId !== 'string')
+    (teamId !== null && typeof teamId !== 'string') ||
+    (personaId !== null && typeof personaId !== 'string')
   ) {
     return { ok: false, code: 'INVALID_INPUT' };
   }
-  return runAdd(() => addTaskOnMap({ mapId, name, to, teamId }));
+  return runAdd(() => addTaskOnMap({ mapId, name, to, teamId, personaId }));
 }
 
 export async function addStepAction(input: { mapId: unknown; name: unknown; subtaskId: unknown }): Promise<AddResult> {

@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { isInPopover } from '../../ui/popover';
 import { restoreFocus, toggleFocus } from './focus';
 
 function read(key: string, chapterIds: string[]) {
@@ -47,7 +48,7 @@ export function useChapterFocus(mapId: string, chapterIds: string[], escapeClear
   useEffect(() => {
     if (!escapeClears) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !event.defaultPrevented) setFocus([]);
+      if (event.key === 'Escape' && !event.defaultPrevented && !isInPopover(event)) setFocus([]);
     };
     document.addEventListener('keydown', onKeyDown);
     return () => {
