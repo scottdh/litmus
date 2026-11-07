@@ -9,14 +9,14 @@ import { NO_TEAM } from './teams';
 
 /**
  * Picks whose work to show. Any number can be picked; everything else fades, and empty chapters fold away.
- * It's also where teams are added, and where Rename opens a team in the drawer.
+ * It's also where teams are added, and where Open shows a team in the drawer.
  */
 export function TeamPopover({
   teams,
   activities,
   picked,
   onToggle,
-  onRename,
+  onOpen,
   onAdd,
   triggerRef,
 }: {
@@ -24,7 +24,7 @@ export function TeamPopover({
   activities: ActivityView[];
   picked: ReadonlySet<string>;
   onToggle: (id: string) => void;
-  onRename: (id: string) => void;
+  onOpen: (id: string) => void;
   onAdd: (name: string) => void;
   triggerRef?: Ref<HTMLButtonElement>;
 }) {
@@ -46,7 +46,9 @@ export function TeamPopover({
         Teams
       </PopoverTrigger>
       <PopoverPanel align="end" className="w-[min(18rem,calc(100vw-2rem))] p-3">
-        <PopoverTitle className="px-1.5 pt-1 text-[13px] font-semibold">Show a team’s tasks</PopoverTitle>
+        <PopoverTitle className="px-1.5 pt-1 text-[13px] font-semibold">
+          {teams.length === 0 ? 'No teams yet' : 'Show a team’s tasks'}
+        </PopoverTitle>
         <ul aria-label="Teams" className="mt-2 flex flex-col gap-0.5">
           {teams.map((team) => {
             const pressed = picked.has(team.id);
@@ -62,14 +64,14 @@ export function TeamPopover({
                 />
                 <button
                   type="button"
-                  aria-label={`Rename ${team.name}`}
+                  aria-label={`Open ${team.name}`}
                   onClick={() => {
                     setOpen(false);
-                    onRename(team.id);
+                    onOpen(team.id);
                   }}
                   className="relative shrink-0 cursor-pointer rounded-sm px-1.5 text-[12px] text-muted opacity-0 transition-[opacity,color] duration-150 ease-out group-hover/team:opacity-100 before:absolute before:inset-x-0 before:-inset-y-3 hover:text-ink focus-visible:opacity-100 max-lg:min-h-11 max-lg:opacity-100"
                 >
-                  Rename
+                  Open
                 </button>
               </li>
             );
@@ -84,9 +86,9 @@ export function TeamPopover({
                   onToggle(NO_TEAM);
                 }}
               />
-              {/* Holds the place of Rename, so the counts line up. */}
+              {/* Holds the place of Open, so the counts line up. */}
               <span aria-hidden="true" className="invisible shrink-0 px-1.5 text-[12px] max-lg:min-h-11">
-                Rename
+                Open
               </span>
             </li>
           )}

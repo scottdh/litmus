@@ -47,6 +47,7 @@ export function Drawer({
   onAddChapter,
   onAssignTeam,
   onRemoveTeam,
+  removingTeam,
   onSetPersona,
 }: {
   map: MapView;
@@ -67,6 +68,7 @@ export function Drawer({
   onAddChapter: (where: 'before' | 'after') => void;
   onAssignTeam: (teamId: string | null) => Promise<RenameResult>;
   onRemoveTeam: () => void;
+  removingTeam: boolean;
   onSetPersona: (personaId: string, on: boolean) => Promise<RenameResult>;
 }) {
   return (
@@ -280,7 +282,12 @@ export function Drawer({
         ))}
       {subject.kind === 'team' && (
         <div className="flex w-full flex-col items-start gap-1.5 border-t-(length:--hairline) border-line pt-4">
-          <button type="button" onClick={onRemoveTeam} className={`${BUTTON} text-danger shadow-raised`}>
+          <button
+            type="button"
+            onClick={onRemoveTeam}
+            aria-disabled={removingTeam}
+            className={`${BUTTON} text-danger shadow-raised aria-disabled:cursor-default aria-disabled:opacity-60`}
+          >
             Remove team
           </button>
           <p className="text-[13px] leading-snug text-pretty text-muted">

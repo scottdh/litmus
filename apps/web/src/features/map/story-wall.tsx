@@ -18,7 +18,7 @@ import {
   type PickedPersonas,
 } from './personas';
 import { TeamPopover } from './team-popover';
-import { NO_TEAM, isEveryTeam, teamChipLabel, teamForNewTask, type PickedTeams } from './teams';
+import { NO_TEAM, isEveryTeam, teamChipLabel, teamForNewTask, type PickedTeams, teamSummary } from './teams';
 import { LightMark } from './light-mark';
 import { FILL_COLOUR, LIGHT_COPY } from './lights';
 import type { ReviewDraft } from './rating-section';
@@ -139,15 +139,14 @@ export function StoryWall({
         )
       : teamNames.length === 0
         ? focusSummary(map.activities, focus)
-        : pickedChapters.length === 0
-          ? onlyNoTeam
-            ? 'Every task has a team.'
-            : allTeams
-              ? 'No team has tasks yet.'
-              : `${teamsPhrase} ${teamNames.length === 1 ? 'has' : 'have'} no tasks yet.`
-          : teams.has(NO_TEAM)
-            ? `Chapters with no tasks for ${teamsPhrase} are folded away.`
-            : `Chapters without ${teamsPhrase}’s tasks are folded away.`;
+        : teamSummary(
+            {
+              names: map.teams.filter((team) => teams.has(team.id)).map((team) => team.name),
+              noTeam: teams.has(NO_TEAM),
+              allTeams,
+            },
+            pickedChapters.length > 0,
+          );
 
   const teamLabel = teamChipLabel(teamNames, pickableCount);
   const personaLabel = personaChipLabel(personaNames, map.personas.length);
@@ -247,20 +246,28 @@ export function StoryWall({
     );
   };
 
+  const [removingTeam, setRemovingTeam] = useState(false);
   const removeTeamNow = (id: string) => {
+    // A second click before the first lands would fail, and contradict the first in the status line.
+    if (removingTeam) return;
     const name = findSubject(map, id)?.name ?? '';
     const failed = () => {
       setChangeProblem(`${name} couldn’t be removed, so nothing changed.`);
     };
     setChangeProblem(null);
-    void removeTeam({ mapId: savedMap.id, id }).then((result) => {
-      if (!result.ok) {
-        failed();
-        return;
-      }
-      setLastChange({ token: result.undoToken, message: `Removed ${name}.` });
-      closeDrawer();
-    }, failed);
+    setRemovingTeam(true);
+    void removeTeam({ mapId: savedMap.id, id })
+      .then((result) => {
+        if (!result.ok) {
+          failed();
+          return;
+        }
+        setLastChange({ token: result.undoToken, message: `Removed ${name}.` });
+        closeDrawer();
+      }, failed)
+      .finally(() => {
+        setRemovingTeam(false);
+      });
   };
 
   const undoLastChange = () => {
@@ -477,7 +484,7 @@ export function StoryWall({
             onToggle={(id) => {
               refold(flip(teams, id), personas);
             }}
-            onRename={openDrawer}
+            onOpen={openDrawer}
             onAdd={(name) => {
               report(name, addTeam({ mapId: savedMap.id, name }), () => undefined);
             }}
@@ -614,6 +621,7 @@ export function StoryWall({
               saveName(subject.id, kind, name);
             }}
             onClose={closeDrawer}
+            removingTeam={removingTeam}
             onRemoveTeam={() => {
               removeTeamNow(subject.id);
             }}
