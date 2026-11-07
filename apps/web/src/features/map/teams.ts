@@ -27,6 +27,24 @@ const TEAM_NAMES = new Intl.ListFormat('en', { style: 'long', type: 'conjunction
 /** Every team on a map with more than one, so the chip can say "All teams". */
 export const isEveryTeam = (pickedCount: number, teamCount: number) => pickedCount > 1 && pickedCount === teamCount;
 
+/** The status line while teams are picked. Tasks with no team are "unowned" here, which reads better than "No team's". */
+export const teamSummary = (
+  { names, noTeam, allTeams }: { names: string[]; noTeam: boolean; allTeams: boolean },
+  anyMatch: boolean,
+) => {
+  const teams = allTeams ? 'any team' : TEAM_NAMES.format(names);
+  if (!anyMatch) {
+    if (names.length === 0) return 'Every task has a team.';
+    if (allTeams) return 'No team has tasks yet.';
+    const has = `${teams} ${names.length === 1 ? 'has' : 'have'} no tasks yet`;
+    return noTeam ? `${has}, and every task has a team.` : `${has}.`;
+  }
+  if (names.length === 0) return 'Chapters without unowned tasks are folded away.';
+  return noTeam
+    ? `Chapters without ${teams}’s tasks or unowned ones are folded away.`
+    : `Chapters without ${teams}’s tasks are folded away.`;
+};
+
 /** "only" is said for a single team, where it's the point; for more it's noise. */
 export const teamChipLabel = (names: string[], teamCount: number) => {
   if (isEveryTeam(names.length, teamCount)) return 'All teams';

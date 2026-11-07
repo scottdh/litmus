@@ -360,14 +360,14 @@ export function Chapter({
             <button
               type="button"
               id={`open-${activity.id}`}
-              aria-label={`Rename ${activity.name}`}
+              aria-label={`Open ${activity.name}`}
               aria-current={selectedId === activity.id ? 'true' : undefined}
               onClick={() => {
                 onOpenDrawer(activity.id);
               }}
               className="absolute top-0 right-0 cursor-pointer text-[13px] text-muted opacity-0 transition-[opacity,color] duration-150 ease-out group-hover/chapter:opacity-100 before:absolute before:inset-x-0 before:-inset-y-3 hover:text-ink focus-visible:opacity-100 aria-current:text-ink aria-current:opacity-100 max-lg:opacity-100"
             >
-              Rename
+              Open
             </button>
           )}
         </h2>
