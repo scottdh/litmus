@@ -104,6 +104,10 @@ Esc inside any popover only closes it: page-wide Esc handlers skip events from i
 
 `apps/web/src/features/map/use-task-drag.ts` and `move-section.tsx`. Press and move a row to drag it with a mouse or pen. A line shows where it lands, and an outline shows it going inside a task, into a subtask (for a step), or to the end of a chapter. Anything draggable must also be reachable from the drawer's Move controls, for keyboard and touch: up and down arrows beside the light (under the note for a step, which has no light), and Move to on its own line. Every move gets a visible Undo.
 
+### Changes, confirms and Undo
+
+`apps/web/src/features/map/undo-toast.tsx` and `remove-team.tsx`. One rule for every change that can be undone. A change that **loses data** (removing a team, and removing a persona or deleting anything when those arrive) asks first in a popover on its button, with Cancel focused and a solid `danger` button, then gets Undo like everything else. **Every other** undoable change (adding, moving) just happens, then shows a toast at the bottom centre with what changed, Undo and ×. The toast is `ink` on `surface`, never green, because green is a light. It stays 8 s, waits while hovered or focused, gives way to the next change's toast, and centres on the map when a drawer is open. The header keeps its Undo as the fallback once the toast has gone. Never confirm a change that loses nothing. `docs/designs/teams-direction.md` §13 has the reasoning.
+
 ### Adding
 
 `apps/web/src/features/map/add-field.tsx`. How anything new gets on the map. A name goes straight into a field where the item will appear, with no empty item saved first. Enter adds, Esc gives up, and leaving adds anything typed. Tasks and subtasks stay open for the next one, and Enter on an empty field finishes. New items take no light, so they show grey. Every add gets the same visible Undo as a move. `docs/designs/adding-direction.md` has the reasoning.
