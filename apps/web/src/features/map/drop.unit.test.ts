@@ -1,6 +1,6 @@
 import type { MapView } from '@litmus/core';
 import { describe, expect, it } from 'vitest';
-import { destinationFor, moveChoices, stepDestination, zoneFor } from './drop';
+import { describeDestination, destinationFor, hoverZone, moveChoices, stepDestination, zoneFor } from './drop';
 
 const task = (id: string, name: string, subtasks: string[] = []) => ({
   id,
@@ -153,5 +153,75 @@ describe('a subtask with steps', () => {
     const labels = moveChoices(withSteps, 'b1').flatMap((group) => group.choices.map((choice) => choice.label));
     expect(labels).not.toContain('End of First');
     expect(labels).toContain('Inside C');
+  });
+});
+
+describe('moving a step', () => {
+  const steps = (...ids: string[]) => ids.map((value) => ({ id: value, name: value.toUpperCase(), note: '' }));
+  const withSteps: MapView = {
+    ...map,
+    activities: map.activities.map((chapter) => ({
+      ...chapter,
+      tasks: chapter.tasks.map((item) => ({
+        ...item,
+        subtasks: item.subtasks.map((sub) => (sub.id === 'b1' ? { ...sub, steps: steps('s1', 's2', 's3') } : sub)),
+      })),
+    })),
+  };
+
+  it('treats a subtask as somewhere to drop into, and a step as a place among steps', () => {
+    expect(hoverZone(withSteps, 's1', 'b2', 0.1)).toBe('inside');
+    expect(hoverZone(withSteps, 's1', 's2', 0.4)).toBe('before');
+    expect(hoverZone(withSteps, 's1', 's2', 0.6)).toBe('after');
+  });
+
+  it('keeps the usual zones for tasks', () => {
+    expect(hoverZone(withSteps, 'a', 'c', 0.5)).toBe('inside');
+    expect(hoverZone(withSteps, 'a', 'b1', 0.5)).toBe('after');
+  });
+
+  it('places a step before or after another', () => {
+    expect(destinationFor(withSteps, 's3', { overId: 's1', zone: 'before' })).toEqual({
+      subtaskId: 'b1',
+      before: 's1',
+    });
+    expect(destinationFor(withSteps, 's1', { overId: 's2', zone: 'after' })).toEqual({ subtaskId: 'b1', before: 's3' });
+    expect(destinationFor(withSteps, 's1', { overId: 's3', zone: 'after' })).toEqual({ subtaskId: 'b1', before: null });
+  });
+
+  it('drops a step into another subtask, at the end', () => {
+    expect(destinationFor(withSteps, 's1', { overId: 'b2', zone: 'inside' })).toEqual({
+      subtaskId: 'b2',
+      before: null,
+    });
+  });
+
+  it('won’t let a step become a task or subtask', () => {
+    expect(destinationFor(withSteps, 's1', { overId: 'a', zone: 'before' })).toBeNull();
+    expect(destinationFor(withSteps, 's1', { overId: 'c', zone: 'inside' })).toBeNull();
+    expect(destinationFor(withSteps, 's1', { overId: 'b2', zone: 'before' })).toBeNull();
+    expect(destinationFor(withSteps, 's1', { overId: 'act_2', zone: 'end' })).toBeNull();
+  });
+
+  it('won’t let a task or subtask go among steps', () => {
+    expect(destinationFor(withSteps, 'a', { overId: 's1', zone: 'before' })).toBeNull();
+    expect(destinationFor(withSteps, 'b2', { overId: 's1', zone: 'after' })).toBeNull();
+  });
+
+  it('moves one place at a time within its subtask', () => {
+    expect(stepDestination(withSteps, 's2', -1)).toEqual({ subtaskId: 'b1', before: 's1' });
+    expect(stepDestination(withSteps, 's2', 1)).toEqual({ subtaskId: 'b1', before: null });
+    expect(stepDestination(withSteps, 's1', -1)).toBeNull();
+    expect(stepDestination(withSteps, 's3', 1)).toBeNull();
+  });
+
+  it('offers every subtask in Move to, and nothing else', () => {
+    const groups = moveChoices(withSteps, 's1');
+    expect(groups.map((group) => group.chapter)).toEqual(['First']);
+    expect(groups.flatMap((group) => group.choices.map((choice) => choice.label))).toEqual(['Inside B1', 'Inside B2']);
+  });
+
+  it('names the subtask it went to', () => {
+    expect(describeDestination(withSteps, { subtaskId: 'b2', before: null })).toBe('B2');
   });
 });
