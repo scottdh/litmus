@@ -62,6 +62,14 @@ Shared components live in `apps/web/src/ui` and are the only place that imports 
 
 `apps/web/src/features/map/team-field.tsx`. A task's team, in the drawer under the name, with "No team" for none. Only top-level tasks have one; a subtask shows its task's team read-only, with "Set on its task". A change shows at once and puts the old team back if it can't be saved.
 
+### Persona icons
+
+`apps/web/src/features/map/persona-icon.tsx`. Eight one-colour line glyphs drawn for Litmus on a 16 px grid, 1.4 stroke, `currentColor`: `person`, `wrench`, `bell`, `box`, `key`, `house`, `phone`, `star`. Never use emoji or initials instead: emoji bring their own colour, and colour means a light. Each glyph carries its persona's name as its accessible name and tooltip, unless the name sits beside it. `PersonaName` puts them after a row's name, 14 px, `muted`, 6 px after the last word and 4 px apart, and keeps the last word and the glyphs on one line so the glyphs never sit alone. Task rows show their own personas and their subtasks' and steps'; subtask rows their own and their steps'; step rows their own. `docs/designs/personas-direction.md` has the reasoning.
+
+### PersonaField
+
+`apps/web/src/features/map/persona-field.tsx`. Who carries out a task, subtask or step, in the drawer under Team (under the name for a step). One toggle button per persona, filled with `ink` when it's on, and any number can be on. A change shows at once and saves at once, and if it can't be saved the button goes back with "That persona couldn't be saved, so it hasn't changed." Personas set further down aren't buttons here; they're listed under them after "Also from its subtasks:" or "Also from its steps:", because that's where they're set. With no personas on the map, the field doesn't show.
+
 ### Popover
 
 `apps/web/src/ui/popover.tsx`. Use for content opened from a button that shouldn't stay on the page. It opens under its trigger, keeps 16 px inside the window, fades in with opacity, and returns focus to the trigger when it closes.
@@ -76,7 +84,7 @@ Shared components live in `apps/web/src/ui` and are the only place that imports 
 
 ### Drawer
 
-`apps/web/src/features/map/drawer.tsx`. Where a task's detail lives, and where names are edited. It runs the full height of the window at the right edge, and the page makes room for it, so the map and its controls stay usable. On a phone it fills the screen. An X at the top closes it and stays in view while the drawer scrolls. It holds the name, the team, the light and the review, a step's name and note, and a team's name with its tasks under their chapters and a Remove team button, which keeps the tasks and clears their team, with the usual Undo. Add new task detail here rather than to the row. `docs/designs/task-drawer-direction.md` has the reasoning.
+`apps/web/src/features/map/drawer.tsx`. Where a task's detail lives, and where names are edited. It runs the full height of the window at the right edge, and the page makes room for it, so the map and its controls stay usable. On a phone it fills the screen. An X at the top closes it and stays in view while the drawer scrolls. It holds the name, the team, the personas, the light and the review, a step's name and note, and a team's name with its tasks under their chapters and a Remove team button, which keeps the tasks and clears their team, with the usual Undo. Add new task detail here rather than to the row. `docs/designs/task-drawer-direction.md` has the reasoning.
 
 ### RatingSection
 

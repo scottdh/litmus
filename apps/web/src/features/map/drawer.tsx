@@ -8,11 +8,16 @@ import type { Destination } from './drop';
 import { MoveArrows, MoveTo } from './move-section';
 import { NameField } from './name-field';
 import { NoteField } from './note-field';
+import { PersonaField } from './persona-field';
+import { PersonaName } from './persona-icon';
 import { RatingSection, type ReviewDraft } from './rating-section';
 import type { Rate, RenameResult } from './rename-result';
 import { StepMark } from './step-mark';
 import { TeamField } from './team-field';
 import type { Subject } from './subject';
+
+const CHILD_NAME =
+  'underline decoration-transparent decoration-from-font underline-offset-2 transition-[text-decoration-color] duration-150 ease-out group-hover/row:decoration-current';
 
 const LABEL: Record<Subject['kind'], string> = {
   chapter: 'Chapter name',
@@ -42,6 +47,7 @@ export function Drawer({
   onAddChapter,
   onAssignTeam,
   onRemoveTeam,
+  onSetPersona,
 }: {
   map: MapView;
   onMove: (to: Destination) => void;
@@ -61,6 +67,7 @@ export function Drawer({
   onAddChapter: (where: 'before' | 'after') => void;
   onAssignTeam: (teamId: string | null) => Promise<RenameResult>;
   onRemoveTeam: () => void;
+  onSetPersona: (personaId: string, on: boolean) => Promise<RenameResult>;
 }) {
   return (
     <aside
@@ -112,6 +119,17 @@ export function Drawer({
           onChange={onAssignTeam}
         />
       )}
+      {(subject.kind === 'task' || subject.kind === 'subtask' || subject.kind === 'step') &&
+        map.personas.length > 0 && (
+          <PersonaField
+            key={`personas-${subject.id}`}
+            personas={map.personas}
+            own={subject.kind === 'step' ? subject.personaIds : subject.ownPersonaIds}
+            rolled={subject.personaIds}
+            from={subject.kind === 'task' ? 'its subtasks' : subject.kind === 'subtask' ? 'its steps' : null}
+            onChange={onSetPersona}
+          />
+        )}
       {subject.kind === 'step' && (
         <>
           <NoteField key={`note-${subject.id}`} id={subject.id} value={subject.note} onSave={onNote} />
@@ -161,9 +179,7 @@ export function Drawer({
                     <LightMark light={sub.light} className="size-3" />
                     <span className="sr-only">{LIGHT_COPY[sub.light].label}: </span>
                   </span>
-                  <span className="underline decoration-transparent decoration-from-font underline-offset-2 transition-[text-decoration-color] duration-150 ease-out group-hover/row:decoration-current">
-                    {sub.name}
-                  </span>
+                  <PersonaName name={sub.name} className={CHILD_NAME} personas={map.personas} ids={sub.personaIds} />
                 </button>
               </li>
             ))}
@@ -203,9 +219,12 @@ export function Drawer({
                     className="group/row flex min-h-9 w-full cursor-pointer items-start gap-2 py-2 text-left text-[14px] leading-snug text-pretty max-lg:min-h-11"
                   >
                     <StepMark />
-                    <span className="underline decoration-transparent decoration-from-font underline-offset-2 transition-[text-decoration-color] duration-150 ease-out group-hover/row:decoration-current">
-                      {step.name}
-                    </span>
+                    <PersonaName
+                      name={step.name}
+                      className={CHILD_NAME}
+                      personas={map.personas}
+                      ids={step.personaIds}
+                    />
                   </button>
                 </li>
               ))}

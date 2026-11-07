@@ -1,5 +1,5 @@
 'use client';
-import type { ActivityView, Light, SubtaskView, TaskView } from '@litmus/core';
+import type { ActivityView, Light, PersonaView, SubtaskView, TaskView } from '@litmus/core';
 import type { PointerEvent } from 'react';
 import { DisclosurePanel, DisclosureRoot, DisclosureTrigger } from '../../ui/disclosure';
 import { AddControl } from './add-field';
@@ -7,6 +7,7 @@ import type { ChapterState } from './focus';
 import { LightMark } from './light-mark';
 import { LIGHT_COPY, MARK_COLOUR } from './lights';
 import { MixBar } from './mix-bar';
+import { PersonaName } from './persona-icon';
 import { StepMark } from './step-mark';
 import { isOffTeam, type PickedTeams } from './teams';
 
@@ -46,6 +47,7 @@ function Chevron() {
 
 function SubtaskRow({
   sub,
+  personas,
   open,
   selectedId,
   draggingId,
@@ -54,6 +56,7 @@ function SubtaskRow({
   onToggle,
 }: {
   sub: SubtaskView;
+  personas: PersonaView[];
   open: boolean;
   selectedId: string | null;
   draggingId: string | null;
@@ -78,7 +81,7 @@ function SubtaskRow({
         <LightMark light={sub.light} className="size-3" />
         <span className="sr-only">{LIGHT_COPY[sub.light].label}: </span>
       </span>
-      <span className={NAME_STYLE}>{sub.name}</span>
+      <PersonaName name={sub.name} className={NAME_STYLE} personas={personas} ids={sub.personaIds} />
     </button>
   );
 
@@ -117,7 +120,7 @@ function SubtaskRow({
                 className="group/row flex min-h-8 w-full cursor-pointer items-start gap-2 py-1.5 text-left text-[13px] leading-[1.35] text-pretty text-muted max-lg:min-h-11"
               >
                 <StepMark />
-                <span className={NAME_STYLE}>{step.name}</span>
+                <PersonaName name={step.name} className={NAME_STYLE} personas={personas} ids={step.personaIds} />
               </button>
             </li>
           ))}
@@ -129,6 +132,7 @@ function SubtaskRow({
 
 function TaskRow({
   task,
+  personas,
   open,
   openItems,
   dim,
@@ -140,6 +144,7 @@ function TaskRow({
   onToggleItem,
 }: {
   task: TaskView;
+  personas: PersonaView[];
   open: boolean;
   openItems: ReadonlySet<string>;
   dim: Light | null;
@@ -168,7 +173,7 @@ function TaskRow({
         <LightMark light={task.light} />
         <span className="sr-only">{LIGHT_COPY[task.light].label}: </span>
       </span>
-      <span className={NAME_STYLE}>{task.name}</span>
+      <PersonaName name={task.name} className={NAME_STYLE} personas={personas} ids={task.personaIds} />
     </button>
   );
 
@@ -205,6 +210,7 @@ function TaskRow({
               className={`transition-opacity duration-150 ease-out ${isDimmed(sub.light, dim) || draggingId === sub.id ? DIMMED : ''}`}
             >
               <SubtaskRow
+                personas={personas}
                 sub={sub}
                 open={openItems.has(sub.id)}
                 selectedId={selectedId}
@@ -245,6 +251,7 @@ export function Chapter({
   animate,
   dim,
   teams,
+  personas,
   openTasks,
   selectedId,
   draggingId,
@@ -261,6 +268,7 @@ export function Chapter({
   animate: boolean;
   dim: Light | null;
   teams: PickedTeams;
+  personas: PersonaView[];
   openTasks: ReadonlySet<string>;
   selectedId: string | null;
   draggingId: string | null;
@@ -344,6 +352,7 @@ export function Chapter({
                     className={`border-b-(length:--hairline) border-line transition-opacity duration-150 ease-out last:border-b-0 ${offTeam ? DIMMED : ''}`}
                   >
                     <TaskRow
+                      personas={personas}
                       task={task}
                       open={openTasks.has(task.id)}
                       openItems={openTasks}

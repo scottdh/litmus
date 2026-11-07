@@ -11,6 +11,7 @@ import {
   noteStepAction,
   rateAction,
   renameAction,
+  setPersonaAction,
   undoChangeAction,
 } from './actions';
 
@@ -34,6 +35,7 @@ export default async function HomePage() {
       assignTeam={assignTeamAction}
       addTeam={addTeamAction}
       removeTeam={removeTeamAction}
+      setPersona={setPersonaAction}
     />
   );
 }
