@@ -16,6 +16,7 @@ import {
   addTaskOnMap,
   addTeamOnMap,
   assignTeamOnMap,
+  setPersonaOnMap,
   moveOnMap,
   rateOnMap,
   removeTeamOnMap,
@@ -170,6 +171,19 @@ export async function assignTeamAction(input: { mapId: unknown; id: unknown; tea
     return { ok: false, code: 'INVALID_INPUT' };
   }
   return run(() => assignTeamOnMap({ mapId, id, teamId }));
+}
+
+export async function setPersonaAction(input: {
+  mapId: unknown;
+  id: unknown;
+  personaId: unknown;
+  on: unknown;
+}): Promise<RenameResult> {
+  const { mapId, id, personaId, on } = input;
+  if (typeof mapId !== 'string' || typeof id !== 'string' || typeof personaId !== 'string' || typeof on !== 'boolean') {
+    return { ok: false, code: 'INVALID_INPUT' };
+  }
+  return run(() => setPersonaOnMap({ mapId, id, personaId, on }));
 }
 
 export async function addTeamAction(input: { mapId: unknown; name: unknown }): Promise<AddResult> {

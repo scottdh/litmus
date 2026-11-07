@@ -6,6 +6,8 @@ const task = (id: string, teamId: string | null): TaskView => ({
   id,
   name: id,
   teamId,
+  ownPersonaIds: [],
+  personaIds: [],
   light: 'grey',
   review: null,
   earlierReview: null,

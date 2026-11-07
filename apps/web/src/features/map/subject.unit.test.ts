@@ -10,6 +10,7 @@ const map: MapView = {
     { id: 'tm_bench', name: 'Bench' },
     { id: 'tm_till', name: 'Till' },
   ],
+  personas: [],
   activities: [
     { id: 'act_1', name: 'First', tasks: [], mix: [] },
     {
@@ -21,6 +22,8 @@ const map: MapView = {
           id: 'tsk_leaf',
           name: 'On its own',
           teamId: 'tm_bench',
+          ownPersonaIds: [],
+          personaIds: [],
           light: 'red',
           review: 'Broken.',
           earlierReview: null,
@@ -31,6 +34,8 @@ const map: MapView = {
           id: 'tsk_parent',
           name: 'With children',
           teamId: null,
+          ownPersonaIds: [],
+          personaIds: [],
           light: 'yellow',
           review: null,
           earlierReview: null,
@@ -40,7 +45,9 @@ const map: MapView = {
               name: 'A child',
               light: 'green',
               review: 'Fine.',
-              steps: [{ id: 'stp_1', name: 'A step', note: 'A note' }],
+              ownPersonaIds: [],
+              personaIds: [],
+              steps: [{ id: 'stp_1', name: 'A step', note: 'A note', personaIds: [] }],
             },
           ],
           mix: [],
@@ -110,7 +117,7 @@ describe('findSubject', () => {
       review: 'Fine.',
       earlierReview: null,
       subtasks: [],
-      steps: [{ id: 'stp_1', name: 'A step', note: 'A note' }],
+      steps: [{ id: 'stp_1', name: 'A step', note: 'A note', personaIds: [] }],
     });
   });
 

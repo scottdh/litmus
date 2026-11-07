@@ -6,6 +6,8 @@ const task = (id: string, name: string, subtasks: string[] = []) => ({
   id,
   name,
   teamId: null,
+  ownPersonaIds: [],
+  personaIds: [],
   light: 'grey' as const,
   review: null,
   earlierReview: null,
@@ -15,7 +17,9 @@ const task = (id: string, name: string, subtasks: string[] = []) => ({
     name: sub.toUpperCase(),
     light: 'grey' as const,
     review: null,
-    steps: [] as { id: string; name: string; note: string }[],
+    ownPersonaIds: [],
+    personaIds: [],
+    steps: [] as { id: string; name: string; note: string; personaIds: string[] }[],
   })),
 });
 
@@ -24,6 +28,7 @@ const map: MapView = {
   name: 'A small map',
   productName: 'Thing',
   teams: [],
+  personas: [],
   activities: [
     { id: 'act_1', name: 'First', mix: [], tasks: [task('a', 'A'), task('b', 'B', ['b1', 'b2']), task('c', 'C')] },
     { id: 'act_2', name: 'Second', mix: [], tasks: [task('d', 'D')] },
@@ -135,7 +140,7 @@ describe('a subtask with steps', () => {
       tasks: chapter.tasks.map((item) => ({
         ...item,
         subtasks: item.subtasks.map((sub) =>
-          sub.id === 'b1' ? { ...sub, steps: [{ id: 'stp_1', name: 'A step', note: '' }] } : sub,
+          sub.id === 'b1' ? { ...sub, steps: [{ id: 'stp_1', name: 'A step', note: '', personaIds: [] }] } : sub,
         ),
       })),
     })),
@@ -159,7 +164,8 @@ describe('a subtask with steps', () => {
 });
 
 describe('moving a step', () => {
-  const steps = (...ids: string[]) => ids.map((value) => ({ id: value, name: value.toUpperCase(), note: '' }));
+  const steps = (...ids: string[]) =>
+    ids.map((value) => ({ id: value, name: value.toUpperCase(), note: '', personaIds: [] }));
   const withSteps: MapView = {
     ...map,
     activities: map.activities.map((chapter) => ({

@@ -1,7 +1,7 @@
 import { notFound } from '../kernel/errors.ts';
 import { LIGHTS, type Light } from '../domain/map/light.ts';
 import { deriveParentLight } from '../domain/map/parent-light.ts';
-import type { MapId, TaskId } from '../domain/map/story-map.ts';
+import type { MapId, PersonaIcon, TaskId } from '../domain/map/story-map.ts';
 import type { MapRepository } from './ports.ts';
 
 export interface LightCount {
@@ -13,6 +13,7 @@ export interface StepView {
   id: string;
   name: string;
   note: string;
+  personaIds: string[];
 }
 
 export interface SubtaskView {
@@ -20,6 +21,10 @@ export interface SubtaskView {
   name: string;
   light: Light;
   review: string | null;
+  /** Set on this subtask. */
+  ownPersonaIds: string[];
+  /** Its own and its steps', in the map's persona order. */
+  personaIds: string[];
   steps: StepView[];
 }
 
@@ -28,11 +33,21 @@ export interface TeamView {
   name: string;
 }
 
+export interface PersonaView {
+  id: string;
+  name: string;
+  icon: PersonaIcon;
+}
+
 export interface TaskView {
   id: string;
   name: string;
   /** Null when no team has it yet. */
   teamId: string | null;
+  /** Set on this task. */
+  ownPersonaIds: string[];
+  /** Its own, its subtasks' and their steps', in the map's persona order. */
+  personaIds: string[];
   light: Light;
   /** Why it has this light. Always null for a task with subtasks, whose light follows from them. */
   review: string | null;
@@ -54,6 +69,7 @@ export interface MapView {
   name: string;
   productName: string;
   teams: TeamView[];
+  personas: PersonaView[];
   activities: ActivityView[];
 }
 
@@ -75,11 +91,18 @@ export const getMapView =
       return note?.text ?? null;
     };
 
+    const personaOrder = record.map.personas.map((persona) => persona.id);
+    const rollUp = (...lists: (readonly string[] | undefined)[]): string[] => {
+      const all = new Set(lists.flatMap((list) => list ?? []));
+      return personaOrder.filter((id) => all.has(id));
+    };
+
     return {
       id: record.map.id,
       name: record.map.name,
       productName: record.product.name,
       teams: record.map.teams.map((team) => ({ id: team.id, name: team.name })),
+      personas: record.map.personas.map((persona) => ({ id: persona.id, name: persona.name, icon: persona.icon })),
       activities: record.map.activities.map((activity) => {
         const tasks = activity.tasks.map((task) => {
           const subtasks = task.subtasks.map((sub) => ({
@@ -87,13 +110,22 @@ export const getMapView =
             name: sub.name,
             light: lightOf(sub.id),
             review: reviewOf(sub.id),
-            steps: sub.steps,
+            ownPersonaIds: rollUp(sub.personaIds),
+            personaIds: rollUp(sub.personaIds, ...sub.steps.map((step) => step.personaIds)),
+            steps: sub.steps.map((step) => ({
+              id: step.id,
+              name: step.name,
+              note: step.note,
+              personaIds: rollUp(step.personaIds),
+            })),
           }));
           const subLights = subtasks.map((sub) => sub.light);
           return {
             id: task.id,
             name: task.name,
             teamId: task.teamId ?? null,
+            ownPersonaIds: rollUp(task.personaIds),
+            personaIds: rollUp(task.personaIds, ...subtasks.map((sub) => sub.personaIds)),
             light: subtasks.length > 0 ? deriveParentLight(subLights) : lightOf(task.id),
             review: subtasks.length > 0 ? null : reviewOf(task.id),
             earlierReview: subtasks.length > 0 ? reviewOf(task.id) : null,

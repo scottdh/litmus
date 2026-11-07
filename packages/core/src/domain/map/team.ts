@@ -23,8 +23,9 @@ export function removeTeam(map: StoryMap, id: TeamId): StoryMap {
       ...activity,
       tasks: activity.tasks.map((task) => {
         if (task.teamId !== id) return task;
-        const { id: taskId, name, subtasks } = task;
-        return { id: taskId, name, subtasks };
+        const rest = { ...task };
+        delete rest.teamId;
+        return rest;
       }),
     })),
   };
@@ -49,8 +50,9 @@ export function assignTeam(map: StoryMap, taskId: TaskId, teamId: TeamId | null)
       tasks: activity.tasks.map((task) => {
         if (task.id !== taskId) return task;
         if (teamId !== null) return { ...task, teamId };
-        const { id, name, subtasks } = task;
-        return { id, name, subtasks };
+        const rest = { ...task };
+        delete rest.teamId;
+        return rest;
       }),
     })),
   };
