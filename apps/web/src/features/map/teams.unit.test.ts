@@ -1,6 +1,6 @@
 import type { ActivityView, TaskView } from '@litmus/core';
 import { describe, expect, it } from 'vitest';
-import { chaptersWithTeams, isOffTeam, teamForNewTask } from './teams';
+import { chaptersWithTeams, isOffTeam, teamChipLabel, teamForNewTask } from './teams';
 
 const task = (id: string, teamId: string | null): TaskView => ({
   id,
@@ -53,5 +53,28 @@ describe('teamForNewTask', () => {
   it('gives it no team otherwise', () => {
     expect(teamForNewTask(new Set())).toBeNull();
     expect(teamForNewTask(new Set(['bench', 'till']))).toBeNull();
+  });
+});
+
+describe('teamChipLabel', () => {
+  it('says only for a single team', () => {
+    expect(teamChipLabel(['Till'], 4)).toBe('Till only');
+  });
+
+  it('names two teams without only', () => {
+    expect(teamChipLabel(['Till', 'Reach'], 4)).toBe('Till and Reach');
+  });
+
+  it('counts three or more', () => {
+    expect(teamChipLabel(['Bench', 'Till', 'Reach'], 4)).toBe('3 teams');
+  });
+
+  it('says all teams when every team is picked', () => {
+    expect(teamChipLabel(['Counter', 'Bench', 'Till', 'Reach'], 4)).toBe('All teams');
+    expect(teamChipLabel(['Till', 'Reach'], 2)).toBe('All teams');
+  });
+
+  it('keeps only for the one team on a map with one team', () => {
+    expect(teamChipLabel(['Till'], 1)).toBe('Till only');
   });
 });
