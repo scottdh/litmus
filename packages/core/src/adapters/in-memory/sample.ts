@@ -3,7 +3,7 @@ import type { MapRepository } from '../../application/ports.ts';
 import type { Evidence } from '../../domain/map/evidence.ts';
 import type { Light } from '../../domain/map/light.ts';
 import { createRating, type Rating } from '../../domain/map/rating.ts';
-import type { Activity, MapId, ProductId, Step, StepId, TaskId } from '../../domain/map/story-map.ts';
+import type { Activity, MapId, ProductId, Step, StepId, TaskId, Team, TeamId } from '../../domain/map/story-map.ts';
 import { createInMemoryMapRepository } from './map-repository.ts';
 
 // Invented: a repair app for a neighbourhood bike workshop. Worst-case content on purpose. Never put real data here.
@@ -218,6 +218,40 @@ const STEPS: Record<string, [name: string, note: string][]> = {
   'Say what I’ve already tried, in case it changes the quote': [['Pick from what people usually try', '']],
 };
 
+const TEAMS: Team[] = [
+  { id: 'tm_counter' as TeamId, name: 'Counter' },
+  { id: 'tm_bench' as TeamId, name: 'Bench' },
+  { id: 'tm_till' as TeamId, name: 'Till' },
+  { id: 'tm_reach' as TeamId, name: 'Reach' },
+];
+
+// Most tasks follow their chapter's team. A few cross over, and a few have no team yet, to see how that reads.
+const CHAPTER_TEAM: (TeamId | null)[] = [
+  'tm_reach' as TeamId,
+  'tm_counter' as TeamId,
+  'tm_counter' as TeamId,
+  'tm_bench' as TeamId,
+  'tm_counter' as TeamId,
+  'tm_bench' as TeamId,
+  'tm_counter' as TeamId,
+  'tm_till' as TeamId,
+  null,
+];
+const TASK_TEAM: Record<string, TeamId | null> = {
+  'Compare prices before calling': 'tm_till' as TeamId,
+  'Get a rough estimate': 'tm_bench' as TeamId,
+  'Explain to the customer why the estimate changed after the bike was stripped down': 'tm_bench' as TeamId,
+  'Order a missing part': 'tm_till' as TeamId,
+  'Book several bikes for one family at the same time': null,
+  'Find the service history for a bike bought second-hand': null,
+  'Join the waiting list': 'tm_reach' as TeamId,
+};
+
+const teamFor = (chapter: number, taskName: string): { teamId?: TeamId } => {
+  const team = taskName in TASK_TEAM ? TASK_TEAM[taskName] : CHAPTER_TEAM[chapter];
+  return team ? { teamId: team } : {};
+};
+
 const stepsFor = (subtaskId: string, name: string): Step[] =>
   (STEPS[name] ?? []).map(([stepName, note], index) => ({
     id: `stp_${subtaskId}_${String(index)}` as StepId,
@@ -262,10 +296,12 @@ function build() {
     name,
     tasks: rows.map(([taskName, detail], t) => {
       const id = `tsk_${String(a)}_${String(t)}`;
-      if (typeof detail === 'string') return { id: rate(id, detail), name: taskName, subtasks: [] };
+      if (typeof detail === 'string')
+        return { id: rate(id, detail), name: taskName, ...teamFor(a, taskName), subtasks: [] };
       return {
         id: id as TaskId,
         name: taskName,
+        ...teamFor(a, taskName),
         subtasks: detail.map(([subName, light], s) => ({
           id: rate(`${id}_${String(s)}`, light),
           name: subName,
@@ -276,7 +312,7 @@ function build() {
   }));
 
   return {
-    map: { id: SAMPLE_MAP_ID, name: 'Spoke, the workshop app', activities },
+    map: { id: SAMPLE_MAP_ID, name: 'Spoke, the workshop app', teams: TEAMS, activities },
     product: { id: PRODUCT_ID, name: 'Spoke' },
     ratings,
   };

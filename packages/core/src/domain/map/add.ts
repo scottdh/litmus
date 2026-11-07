@@ -1,13 +1,23 @@
 import { invariantViolation, notFound } from '../../kernel/errors.ts';
 import { tidyName } from './rename.ts';
-import type { StoryMap, TaskId } from './story-map.ts';
+import type { StoryMap, Task, TaskId, TeamId } from './story-map.ts';
 
 /** New tasks go at the end of their list. Dragging puts them anywhere else. */
 export type AddDestination = { chapterId: string } | { parentId: TaskId };
 
-export function addTask(map: StoryMap, input: { id: TaskId; name: string; to: AddDestination }): StoryMap {
+/** `teamId` only applies to a new top-level task, because a subtask shares its task's team. */
+export function addTask(
+  map: StoryMap,
+  input: { id: TaskId; name: string; to: AddDestination; teamId?: TeamId | null },
+): StoryMap {
   const name = tidyName(input.name);
   const { id, to } = input;
+  const teamId = input.teamId ?? null;
+  if (teamId !== null) {
+    if (!('chapterId' in to)) throw invariantViolation('TEAM_IS_ON_THE_TASK', 'A subtask shares its task’s team.');
+    if (!map.teams.some((team) => team.id === teamId)) throw notFound('TEAM_NOT_FOUND', `No team with id ${teamId}.`);
+  }
+  const added: Task = teamId === null ? { id, name, subtasks: [] } : { id, name, teamId, subtasks: [] };
   if ('chapterId' in to) {
     if (!map.activities.some((activity) => activity.id === to.chapterId)) {
       throw notFound('ACTIVITY_NOT_FOUND', `No activity with id ${to.chapterId}.`);
@@ -28,7 +38,7 @@ export function addTask(map: StoryMap, input: { id: TaskId; name: string; to: Ad
       tasks:
         'chapterId' in to
           ? activity.id === to.chapterId
-            ? [...activity.tasks, { id, name, subtasks: [] }]
+            ? [...activity.tasks, added]
             : activity.tasks
           : activity.tasks.map((task) =>
               task.id === to.parentId ? { ...task, subtasks: [...task.subtasks, { id, name, steps: [] }] } : task,

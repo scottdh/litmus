@@ -11,6 +11,7 @@ import { NoteField } from './note-field';
 import { RatingSection, type ReviewDraft } from './rating-section';
 import type { Rate, RenameResult } from './rename-result';
 import { StepMark } from './step-mark';
+import { TeamField } from './team-field';
 import type { Subject } from './subject';
 
 const LABEL: Record<Subject['kind'], string> = {
@@ -37,6 +38,7 @@ export function Drawer({
   onAddStep,
   onNote,
   onAddChapter,
+  onAssignTeam,
 }: {
   map: MapView;
   onMove: (to: Destination) => void;
@@ -53,6 +55,7 @@ export function Drawer({
   onAddStep: (name: string) => void;
   onNote: (note: string) => Promise<RenameResult>;
   onAddChapter: (where: 'before' | 'after') => void;
+  onAssignTeam: (teamId: string | null) => Promise<RenameResult>;
 }) {
   return (
     <aside
@@ -95,6 +98,15 @@ export function Drawer({
           onFinish={onClose}
         />
       </div>
+      {(subject.kind === 'task' || subject.kind === 'subtask') && (
+        <TeamField
+          key={`team-${subject.id}`}
+          teams={map.teams}
+          teamId={subject.teamId}
+          inherited={subject.kind === 'subtask'}
+          onChange={onAssignTeam}
+        />
+      )}
       {subject.kind === 'step' && (
         <>
           <NoteField key={`note-${subject.id}`} id={subject.id} value={subject.note} onSave={onNote} />

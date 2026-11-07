@@ -14,6 +14,7 @@ import {
   addChapterOnMap,
   addStepOnMap,
   addTaskOnMap,
+  assignTeamOnMap,
   moveOnMap,
   rateOnMap,
   renameOnMap,
@@ -117,13 +118,24 @@ function readAddDestination(to: unknown): AddDestination | null {
   return null;
 }
 
-export async function addTaskAction(input: { mapId: unknown; name: unknown; to: unknown }): Promise<AddResult> {
+export async function addTaskAction(input: {
+  mapId: unknown;
+  name: unknown;
+  to: unknown;
+  teamId?: unknown;
+}): Promise<AddResult> {
   const { mapId, name } = input;
   const to = readAddDestination(input.to);
-  if (typeof mapId !== 'string' || typeof name !== 'string' || to === null) {
+  const teamId = input.teamId ?? null;
+  if (
+    typeof mapId !== 'string' ||
+    typeof name !== 'string' ||
+    to === null ||
+    (teamId !== null && typeof teamId !== 'string')
+  ) {
     return { ok: false, code: 'INVALID_INPUT' };
   }
-  return runAdd(() => addTaskOnMap({ mapId, name, to }));
+  return runAdd(() => addTaskOnMap({ mapId, name, to, teamId }));
 }
 
 export async function addStepAction(input: { mapId: unknown; name: unknown; subtaskId: unknown }): Promise<AddResult> {
@@ -148,6 +160,14 @@ export async function addChapterAction(input: { mapId: unknown; name: unknown; b
     return { ok: false, code: 'INVALID_INPUT' };
   }
   return runAdd(() => addChapterOnMap({ mapId, name, before }));
+}
+
+export async function assignTeamAction(input: { mapId: unknown; id: unknown; teamId: unknown }): Promise<RenameResult> {
+  const { mapId, id, teamId } = input;
+  if (typeof mapId !== 'string' || typeof id !== 'string' || (teamId !== null && typeof teamId !== 'string')) {
+    return { ok: false, code: 'INVALID_INPUT' };
+  }
+  return run(() => assignTeamOnMap({ mapId, id, teamId }));
 }
 
 export async function undoChangeAction(token: unknown): Promise<RenameResult> {

@@ -2,6 +2,7 @@ import {
   addChapter,
   addStepToMap,
   addTaskToMap,
+  assignTeamInMap,
   getMapView,
   invariantViolation,
   moveStepInMap,
@@ -23,6 +24,7 @@ import {
   type StepDestination,
   type StepId,
   type TaskId,
+  type TeamId,
 } from '@litmus/core';
 import { SAMPLE_MAP_ID, createSampleMapRepository } from '@litmus/core/in-memory';
 
@@ -85,8 +87,23 @@ function remember(mapId: MapId, before: MapRecord, after: MapRecord) {
   return token;
 }
 
-export async function addTaskOnMap({ mapId, name, to }: { mapId: string; name: string; to: AddDestination }) {
-  const { id, before, after } = await addTaskToMap({ maps, newId })({ mapId: mapId as MapId, name, to });
+export async function addTaskOnMap({
+  mapId,
+  name,
+  to,
+  teamId,
+}: {
+  mapId: string;
+  name: string;
+  to: AddDestination;
+  teamId: string | null;
+}) {
+  const { id, before, after } = await addTaskToMap({ maps, newId })({
+    mapId: mapId as MapId,
+    name,
+    to,
+    teamId: teamId as TeamId | null,
+  });
   return { id, undoToken: remember(mapId as MapId, before, after) };
 }
 
@@ -122,4 +139,8 @@ export async function undoChangeOnMap(token: string) {
   if (last?.token !== token) throw invariantViolation('UNDO_OUT_OF_DATE', 'That change can no longer be undone.');
   await undoChange({ maps })({ mapId: last.mapId, before: last.before, after: last.after });
   delete store.litmusLastChange;
+}
+
+export async function assignTeamOnMap({ mapId, id, teamId }: { mapId: string; id: string; teamId: string | null }) {
+  await assignTeamInMap({ maps })({ mapId: mapId as MapId, taskId: id as TaskId, teamId: teamId as TeamId | null });
 }

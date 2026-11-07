@@ -10,6 +10,8 @@ export type Subject =
       name: string;
       chapterId: string;
       path: string;
+      /** A subtask shows its task's team, because that's where it's set. */
+      teamId: string | null;
       light: Light;
       review: string | null;
       earlierReview: string | null;
@@ -32,6 +34,7 @@ export function findSubject(map: MapView, id: string): Subject | null {
           name: task.name,
           chapterId: chapter.id,
           path: `${place} · ${chapter.name}`,
+          teamId: task.teamId,
           light: task.light,
           review: task.review,
           earlierReview: task.earlierReview,
@@ -47,6 +50,7 @@ export function findSubject(map: MapView, id: string): Subject | null {
             name: sub.name,
             chapterId: chapter.id,
             path: `${place} · ${chapter.name} · ${task.name}`,
+            teamId: task.teamId,
             light: sub.light,
             review: sub.review,
             earlierReview: null,

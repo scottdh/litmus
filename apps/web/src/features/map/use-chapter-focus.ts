@@ -64,5 +64,6 @@ export function useChapterFocus(mapId: string, chapterIds: string[], escapeClear
     clear: () => {
       setFocus([]);
     },
+    set: setFocus,
   };
 }

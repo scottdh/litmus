@@ -4,6 +4,13 @@ export type MapId = Brand<string, 'MapId'>;
 export type ProductId = Brand<string, 'ProductId'>;
 export type TaskId = Brand<string, 'TaskId'>;
 export type StepId = Brand<string, 'StepId'>;
+export type TeamId = Brand<string, 'TeamId'>;
+
+/** Who's responsible for turning a task from grey to green. */
+export interface Team {
+  id: TeamId;
+  name: string;
+}
 
 export interface Product {
   id: ProductId;
@@ -26,6 +33,8 @@ export interface Subtask {
 export interface Task {
   id: TaskId;
   name: string;
+  /** Only top-level tasks have a team. Their subtasks share it. */
+  teamId?: TeamId;
   subtasks: Subtask[];
 }
 
@@ -39,5 +48,6 @@ export interface Activity {
 export interface StoryMap {
   id: MapId;
   name: string;
+  teams: Team[];
   activities: Activity[];
 }
