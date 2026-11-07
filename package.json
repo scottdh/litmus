@@ -19,7 +19,7 @@
     "format:check": "prettier --check .",
     "test": "pnpm -r test && pnpm test:tools",
     "test:tools": "node --test tools/*.test.ts",
-    "test:related": "pnpm --filter @litmus/core exec vitest related --run --maxWorkers=2",
+    "test:related": "node tools/test-related.ts",
     "pr": "node tools/pr.ts"
   },
   "simple-git-hooks": {
