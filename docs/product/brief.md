@@ -16,6 +16,8 @@ A long-lived map with three properties:
 2. **Evidence-rich.** Task cards carry personas, thinking, information needs, quotes, clips and screenshots.
 3. **Health-visible.** Every task carries a light showing how well the product supports it, backed by evidence. See `docs/product/rating-model.md`.
 
+Each task can have a team: the people responsible for turning it green. Teams never sort or colour the map. See `docs/designs/teams-direction.md`.
+
 Later mechanics:
 
 - **AI-assisted building:** paste a transcript, and AI suggests tasks, quotes and persona signals for a human to review. It never commits on its own.
