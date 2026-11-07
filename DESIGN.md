@@ -63,7 +63,7 @@ Shared components live in `apps/web/src/ui` and are the only place that imports 
 
 ### Moving tasks
 
-`apps/web/src/features/map/use-task-drag.ts` and `move-section.tsx`. Press and move a row to drag it with a mouse or pen. A line shows where it lands, and an outline shows it going inside a task or to the end of a chapter. Anything draggable must also be reachable from the drawer's Move controls, for keyboard and touch: up and down arrows beside the light, and Move to on its own line. Every move gets a visible Undo.
+`apps/web/src/features/map/use-task-drag.ts` and `move-section.tsx`. Press and move a row to drag it with a mouse or pen. A line shows where it lands, and an outline shows it going inside a task, into a subtask (for a step), or to the end of a chapter. Anything draggable must also be reachable from the drawer's Move controls, for keyboard and touch: up and down arrows beside the light (under the note for a step, which has no light), and Move to on its own line. Every move gets a visible Undo.
 
 ### Adding
 
