@@ -1,5 +1,5 @@
 'use client';
-import type { MapView } from '@litmus/core';
+import type { MapView, PersonaIcon } from '@litmus/core';
 import { AddControl } from './add-field';
 import { BUTTON } from './button-style';
 import { LightMark } from './light-mark';
@@ -9,6 +9,7 @@ import { MoveArrows, MoveTo } from './move-section';
 import { NameField } from './name-field';
 import { NoteField } from './note-field';
 import { PersonaField } from './persona-field';
+import { PersonaIconField } from './persona-icon-field';
 import { PersonaName } from './persona-icon';
 import { RemoveTeam } from './remove-team';
 import { RatingSection, type ReviewDraft } from './rating-section';
@@ -26,6 +27,7 @@ const LABEL: Record<Subject['kind'], string> = {
   subtask: 'Subtask name',
   step: 'Step name',
   team: 'Team name',
+  persona: 'Persona name',
 };
 
 /** Runs the full height of the window, with the page making room so the map and its controls stay usable. On a phone it fills the screen. */
@@ -50,6 +52,7 @@ export function Drawer({
   onRemoveTeam,
   removingTeam,
   onSetPersona,
+  onSetPersonaIcon,
 }: {
   map: MapView;
   onMove: (to: Destination) => void;
@@ -72,6 +75,7 @@ export function Drawer({
   onRemoveTeam: () => void;
   removingTeam: boolean;
   onSetPersona: (personaId: string, on: boolean) => Promise<RenameResult>;
+  onSetPersonaIcon: (icon: PersonaIcon) => Promise<RenameResult>;
 }) {
   return (
     <aside
@@ -108,12 +112,15 @@ export function Drawer({
           key={subject.id}
           value={subject.name}
           label={LABEL[subject.kind]}
-          selectOnFocus={subject.kind === 'chapter' || subject.kind === 'team'}
+          selectOnFocus={subject.kind === 'chapter' || subject.kind === 'team' || subject.kind === 'persona'}
           onDraft={onDraft}
           onSave={onSave}
           onFinish={onClose}
         />
       </div>
+      {subject.kind === 'persona' && (
+        <PersonaIconField key={`icon-${subject.id}`} icon={subject.icon} onChange={onSetPersonaIcon} />
+      )}
       {(subject.kind === 'task' || subject.kind === 'subtask') && (
         <TeamField
           key={`team-${subject.id}`}
@@ -245,7 +252,7 @@ export function Drawer({
           />
         </>
       )}
-      {subject.kind === 'team' &&
+      {(subject.kind === 'team' || subject.kind === 'persona') &&
         (subject.chapters.length === 0 ? (
           <p className="text-[14px] leading-snug text-pretty text-muted">
             No tasks yet. Give a task to {subject.name} from its drawer.
@@ -322,7 +329,9 @@ export function Drawer({
           </button>
         </div>
       )}
-      {subject.kind !== 'chapter' && subject.kind !== 'team' && <MoveTo map={map} id={subject.id} onMove={onMove} />}
+      {subject.kind !== 'chapter' && subject.kind !== 'team' && subject.kind !== 'persona' && (
+        <MoveTo map={map} id={subject.id} onMove={onMove} />
+      )}
     </aside>
   );
 }

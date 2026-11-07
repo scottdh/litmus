@@ -43,6 +43,8 @@ import type {
   RemoveTeam,
   Rename,
   SetPersona,
+  SetPersonaIcon,
+  AddPersona,
   UndoChange,
 } from './rename-result';
 import { isInPopover } from '../../ui/popover';
@@ -86,6 +88,8 @@ export function StoryWall({
   assignTeam,
   addTeam,
   setPersona,
+  addPersona,
+  setPersonaIcon,
   removeTeam,
 }: {
   map: MapView;
@@ -101,6 +105,8 @@ export function StoryWall({
   assignTeam: AssignTeam;
   addTeam: AddTeam;
   setPersona: SetPersona;
+  addPersona: AddPersona;
+  setPersonaIcon: SetPersonaIcon;
   removeTeam: RemoveTeam;
 }) {
   const [reviewDrafts, setReviewDrafts] = useState<Record<string, ReviewDraft>>({});
@@ -193,7 +199,10 @@ export function StoryWall({
   const found = selectedId === null ? null : findSubject(map, selectedId);
   // A chapter that's gone to the background has no tasks on show, so its drawer closes too.
   const subject =
-    found && (found.kind === 'team' || focus.length === 0 || focus.includes(found.chapterId)) ? found : null;
+    found &&
+    (found.kind === 'team' || found.kind === 'persona' || focus.length === 0 || focus.includes(found.chapterId))
+      ? found
+      : null;
 
   const [lastChange, setLastChange] = useState<{ token: string; message: string } | null>(null);
   const [changeProblem, setChangeProblem] = useState<string | null>(null);
@@ -330,7 +339,7 @@ export function StoryWall({
     setDrafts((current) => Object.fromEntries(Object.entries(current).filter(([key]) => key !== id)));
   };
 
-  const saveName = (id: string, kind: 'chapter' | 'task' | 'step' | 'team', name: string) => {
+  const saveName = (id: string, kind: 'chapter' | 'task' | 'step' | 'team' | 'persona', name: string) => {
     setSaveFailed(false);
     void rename({ mapId: savedMap.id, kind, id, name }).then(
       (result) => {
@@ -500,17 +509,19 @@ export function StoryWall({
             }}
             triggerRef={teamsButton}
           />
-          {map.personas.length > 0 && (
-            <PersonaPopover
-              personas={map.personas}
-              activities={map.activities}
-              picked={personas}
-              onToggle={(id) => {
-                refold(teams, flip(personas, id));
-              }}
-              triggerRef={personasButton}
-            />
-          )}
+          <PersonaPopover
+            personas={map.personas}
+            activities={map.activities}
+            picked={personas}
+            onToggle={(id) => {
+              refold(teams, flip(personas, id));
+            }}
+            onRename={openDrawer}
+            onAdd={(name) => {
+              report(name, addPersona({ mapId: savedMap.id, name }), () => undefined);
+            }}
+            triggerRef={personasButton}
+          />
           <KeyPopover dim={dim} onDim={setDim} isSample={isSample} triggerRef={keyButton} />
           {lastChange && (
             <button type="button" onClick={undoLastChange} className={`${BUTTON} shrink-0 shadow-raised`}>
@@ -637,6 +648,7 @@ export function StoryWall({
               removeTeamNow(subject.id);
             }}
             onAssignTeam={(teamId) => assignTeam({ mapId: savedMap.id, id: subject.id, teamId })}
+            onSetPersonaIcon={(icon) => setPersonaIcon({ mapId: savedMap.id, id: subject.id, icon })}
             onSetPersona={(personaId, on) => setPersona({ mapId: savedMap.id, id: subject.id, personaId, on })}
             onAddSubtask={(name) => {
               const added = addTask({

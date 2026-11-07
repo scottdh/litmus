@@ -1,4 +1,4 @@
-import type { Light } from '@litmus/core';
+import type { Light, PersonaIcon } from '@litmus/core';
 import type { Destination } from './drop';
 
 export type RenameResult = { ok: true } | { ok: false; code: string };
@@ -7,7 +7,7 @@ export type Rate = (input: { mapId: string; id: string; light: Light; note: stri
 
 export type Rename = (input: {
   mapId: string;
-  kind: 'chapter' | 'task' | 'step' | 'team';
+  kind: 'chapter' | 'task' | 'step' | 'team' | 'persona';
   id: string;
   name: string;
 }) => Promise<RenameResult>;
@@ -41,6 +41,10 @@ export type AssignTeam = (input: { mapId: string; id: string; teamId: string | n
 export type RemoveTeam = (input: { mapId: string; id: string }) => Promise<MoveResult>;
 
 export type AddTeam = (input: { mapId: string; name: string }) => Promise<AddResult>;
+
+export type AddPersona = (input: { mapId: string; name: string }) => Promise<AddResult>;
+
+export type SetPersonaIcon = (input: { mapId: string; id: string; icon: PersonaIcon }) => Promise<RenameResult>;
 
 export type SetPersona = (input: {
   mapId: string;

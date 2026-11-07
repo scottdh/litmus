@@ -2,6 +2,7 @@
 import {
   DomainError,
   LIGHTS,
+  PERSONA_ICONS,
   type AddDestination,
   type Light,
   type MoveDestination,
@@ -14,8 +15,10 @@ import {
   addChapterOnMap,
   addStepOnMap,
   addTaskOnMap,
+  addPersonaOnMap,
   addTeamOnMap,
   assignTeamOnMap,
+  setPersonaIconOnMap,
   setPersonaOnMap,
   moveOnMap,
   rateOnMap,
@@ -50,7 +53,7 @@ export async function renameAction(input: {
     typeof mapId !== 'string' ||
     typeof id !== 'string' ||
     typeof name !== 'string' ||
-    (kind !== 'chapter' && kind !== 'task' && kind !== 'step' && kind !== 'team')
+    (kind !== 'chapter' && kind !== 'task' && kind !== 'step' && kind !== 'team' && kind !== 'persona')
   ) {
     return { ok: false, code: 'INVALID_INPUT' };
   }
@@ -193,6 +196,25 @@ export async function addTeamAction(input: { mapId: unknown; name: unknown }): P
   const { mapId, name } = input;
   if (typeof mapId !== 'string' || typeof name !== 'string') return { ok: false, code: 'INVALID_INPUT' };
   return runAdd(() => addTeamOnMap({ mapId, name }));
+}
+
+export async function addPersonaAction(input: { mapId: unknown; name: unknown }): Promise<AddResult> {
+  const { mapId, name } = input;
+  if (typeof mapId !== 'string' || typeof name !== 'string') return { ok: false, code: 'INVALID_INPUT' };
+  return runAdd(() => addPersonaOnMap({ mapId, name }));
+}
+
+export async function setPersonaIconAction(input: {
+  mapId: unknown;
+  id: unknown;
+  icon: unknown;
+}): Promise<RenameResult> {
+  const { mapId, id, icon } = input;
+  const known = PERSONA_ICONS.find((other) => other === icon);
+  if (typeof mapId !== 'string' || typeof id !== 'string' || known === undefined) {
+    return { ok: false, code: 'INVALID_INPUT' };
+  }
+  return run(() => setPersonaIconOnMap({ mapId, id, icon: known }));
 }
 
 export async function removeTeamAction(input: { mapId: unknown; id: unknown }): Promise<MoveResult> {

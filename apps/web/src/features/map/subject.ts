@@ -1,4 +1,10 @@
-import type { Light, MapView } from '@litmus/core';
+import type { Light, MapView, PersonaIcon, TaskView } from '@litmus/core';
+
+interface TaskGroup {
+  id: string;
+  name: string;
+  tasks: { id: string; name: string; light: Light; under?: { id: string; name: string } }[];
+}
 
 /** Whatever the drawer is showing. */
 export type Subject =
@@ -11,11 +17,16 @@ export type Subject =
        * Only chapters holding the team's tasks, in story order. A subtask the team has under another team's task
        * is listed in its task's place, with `under` for that task.
        */
-      chapters: {
-        id: string;
-        name: string;
-        tasks: { id: string; name: string; light: Light; under?: { id: string; name: string } }[];
-      }[];
+      chapters: TaskGroup[];
+    }
+  | {
+      kind: 'persona';
+      id: string;
+      name: string;
+      icon: PersonaIcon;
+      path: string;
+      /** Only chapters holding tasks the persona rolls up to, in story order. */
+      chapters: TaskGroup[];
     }
   | { kind: 'chapter'; id: string; name: string; chapterId: string; path: string }
   | { kind: 'step'; id: string; name: string; note: string; chapterId: string; path: string; personaIds: string[] }
@@ -44,10 +55,20 @@ export type Subject =
       steps: { id: string; name: string; personaIds: string[] }[];
     };
 
+/** The chapters holding any task that matches, with only those tasks. */
+const groupTasks = (map: MapView, matches: (task: TaskView) => boolean): TaskGroup[] =>
+  map.activities
+    .map((chapter) => ({
+      id: chapter.id,
+      name: chapter.name,
+      tasks: chapter.tasks.filter(matches).map((task) => ({ id: task.id, name: task.name, light: task.light })),
+    }))
+    .filter((chapter) => chapter.tasks.length > 0);
+
 export function findSubject(map: MapView, id: string): Subject | null {
   const team = map.teams.find((other) => other.id === id);
   if (team) {
-    const chapters = map.activities
+    const chapters: TaskGroup[] = map.activities
       .map((chapter) => ({
         id: chapter.id,
         name: chapter.name,
@@ -66,6 +87,11 @@ export function findSubject(map: MapView, id: string): Subject | null {
       }))
       .filter((chapter) => chapter.tasks.length > 0);
     return { kind: 'team', id, name: team.name, path: 'Team', chapters };
+  }
+  const persona = map.personas.find((other) => other.id === id);
+  if (persona) {
+    const chapters = groupTasks(map, (task) => task.personaIds.includes(id));
+    return { kind: 'persona', id, name: persona.name, icon: persona.icon, path: 'Persona', chapters };
   }
 
   for (const [index, chapter] of map.activities.entries()) {

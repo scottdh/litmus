@@ -2,6 +2,7 @@ import {
   addChapter,
   addStepToMap,
   addTaskToMap,
+  addPersonaToMap,
   addTeamToMap,
   assignTeamInMap,
   getMapView,
@@ -13,7 +14,9 @@ import {
   renameStepInMap,
   renameTaskInMap,
   removeTeamFromMap,
+  renamePersonaInMap,
   renameTeamInMap,
+  setPersonaIconInMap,
   setPersonaInMap,
   setStepNoteInMap,
   undoChange,
@@ -25,6 +28,7 @@ import {
   type MapRecord,
   type MapRepository,
   type MoveDestination,
+  type PersonaIcon,
   type PersonaId,
   type StepDestination,
   type StepId,
@@ -55,11 +59,13 @@ export async function renameOnMap({
   name,
 }: {
   mapId: string;
-  kind: 'chapter' | 'task' | 'step' | 'team';
+  kind: 'chapter' | 'task' | 'step' | 'team' | 'persona';
   id: string;
   name: string;
 }) {
   if (kind === 'chapter') await renameChapter({ maps })({ mapId: mapId as MapId, activityId: id, name });
+  else if (kind === 'persona')
+    await renamePersonaInMap({ maps })({ mapId: mapId as MapId, personaId: id as PersonaId, name });
   else if (kind === 'team') await renameTeamInMap({ maps })({ mapId: mapId as MapId, teamId: id as TeamId, name });
   else if (kind === 'step') await renameStepInMap({ maps })({ mapId: mapId as MapId, stepId: id as StepId, name });
   else await renameTaskInMap({ maps })({ mapId: mapId as MapId, taskId: id as TaskId, name });
@@ -140,6 +146,15 @@ export async function addChapterOnMap({
 }) {
   const { id, before, after } = await addChapter({ maps, newId })({ mapId: mapId as MapId, name, before: place });
   return { id, undoToken: remember(mapId as MapId, before, after) };
+}
+
+export async function addPersonaOnMap({ mapId, name }: { mapId: string; name: string }) {
+  const { id, before, after } = await addPersonaToMap({ maps, newId })({ mapId: mapId as MapId, name });
+  return { id, undoToken: remember(mapId as MapId, before, after) };
+}
+
+export async function setPersonaIconOnMap({ mapId, id, icon }: { mapId: string; id: string; icon: PersonaIcon }) {
+  await setPersonaIconInMap({ maps })({ mapId: mapId as MapId, personaId: id as PersonaId, icon });
 }
 
 export async function addTeamOnMap({ mapId, name }: { mapId: string; name: string }) {

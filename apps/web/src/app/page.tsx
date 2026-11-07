@@ -4,6 +4,7 @@ import {
   addChapterAction,
   addStepAction,
   addTaskAction,
+  addPersonaAction,
   addTeamAction,
   assignTeamAction,
   removeTeamAction,
@@ -12,6 +13,7 @@ import {
   rateAction,
   renameAction,
   setPersonaAction,
+  setPersonaIconAction,
   undoChangeAction,
 } from './actions';
 
@@ -36,6 +38,8 @@ export default async function HomePage() {
       addTeam={addTeamAction}
       removeTeam={removeTeamAction}
       setPersona={setPersonaAction}
+      addPersona={addPersonaAction}
+      setPersonaIcon={setPersonaIconAction}
     />
   );
 }
