@@ -9,7 +9,8 @@ import { LIGHT_COPY, MARK_COLOUR } from './lights';
 import { MixBar } from './mix-bar';
 import { PersonaName } from './persona-icon';
 import { StepMark } from './step-mark';
-import { isOffTeam, type PickedTeams } from './teams';
+import { isChildOffPersona, isOffPick, type PickedPersonas } from './personas';
+import type { PickedTeams } from './teams';
 
 const isDimmed = (light: Light, dim: Light | null) => dim !== null && light !== dim;
 
@@ -48,6 +49,8 @@ function Chevron() {
 function SubtaskRow({
   sub,
   personas,
+  pickedPersonas,
+  faded,
   open,
   selectedId,
   draggingId,
@@ -57,6 +60,9 @@ function SubtaskRow({
 }: {
   sub: SubtaskView;
   personas: PersonaView[];
+  pickedPersonas: PickedPersonas;
+  /** Already faded as a whole, so its steps don't fade twice. */
+  faded: boolean;
   open: boolean;
   selectedId: string | null;
   draggingId: string | null;
@@ -81,7 +87,13 @@ function SubtaskRow({
         <LightMark light={sub.light} className="size-3" />
         <span className="sr-only">{LIGHT_COPY[sub.light].label}: </span>
       </span>
-      <PersonaName name={sub.name} className={NAME_STYLE} personas={personas} ids={sub.personaIds} />
+      <PersonaName
+        name={sub.name}
+        className={NAME_STYLE}
+        personas={personas}
+        ids={sub.personaIds}
+        picked={pickedPersonas}
+      />
     </button>
   );
 
@@ -105,7 +117,7 @@ function SubtaskRow({
             <li
               key={step.id}
               data-drop-step={step.id}
-              className={`transition-opacity duration-150 ease-out ${draggingId === step.id ? DIMMED : ''}`}
+              className={`transition-opacity duration-150 ease-out ${draggingId === step.id || (!faded && isChildOffPersona(step.personaIds, pickedPersonas)) ? DIMMED : ''}`}
             >
               <button
                 type="button"
@@ -120,7 +132,13 @@ function SubtaskRow({
                 className="group/row flex min-h-8 w-full cursor-pointer items-start gap-2 py-1.5 text-left text-[13px] leading-[1.35] text-pretty text-muted max-lg:min-h-11"
               >
                 <StepMark />
-                <PersonaName name={step.name} className={NAME_STYLE} personas={personas} ids={step.personaIds} />
+                <PersonaName
+                  name={step.name}
+                  className={NAME_STYLE}
+                  personas={personas}
+                  ids={step.personaIds}
+                  picked={pickedPersonas}
+                />
               </button>
             </li>
           ))}
@@ -133,6 +151,8 @@ function SubtaskRow({
 function TaskRow({
   task,
   personas,
+  pickedPersonas,
+  faded,
   open,
   openItems,
   dim,
@@ -145,6 +165,9 @@ function TaskRow({
 }: {
   task: TaskView;
   personas: PersonaView[];
+  pickedPersonas: PickedPersonas;
+  /** Already faded as a whole, so its subtasks and steps don't fade twice. */
+  faded: boolean;
   open: boolean;
   openItems: ReadonlySet<string>;
   dim: Light | null;
@@ -173,7 +196,13 @@ function TaskRow({
         <LightMark light={task.light} />
         <span className="sr-only">{LIGHT_COPY[task.light].label}: </span>
       </span>
-      <PersonaName name={task.name} className={NAME_STYLE} personas={personas} ids={task.personaIds} />
+      <PersonaName
+        name={task.name}
+        className={NAME_STYLE}
+        personas={personas}
+        ids={task.personaIds}
+        picked={pickedPersonas}
+      />
     </button>
   );
 
@@ -203,26 +232,31 @@ function TaskRow({
       </div>
       <DisclosurePanel>
         <ol className="mb-2 ml-6">
-          {task.subtasks.map((sub) => (
-            <li
-              key={sub.id}
-              data-drop-task={sub.id}
-              className={`transition-opacity duration-150 ease-out ${isDimmed(sub.light, dim) || draggingId === sub.id ? DIMMED : ''}`}
-            >
-              <SubtaskRow
-                personas={personas}
-                sub={sub}
-                open={openItems.has(sub.id)}
-                selectedId={selectedId}
-                draggingId={draggingId}
-                onStartDrag={onStartDrag}
-                onOpenDrawer={onOpenDrawer}
-                onToggle={(next) => {
-                  onToggleItem(sub.id, next);
-                }}
-              />
-            </li>
-          ))}
+          {task.subtasks.map((sub) => {
+            const subFaded = isDimmed(sub.light, dim) || (!faded && isChildOffPersona(sub.personaIds, pickedPersonas));
+            return (
+              <li
+                key={sub.id}
+                data-drop-task={sub.id}
+                className={`transition-opacity duration-150 ease-out ${subFaded || draggingId === sub.id ? DIMMED : ''}`}
+              >
+                <SubtaskRow
+                  personas={personas}
+                  pickedPersonas={pickedPersonas}
+                  faded={faded || subFaded}
+                  sub={sub}
+                  open={openItems.has(sub.id)}
+                  selectedId={selectedId}
+                  draggingId={draggingId}
+                  onStartDrag={onStartDrag}
+                  onOpenDrawer={onOpenDrawer}
+                  onToggle={(next) => {
+                    onToggleItem(sub.id, next);
+                  }}
+                />
+              </li>
+            );
+          })}
         </ol>
       </DisclosurePanel>
     </DisclosureRoot>
@@ -252,6 +286,7 @@ export function Chapter({
   dim,
   teams,
   personas,
+  pickedPersonas,
   openTasks,
   selectedId,
   draggingId,
@@ -269,6 +304,7 @@ export function Chapter({
   dim: Light | null;
   teams: PickedTeams;
   personas: PersonaView[];
+  pickedPersonas: PickedPersonas;
   openTasks: ReadonlySet<string>;
   selectedId: string | null;
   draggingId: string | null;
@@ -345,7 +381,7 @@ export function Chapter({
           ) : (
             <ol className="mt-3">
               {activity.tasks.map((task) => {
-                const offTeam = isOffTeam(task, teams);
+                const offTeam = isOffPick(task, teams, pickedPersonas);
                 return (
                   <li
                     key={task.id}
@@ -353,6 +389,8 @@ export function Chapter({
                   >
                     <TaskRow
                       personas={personas}
+                      pickedPersonas={pickedPersonas}
+                      faded={offTeam}
                       task={task}
                       open={openTasks.has(task.id)}
                       openItems={openTasks}

@@ -48,7 +48,7 @@ Shared components live in `apps/web/src/ui` and are the only place that imports 
 
 ### Header
 
-`apps/web/src/features/map/story-wall.tsx`. One hairline-ruled row: the map name, a Sample tag when the data is invented, the live status line, then the buttons. The lights aren't explained on the page, because people learn them quickly. When the map is dimmed to one light, a chip filled with that light says so and clears it. Picked teams get a chip in the same way. `docs/designs/header-direction.md` has the reasoning.
+`apps/web/src/features/map/story-wall.tsx`. One hairline-ruled row: the map name, a Sample tag when the data is invented, the live status line, then the buttons. The lights aren't explained on the page, because people learn them quickly. When the map is dimmed to one light, a chip filled with that light says so and clears it. Picked teams and picked personas each get a chip in the same way. `docs/designs/header-direction.md` has the reasoning.
 
 ### KeyPopover
 
@@ -57,6 +57,12 @@ Shared components live in `apps/web/src/ui` and are the only place that imports 
 ### TeamPopover
 
 `apps/web/src/features/map/team-popover.tsx`. Shows one or more teams' tasks, opened from Teams just before Key. Each team is a checkbox row with its task count, and a last "No team" row, with no Rename, picks the tasks nobody has; it counts as one more pick in the chip ("No team only ×", "Till and No team ×"). With no teams at all, the popover holds only Add team. Picking fades every other task, folds away chapters with none of theirs by setting the chapter focus, and puts a chip filled with `ink` in the header row to clear it. The chip says "only" for one team ("Till only ×"), and drops it for more: "Bench and Till ×", "3 teams ×", or "All teams ×". It's also where teams are added, with Add team at the end of the list, and where Rename on a row opens that team in the drawer. Esc in the Add team field ends only the field. Picking teams never reorders tasks, and teams have no colour. The logic lives in `teams.ts`. `docs/designs/teams-direction.md` has the reasoning.
+
+### PersonaPopover
+
+`apps/web/src/features/map/persona-popover.tsx`. Shows one or more personas' tasks, opened from Personas between Teams and Key. Each persona is a checkbox row with its glyph and its task count, where a task counts if it or any of its subtasks or steps is theirs. Picking fades every task whose roll-up has none of them, folds away chapters with none of theirs by setting the chapter focus, and draws the picked personas' glyphs in `ink` on the rows. Inside a task on show, a subtask or step with personas, none of them picked, fades too, and one with none follows its parent; nothing fades twice. A chip filled with `ink` shows the picked glyphs and clears them, worded like the team chip ("Front desk only ×", "Rider and Owner ×", "3 personas ×", "All personas ×"). With teams picked as well, only tasks matching both show, and Show the whole story clears both. A task added while exactly one persona is picked takes it, in the same change, so Undo takes both away. With no personas on the map, there's no Personas button. The logic lives in `personas.ts`.
+
+Esc inside any popover only closes it: page-wide Esc handlers skip events from inside one (`isInPopover` in `apps/web/src/ui/popover.tsx`), so picks, the chapter focus and the drawer stay.
 
 ### TeamField
 

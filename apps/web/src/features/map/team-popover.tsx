@@ -1,6 +1,6 @@
 'use client';
 import type { ActivityView, TeamView } from '@litmus/core';
-import { useState, type Ref } from 'react';
+import { useState, type ReactNode, type Ref } from 'react';
 import { PopoverPanel, PopoverRoot, PopoverTitle, PopoverTrigger } from '../../ui/popover';
 import { AddControl } from './add-field';
 import { BUTTON } from './button-style';
@@ -8,13 +8,16 @@ import { NO_TEAM } from './teams';
 
 const taskCount = (count: number) => `${String(count)} ${count === 1 ? 'task' : 'tasks'}`;
 
-function PickRow({
+/** A checkbox row in a popover that picks whose tasks to show, with its task count. */
+export function PickRow({
   name,
+  icon,
   count,
   pressed,
   onToggle,
 }: {
   name: string;
+  icon?: ReactNode;
   count: number;
   pressed: boolean;
   onToggle: () => void;
@@ -43,6 +46,7 @@ function PickRow({
           </svg>
         )}
       </span>
+      {icon}
       <span className="grow">{name}</span>
       <span className="text-[12px] text-muted tabular-nums">{taskCount(count)}</span>
     </button>

@@ -1,8 +1,5 @@
 # Decision: personas, and showing one persona's tasks
 
-<!-- doc-paths: ignore -->
-<!-- Until the personas build lands, this cites files that don't exist yet. Remove this marker in #52. -->
-
 Decided by Scott on 2026-11-07: the design as proposed, with all five questions in section 8 settled as recommended. It came from a working prototype on the invented sample map (branch `proto/personas`, built in place on the one-row header). Method: prototyped against the teams pattern (`docs/designs/teams-direction.md`), checked in the browser, then written up here. The `emil-ui-review` and `emil-unslop-design` passes haven't been run yet.
 
 ## 1. Goals

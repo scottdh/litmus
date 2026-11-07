@@ -98,17 +98,20 @@ export async function addTaskOnMap({
   name,
   to,
   teamId,
+  personaId,
 }: {
   mapId: string;
   name: string;
   to: AddDestination;
   teamId: string | null;
+  personaId: string | null;
 }) {
   const { id, before, after } = await addTaskToMap({ maps, newId })({
     mapId: mapId as MapId,
     name,
     to,
     teamId: teamId as TeamId | null,
+    personaIds: personaId === null ? [] : [personaId as PersonaId],
   });
   return { id, undoToken: remember(mapId as MapId, before, after) };
 }

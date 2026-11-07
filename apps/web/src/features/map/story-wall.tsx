@@ -8,8 +8,17 @@ import { Drawer } from './drawer';
 import { describeDestination, type Destination } from './drop';
 import { chapterState, focusSummary } from './focus';
 import { KeyPopover } from './key-popover';
+import { PersonaGlyph } from './persona-icon';
+import { PersonaPopover } from './persona-popover';
+import {
+  chaptersWithPicks,
+  personaChipLabel,
+  personaForNewTask,
+  personaSummary,
+  type PickedPersonas,
+} from './personas';
 import { TeamPopover } from './team-popover';
-import { NO_TEAM, chaptersWithTeams, isEveryTeam, teamChipLabel, teamForNewTask, type PickedTeams } from './teams';
+import { NO_TEAM, isEveryTeam, teamChipLabel, teamForNewTask, type PickedTeams } from './teams';
 import { LightMark } from './light-mark';
 import { FILL_COLOUR, LIGHT_COPY } from './lights';
 import type { ReviewDraft } from './rating-section';
@@ -28,6 +37,7 @@ import type {
   SetPersona,
   UndoChange,
 } from './rename-result';
+import { isInPopover } from '../../ui/popover';
 import { findSubject } from './subject';
 import { useChapterFocus } from './use-chapter-focus';
 import { useTaskDrag } from './use-task-drag';
@@ -88,6 +98,7 @@ export function StoryWall({
   const [reviewDrafts, setReviewDrafts] = useState<Record<string, ReviewDraft>>({});
   const [dim, setDim] = useState<Light | null>(null);
   const [teams, setTeams] = useState<PickedTeams>(new Set());
+  const [personas, setPersonas] = useState<PickedPersonas>(new Set());
   const [open, setOpen] = useState<ReadonlySet<string>>(new Set());
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
@@ -105,6 +116,7 @@ export function StoryWall({
   const expandAll = useRef<HTMLButtonElement>(null);
   const keyButton = useRef<HTMLButtonElement>(null);
   const teamsButton = useRef<HTMLButtonElement>(null);
+  const personasButton = useRef<HTMLButtonElement>(null);
   const teamNames = [
     ...map.teams.filter((team) => teams.has(team.id)).map((team) => team.name),
     ...(teams.has(NO_TEAM) ? ['No team'] : []),
@@ -114,47 +126,60 @@ export function StoryWall({
   const pickableCount = map.teams.length + (teams.has(NO_TEAM) ? 1 : 0);
   const allTeams = isEveryTeam(teamNames.length, pickableCount);
   const teamsPhrase = allTeams ? 'any team' : TEAM_NAMES.format(teamNames);
+  const pickedPersonas = map.personas.filter((persona) => personas.has(persona.id));
+  const personaNames = pickedPersonas.map((persona) => persona.name);
+  const picking = teams.size > 0 || personas.size > 0;
+  const pickedChapters = chaptersWithPicks(map.activities, teams, personas);
   const summary =
-    teamNames.length === 0
-      ? focusSummary(map.activities, focus)
-      : chaptersWithTeams(map.activities, teams).length === 0
-        ? onlyNoTeam
-          ? 'Every task has a team.'
-          : allTeams
-            ? 'No team has tasks yet.'
-            : `${teamsPhrase} ${teamNames.length === 1 ? 'has' : 'have'} no tasks yet.`
-        : teams.has(NO_TEAM)
-          ? `Chapters with no tasks for ${teamsPhrase} are folded away.`
-          : `Chapters without ${teamsPhrase}’s tasks are folded away.`;
+    personas.size > 0
+      ? personaSummary(
+          { phrase: teamNames.length === 0 ? '' : teamsPhrase, onlyNoTeam },
+          personaNames,
+          pickedChapters.length > 0,
+        )
+      : teamNames.length === 0
+        ? focusSummary(map.activities, focus)
+        : pickedChapters.length === 0
+          ? onlyNoTeam
+            ? 'Every task has a team.'
+            : allTeams
+              ? 'No team has tasks yet.'
+              : `${teamsPhrase} ${teamNames.length === 1 ? 'has' : 'have'} no tasks yet.`
+          : teams.has(NO_TEAM)
+            ? `Chapters with no tasks for ${teamsPhrase} are folded away.`
+            : `Chapters without ${teamsPhrase}’s tasks are folded away.`;
 
   const teamLabel = teamChipLabel(teamNames, pickableCount);
-  // Esc, or unfocusing every chapter, opens the whole story, so the teams that folded it go too.
-  const teamsFoldSomething = chaptersWithTeams(map.activities, teams).length > 0;
+  const personaLabel = personaChipLabel(personaNames, map.personas.length);
+  // Esc, or unfocusing every chapter, opens the whole story, so the picks that folded it go too.
+  const picksFoldSomething = pickedChapters.length > 0;
   useEffect(() => {
-    if (teams.size > 0 && focus.length === 0 && teamsFoldSomething) setTeams(new Set());
-  }, [focus.length, teams.size, teamsFoldSomething]);
+    if (picking && focus.length === 0 && picksFoldSomething) {
+      setTeams(new Set());
+      setPersonas(new Set());
+    }
+  }, [focus.length, picking, picksFoldSomething]);
 
   // A team that's been removed can't stay picked.
   const hasRemovedPick = [...teams].some((id) => id !== NO_TEAM && !map.teams.some((team) => team.id === id));
   useEffect(() => {
     if (!hasRemovedPick) return;
     const next = new Set([...teams].filter((id) => id === NO_TEAM || map.teams.some((team) => team.id === id)));
-    setTeams(next);
-    if (next.size === 0) clear();
-    else setFocus(chaptersWithTeams(map.activities, next));
+    refold(next, personas);
   }, [hasRemovedPick]);
 
-  /** Picking teams folds away every chapter they have nothing in, by setting the focus. */
-  const toggleTeam = (id: string) => {
-    const next = new Set(teams);
+  /** Picking teams or personas folds away every chapter with nothing of theirs, by setting the focus. */
+  const refold = (nextTeams: PickedTeams, nextPersonas: PickedPersonas) => {
+    setTeams(nextTeams);
+    setPersonas(nextPersonas);
+    if (nextTeams.size === 0 && nextPersonas.size === 0) clear();
+    else setFocus(chaptersWithPicks(map.activities, nextTeams, nextPersonas));
+  };
+  const flip = (picked: ReadonlySet<string>, id: string) => {
+    const next = new Set(picked);
     if (next.has(id)) next.delete(id);
     else next.add(id);
-    setTeams(next);
-    if (next.size === 0) {
-      clear();
-      return;
-    }
-    setFocus(chaptersWithTeams(map.activities, next));
+    return next;
   };
   const found = selectedId === null ? null : findSubject(map, selectedId);
   // A chapter that's gone to the background has no tasks on show, so its drawer closes too.
@@ -276,7 +301,7 @@ export function StoryWall({
     if (!drawerOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
       // A form inside the drawer may have used this Esc already.
-      if (event.key === 'Escape' && !event.defaultPrevented) closeDrawer();
+      if (event.key === 'Escape' && !event.defaultPrevented && !isInPopover(event)) closeDrawer();
     };
     document.addEventListener('keydown', onKeyDown);
     return () => {
@@ -406,8 +431,7 @@ export function StoryWall({
             <button
               type="button"
               onClick={() => {
-                setTeams(new Set());
-                clear();
+                refold(new Set(), personas);
                 // This chip is about to disappear, so keyboard users need somewhere to land.
                 teamsButton.current?.focus();
               }}
@@ -420,29 +444,69 @@ export function StoryWall({
               </span>
             </button>
           )}
+          {pickedPersonas.length > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                refold(teams, new Set());
+                // This chip is about to disappear, so keyboard users need somewhere to land.
+                personasButton.current?.focus();
+              }}
+              aria-label={
+                personaLabel === 'All personas'
+                  ? 'Stop filtering by persona'
+                  : `Stop showing only ${TEAM_NAMES.format(personaNames)}`
+              }
+              className={`${BUTTON} flex shrink-0 items-center gap-1.5 bg-ink text-canvas`}
+            >
+              <span aria-hidden="true" className="flex gap-0.5">
+                {pickedPersonas.map((persona) => (
+                  <PersonaGlyph key={persona.id} icon={persona.icon} />
+                ))}
+              </span>
+              {personaLabel}
+              <span aria-hidden="true" className="opacity-70">
+                ×
+              </span>
+            </button>
+          )}
           <TeamPopover
             teams={map.teams}
             activities={map.activities}
             picked={teams}
-            onToggle={toggleTeam}
+            onToggle={(id) => {
+              refold(flip(teams, id), personas);
+            }}
             onRename={openDrawer}
             onAdd={(name) => {
               report(name, addTeam({ mapId: savedMap.id, name }), () => undefined);
             }}
             triggerRef={teamsButton}
           />
+          {map.personas.length > 0 && (
+            <PersonaPopover
+              personas={map.personas}
+              activities={map.activities}
+              picked={personas}
+              onToggle={(id) => {
+                refold(teams, flip(personas, id));
+              }}
+              triggerRef={personasButton}
+            />
+          )}
           <KeyPopover dim={dim} onDim={setDim} isSample={isSample} triggerRef={keyButton} />
           {lastChange && (
             <button type="button" onClick={undoLastChange} className={`${BUTTON} shrink-0 shadow-raised`}>
               Undo
             </button>
           )}
-          {(focusing || teams.size > 0) && (
+          {(focusing || picking) && (
             <button
               type="button"
               onClick={() => {
                 clear();
                 setTeams(new Set());
+                setPersonas(new Set());
                 // This button is about to disappear, so keyboard users need somewhere to land.
                 expandAll.current?.focus();
               }}
@@ -475,6 +539,7 @@ export function StoryWall({
                 dim={dim}
                 teams={teams}
                 personas={map.personas}
+                pickedPersonas={personas}
                 openTasks={open}
                 selectedId={subject?.id ?? null}
                 draggingId={dragging?.id ?? null}
@@ -493,6 +558,7 @@ export function StoryWall({
                       name,
                       to: { chapterId: activity.id },
                       teamId: teamForNewTask(teams),
+                      personaId: personaForNewTask(personas),
                     }),
                     () => undefined,
                   );
