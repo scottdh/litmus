@@ -11,7 +11,7 @@ export type Subject =
       chapters: { id: string; name: string; tasks: { id: string; name: string; light: Light }[] }[];
     }
   | { kind: 'chapter'; id: string; name: string; chapterId: string; path: string }
-  | { kind: 'step'; id: string; name: string; note: string; chapterId: string; path: string }
+  | { kind: 'step'; id: string; name: string; note: string; chapterId: string; path: string; personaIds: string[] }
   | {
       kind: 'task' | 'subtask';
       id: string;
@@ -20,13 +20,17 @@ export type Subject =
       path: string;
       /** A subtask shows its task's team, because that's where it's set. */
       teamId: string | null;
+      /** Set on this one. */
+      ownPersonaIds: string[];
+      /** Its own and everything beneath it. */
+      personaIds: string[];
       light: Light;
       review: string | null;
       earlierReview: string | null;
       /** Empty unless this task's light follows from its subtasks. */
-      subtasks: { id: string; name: string; light: Light }[];
+      subtasks: { id: string; name: string; light: Light; personaIds: string[] }[];
       /** Only a subtask has these. */
-      steps: { id: string; name: string }[];
+      steps: { id: string; name: string; personaIds: string[] }[];
     };
 
 export function findSubject(map: MapView, id: string): Subject | null {
@@ -57,6 +61,8 @@ export function findSubject(map: MapView, id: string): Subject | null {
           chapterId: chapter.id,
           path: `${place} · ${chapter.name}`,
           teamId: task.teamId,
+          ownPersonaIds: task.ownPersonaIds,
+          personaIds: task.personaIds,
           light: task.light,
           review: task.review,
           earlierReview: task.earlierReview,
@@ -73,6 +79,8 @@ export function findSubject(map: MapView, id: string): Subject | null {
             chapterId: chapter.id,
             path: `${place} · ${chapter.name} · ${task.name}`,
             teamId: task.teamId,
+            ownPersonaIds: sub.ownPersonaIds,
+            personaIds: sub.personaIds,
             light: sub.light,
             review: sub.review,
             earlierReview: null,
@@ -87,6 +95,7 @@ export function findSubject(map: MapView, id: string): Subject | null {
             id,
             name: step.name,
             note: step.note,
+            personaIds: step.personaIds,
             chapterId: chapter.id,
             path: `${place} · ${chapter.name} · ${task.name} · ${sub.name}`,
           };

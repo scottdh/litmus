@@ -25,6 +25,7 @@ import type {
   Rate,
   RemoveTeam,
   Rename,
+  SetPersona,
   UndoChange,
 } from './rename-result';
 import { findSubject } from './subject';
@@ -66,6 +67,7 @@ export function StoryWall({
   addChapter,
   assignTeam,
   addTeam,
+  setPersona,
   removeTeam,
 }: {
   map: MapView;
@@ -80,6 +82,7 @@ export function StoryWall({
   addChapter: AddChapter;
   assignTeam: AssignTeam;
   addTeam: AddTeam;
+  setPersona: SetPersona;
   removeTeam: RemoveTeam;
 }) {
   const [reviewDrafts, setReviewDrafts] = useState<Record<string, ReviewDraft>>({});
@@ -471,6 +474,7 @@ export function StoryWall({
                 animate={animate}
                 dim={dim}
                 teams={teams}
+                personas={map.personas}
                 openTasks={open}
                 selectedId={subject?.id ?? null}
                 draggingId={dragging?.id ?? null}
@@ -548,6 +552,7 @@ export function StoryWall({
               removeTeamNow(subject.id);
             }}
             onAssignTeam={(teamId) => assignTeam({ mapId: savedMap.id, id: subject.id, teamId })}
+            onSetPersona={(personaId, on) => setPersona({ mapId: savedMap.id, id: subject.id, personaId, on })}
             onAddSubtask={(name) => {
               report(name, addTask({ mapId: savedMap.id, name, to: { parentId: subject.id } }), () => {
                 toggleTask(subject.id, true);

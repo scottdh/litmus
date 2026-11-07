@@ -39,3 +39,10 @@ export type AssignTeam = (input: { mapId: string; id: string; teamId: string | n
 export type RemoveTeam = (input: { mapId: string; id: string }) => Promise<MoveResult>;
 
 export type AddTeam = (input: { mapId: string; name: string }) => Promise<AddResult>;
+
+export type SetPersona = (input: {
+  mapId: string;
+  id: string;
+  personaId: string;
+  on: boolean;
+}) => Promise<RenameResult>;
