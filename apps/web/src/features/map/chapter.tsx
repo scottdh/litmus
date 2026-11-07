@@ -47,6 +47,7 @@ function SubtaskRow({
   sub,
   open,
   selectedId,
+  draggingId,
   onStartDrag,
   onOpenDrawer,
   onToggle,
@@ -54,6 +55,7 @@ function SubtaskRow({
   sub: SubtaskView;
   open: boolean;
   selectedId: string | null;
+  draggingId: string | null;
   onStartDrag: (id: string, name: string, event: PointerEvent) => void;
   onOpenDrawer: (id: string) => void;
   onToggle: (open: boolean) => void;
@@ -96,11 +98,18 @@ function SubtaskRow({
       <DisclosurePanel>
         <ol aria-label={`Steps of ${sub.name}`} className="mb-1 ml-5">
           {sub.steps.map((step) => (
-            <li key={step.id}>
+            <li
+              key={step.id}
+              data-drop-step={step.id}
+              className={`transition-opacity duration-150 ease-out ${draggingId === step.id ? DIMMED : ''}`}
+            >
               <button
                 type="button"
                 id={`open-${step.id}`}
                 aria-current={selectedId === step.id ? 'true' : undefined}
+                onPointerDown={(event) => {
+                  onStartDrag(step.id, step.name, event);
+                }}
                 onClick={() => {
                   onOpenDrawer(step.id);
                 }}
@@ -198,6 +207,7 @@ function TaskRow({
                 sub={sub}
                 open={openItems.has(sub.id)}
                 selectedId={selectedId}
+                draggingId={draggingId}
                 onStartDrag={onStartDrag}
                 onOpenDrawer={onOpenDrawer}
                 onToggle={(next) => {

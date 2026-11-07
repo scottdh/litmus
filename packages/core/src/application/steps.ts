@@ -1,5 +1,5 @@
 import { notFound } from '../kernel/errors.ts';
-import { addStep, renameStep, setStepNote } from '../domain/map/step.ts';
+import { addStep, moveStep, renameStep, setStepNote, type StepDestination } from '../domain/map/step.ts';
 import type { MapId, StepId, StoryMap, TaskId } from '../domain/map/story-map.ts';
 import type { MapRecord, MapRepository } from './ports.ts';
 
@@ -31,3 +31,9 @@ export const setStepNoteInMap =
   async ({ mapId, stepId, note }: { mapId: MapId; stepId: StepId; note: string }) => {
     await change(deps.maps, mapId, (map) => setStepNote(map, stepId, note));
   };
+
+/** Steps take no light, so ratings are untouched. Hands back the before and after, so the move can be undone. */
+export const moveStepInMap =
+  (deps: { maps: MapRepository }) =>
+  async ({ mapId, stepId, to }: { mapId: MapId; stepId: StepId; to: StepDestination }) =>
+    change(deps.maps, mapId, (map) => moveStep(map, stepId, to));

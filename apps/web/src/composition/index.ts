@@ -4,6 +4,7 @@ import {
   addTaskToMap,
   getMapView,
   invariantViolation,
+  moveStepInMap,
   moveTask,
   rateTask,
   renameChapter,
@@ -19,6 +20,7 @@ import {
   type MapRecord,
   type MapRepository,
   type MoveDestination,
+  type StepDestination,
   type StepId,
   type TaskId,
 } from '@litmus/core';
@@ -59,8 +61,19 @@ export async function rateOnMap({ mapId, id, light, note }: { mapId: string; id:
   await rateTask({ maps, clock })({ mapId: mapId as MapId, taskId: id as TaskId, light, note });
 }
 
-export async function moveOnMap({ mapId, id, to }: { mapId: string; id: string; to: MoveDestination }) {
-  const { before, after } = await moveTask({ maps })({ mapId: mapId as MapId, taskId: id as TaskId, to });
+export async function moveOnMap({
+  mapId,
+  id,
+  to,
+}: {
+  mapId: string;
+  id: string;
+  to: MoveDestination | StepDestination;
+}) {
+  const { before, after } =
+    'subtaskId' in to
+      ? await moveStepInMap({ maps })({ mapId: mapId as MapId, stepId: id as StepId, to })
+      : await moveTask({ maps })({ mapId: mapId as MapId, taskId: id as TaskId, to });
   return remember(mapId as MapId, before, after);
 }
 

@@ -134,6 +134,14 @@ export function StoryWall({
           return;
         }
         if ('parentId' in to) toggleTask(to.parentId, true);
+        // So a moved step is on show, and its row is there to return focus to.
+        if ('subtaskId' in to) {
+          const parent = map.activities
+            .flatMap((chapter) => chapter.tasks)
+            .find((task) => task.subtasks.some((sub) => sub.id === to.subtaskId));
+          if (parent) toggleTask(parent.id, true);
+          toggleTask(to.subtaskId, true);
+        }
         setLastChange({ token: result.undoToken, message: `Moved ${name} to ${describeDestination(map, to)}.` });
       },
       () => {
