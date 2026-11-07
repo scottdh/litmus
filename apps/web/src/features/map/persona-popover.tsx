@@ -6,18 +6,18 @@ import { AddControl } from './add-field';
 import { BUTTON } from './button-style';
 import { PersonaGlyph } from './persona-icon';
 import { personaTaskCount } from './personas';
-import { PickRow, RENAME_BUTTON } from './pick-row';
+import { PickRow, OPEN_BUTTON } from './pick-row';
 
 /**
  * Picks whose work to show. Any number can be picked; everything else fades, and empty chapters fold away.
- * It's also where personas are added, and where Rename opens a persona in the drawer.
+ * It's also where personas are added, and where Open shows a persona in the drawer.
  */
 export function PersonaPopover({
   personas,
   activities,
   picked,
   onToggle,
-  onRename,
+  onOpen,
   onAdd,
   triggerRef,
 }: {
@@ -25,7 +25,7 @@ export function PersonaPopover({
   activities: ActivityView[];
   picked: ReadonlySet<string>;
   onToggle: (id: string) => void;
-  onRename: (id: string) => void;
+  onOpen: (id: string) => void;
   onAdd: (name: string) => void;
   triggerRef?: Ref<HTMLButtonElement>;
 }) {
@@ -61,14 +61,14 @@ export function PersonaPopover({
               />
               <button
                 type="button"
-                aria-label={`Rename ${persona.name}`}
+                aria-label={`Open ${persona.name}`}
                 onClick={() => {
                   setOpen(false);
-                  onRename(persona.id);
+                  onOpen(persona.id);
                 }}
-                className={RENAME_BUTTON}
+                className={OPEN_BUTTON}
               >
-                Rename
+                Open
               </button>
             </li>
           ))}
