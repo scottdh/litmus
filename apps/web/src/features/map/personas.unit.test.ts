@@ -9,6 +9,7 @@ import {
   personaForNewTask,
   personaSummary,
   personaTaskCount,
+  removePersonaWarning,
 } from './personas';
 import { NO_TEAM } from './teams';
 
@@ -163,5 +164,19 @@ describe('personaSummary', () => {
     expect(personaSummary({ phrase: 'No team', onlyNoTeam: true }, ['Rider'], true)).toBe(
       'Chapters with no unowned tasks for Rider are folded away.',
     );
+  });
+});
+
+describe('removePersonaWarning', () => {
+  it('says how many tasks it comes off', () => {
+    expect(removePersonaWarning(9)).toBe('It comes off 9 tasks, which stay on the map. You can undo this.');
+  });
+
+  it('says one task, not one tasks', () => {
+    expect(removePersonaWarning(1)).toBe('It comes off 1 task, which stays on the map. You can undo this.');
+  });
+
+  it('says so when it isn’t on any tasks', () => {
+    expect(removePersonaWarning(0)).toBe('It isn’t on any tasks. You can undo this.');
   });
 });
