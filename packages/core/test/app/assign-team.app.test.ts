@@ -60,11 +60,24 @@ describe('teams', () => {
     expect(view.activities[0]?.tasks[0]?.teamId).toBe(BENCH);
   });
 
-  it('refuses a team for a subtask, with a stable code', async () => {
+  it('shows a subtask following its task’s team until it has its own', async () => {
     const maps = repository();
-    const assigning = assignTeamInMap({ maps })({ mapId: MAP_ID, taskId: 'tsk_1a' as TaskId, teamId: BENCH });
+    await assignTeamInMap({ maps })({ mapId: MAP_ID, taskId: 'tsk_1' as TaskId, teamId: BENCH });
+    const following = (await getMapView({ maps })(MAP_ID)).activities[0]?.tasks[0]?.subtasks[0];
+    expect(following).toMatchObject({ teamId: BENCH, ownTeamId: null });
+
+    const till = await addTeamToMap({ maps, newId: () => 'till' })({ mapId: MAP_ID, name: 'Till' });
+    await assignTeamInMap({ maps })({ mapId: MAP_ID, taskId: 'tsk_1a' as TaskId, teamId: till.id as TeamId });
+    const view = await getMapView({ maps })(MAP_ID);
+    expect(view.activities[0]?.tasks[0]?.subtasks[0]).toMatchObject({ teamId: till.id, ownTeamId: till.id });
+    expect(view.activities[0]?.tasks[0]?.teamId).toBe(BENCH);
+  });
+
+  it('refuses a task that isn’t on the map, with a stable code', async () => {
+    const maps = repository();
+    const assigning = assignTeamInMap({ maps })({ mapId: MAP_ID, taskId: 'tsk_none' as TaskId, teamId: BENCH });
     await expect(assigning).rejects.toBeInstanceOf(DomainError);
-    await expect(assigning).rejects.toMatchObject({ code: 'TEAM_IS_ON_THE_TASK' });
+    await expect(assigning).rejects.toMatchObject({ code: 'TASK_NOT_FOUND' });
   });
 
   it('adds a task for a team in one change, so undo still takes it away', async () => {
