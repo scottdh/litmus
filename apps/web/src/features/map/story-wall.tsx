@@ -18,7 +18,15 @@ import {
   type PickedPersonas,
 } from './personas';
 import { TeamPopover } from './team-popover';
-import { NO_TEAM, isEveryTeam, teamChipLabel, teamForNewTask, type PickedTeams, teamSummary } from './teams';
+import {
+  NO_TEAM,
+  isEveryTeam,
+  teamChipLabel,
+  teamForNewTask,
+  type PickedTeams,
+  teamSummary,
+  picksStillOnMap,
+} from './teams';
 import { LightMark } from './light-mark';
 import { FILL_COLOUR, LIGHT_COPY } from './lights';
 import type { ReviewDraft } from './rating-section';
@@ -160,11 +168,13 @@ export function StoryWall({
   }, [focus.length, picking, picksFoldSomething]);
 
   // A team that's been removed can't stay picked.
-  const hasRemovedPick = [...teams].some((id) => id !== NO_TEAM && !map.teams.some((team) => team.id === id));
+  const stillPicked = picksStillOnMap(
+    teams,
+    map.teams.map((team) => team.id),
+  );
+  const hasRemovedPick = stillPicked.size < teams.size;
   useEffect(() => {
-    if (!hasRemovedPick) return;
-    const next = new Set([...teams].filter((id) => id === NO_TEAM || map.teams.some((team) => team.id === id)));
-    refold(next, personas);
+    if (hasRemovedPick) refold(stillPicked, personas);
   }, [hasRemovedPick]);
 
   /** Picking teams or personas folds away every chapter with nothing of theirs, by setting the focus. */

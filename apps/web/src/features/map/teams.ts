@@ -27,6 +27,10 @@ const TEAM_NAMES = new Intl.ListFormat('en', { style: 'long', type: 'conjunction
 /** Every team on a map with more than one, so the chip can say "All teams". */
 export const isEveryTeam = (pickedCount: number, teamCount: number) => pickedCount > 1 && pickedCount === teamCount;
 
+/** The picks that still mean something: removed teams go, and so does No team once there are no teams at all. */
+export const picksStillOnMap = (picked: PickedTeams, teamIds: string[]): PickedTeams =>
+  new Set([...picked].filter((id) => (id === NO_TEAM ? teamIds.length > 0 : teamIds.includes(id))));
+
 /** The status line while teams are picked. Tasks with no team are "unowned" here, which reads better than "No team's". */
 export const teamSummary = (
   { names, noTeam, allTeams }: { names: string[]; noTeam: boolean; allTeams: boolean },
