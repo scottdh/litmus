@@ -6,7 +6,7 @@ import { AddControl } from './add-field';
 import { BUTTON } from './button-style';
 import { PersonaGlyph } from './persona-icon';
 import { personaTaskCount } from './personas';
-import { PickRow } from './pick-row';
+import { PickRow, RENAME_BUTTON } from './pick-row';
 
 /**
  * Picks whose work to show. Any number can be picked; everything else fades, and empty chapters fold away.
@@ -49,7 +49,7 @@ export function PersonaPopover({
         <PopoverTitle className="px-1.5 pt-1 text-[13px] font-semibold">Show a persona’s tasks</PopoverTitle>
         <ul aria-label="Personas" className="mt-2 flex flex-col gap-0.5">
           {personas.map((persona) => (
-            <li key={persona.id} className="group/persona flex items-center gap-1">
+            <li key={persona.id} className="group/pick flex items-center gap-1">
               <PickRow
                 name={persona.name}
                 icon={<PersonaGlyph icon={persona.icon} className="size-4 text-muted" />}
@@ -66,7 +66,7 @@ export function PersonaPopover({
                   setOpen(false);
                   onRename(persona.id);
                 }}
-                className="relative shrink-0 cursor-pointer rounded-sm px-1.5 text-[12px] text-muted opacity-0 transition-[opacity,color] duration-150 ease-out group-hover/persona:opacity-100 before:absolute before:inset-x-0 before:-inset-y-3 hover:text-ink focus-visible:opacity-100 max-lg:min-h-11 max-lg:opacity-100"
+                className={RENAME_BUTTON}
               >
                 Rename
               </button>
