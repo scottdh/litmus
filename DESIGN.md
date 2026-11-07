@@ -66,7 +66,7 @@ Esc inside any popover only closes it: page-wide Esc handlers skip events from i
 
 ### TeamField
 
-`apps/web/src/features/map/team-field.tsx`. A task's team, in the drawer under the name, with "No team" for none. Only top-level tasks have one; a subtask shows its task's team read-only, with "Set on its task". A change shows at once and puts the old team back if it can't be saved.
+`apps/web/src/features/map/team-field.tsx`. A task's or subtask's team, in the drawer under the name. A task offers "No team"; a subtask offers "Same as its task (Bench)" instead, which follows its task. A change shows at once and puts the old team back if it can't be saved.
 
 ### Persona icons
 

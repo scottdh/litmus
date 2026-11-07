@@ -29,7 +29,7 @@ A subtask's drawer shows the same row read-only: the team's name, and "Set on it
 ## 4. Rejected
 
 - **A row of team chips under the light chips.** The first prototype did this. It was the most direct, but it put a second permanent row back into the header that the header direction had just cleared. Scott preferred the team picker behind a click.
-- **Teams on subtasks too.** More precise, but a parent's light would then have several owners.
+- **Teams on subtasks too.** More precise, but a parent's light would then have several owners. Reversed in section 12.
 - **A colour per team.** Colour is reserved for lights.
 
 ## 5. Known costs
@@ -77,3 +77,16 @@ Decided by Scott on 2026-11-07, after the design pass on #59.
 
 - The **No team** row's name is `muted`, so it reads as a different kind of row from the teams above it, not a team called "No team". Its checkbox and count are the same as every row's, and it filters the same.
 - The **hairline above Remove team** stays. It sets the one destructive action apart from the fields above it.
+
+## 12. A subtask can have a team of its own
+
+Decided by Scott on 2026-11-07, in #61. This reverses "Teams on subtasks too" in section 4.
+
+- **Why:** a subtask can be the responsibility of a different team from its task's. That team can then keep the task's light from changing. That's accepted: it's realistic, and it gives the task's team a reason to push the other team to prioritise at alignment sessions.
+- **Following by default.** A subtask with no team of its own follows its task's, so nothing changes for maps that don't use this. Its drawer has a Team select whose first option is "Same as its task (Bench)", then each team. A subtask given its task's team follows the task, so it stays with the task if the task changes hands. There's no separate "No team" for a subtask.
+- **Moving.** A subtask moved out to a chapter keeps the team it was under, its own or its task's. A task, or a subtask, moved in under a task keeps its team, unless that's the same as its new task's, in which case it follows.
+- **Removing a team** leaves its subtasks following their task again.
+- **Showing a team's tasks.** A task shows if it or any of its subtasks is a picked team's, and its chapter stays open. Inside a task on show, a subtask whose team isn't picked fades, as it does for an unpicked persona. Counts in the popover count a task once if it or any subtask is theirs.
+- **The team drawer** lists a subtask a team has under another team's task in its task's place, with "Subtask of …" under it in `muted` 13 px. Opening it opens its task's row.
+- **Adding.** With one team picked, a new subtask goes to that team too, unless it's the task's own, so it doesn't fade as it lands.
+- **Not done:** the subtask's team isn't shown on the row. The drawer says it, as for tasks (question 3 in section 8).
