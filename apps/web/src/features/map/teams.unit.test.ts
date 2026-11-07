@@ -1,6 +1,6 @@
 import type { ActivityView, TaskView } from '@litmus/core';
 import { describe, expect, it } from 'vitest';
-import { NO_TEAM, chaptersWithTeams, isOffTeam, teamChipLabel, teamForNewTask } from './teams';
+import { NO_TEAM, chaptersWithTeams, isOffTeam, teamChipLabel, teamForNewTask, teamSummary } from './teams';
 
 const task = (id: string, teamId: string | null): TaskView => ({
   id,
@@ -101,5 +101,36 @@ describe('picking No team', () => {
 
   it('gives a new task no team when it is the only pick', () => {
     expect(teamForNewTask(new Set([NO_TEAM]))).toBeNull();
+  });
+});
+
+describe('teamSummary', () => {
+  const picks = (names: string[], noTeam = false, allTeams = false) => ({ names, noTeam, allTeams });
+
+  it('names the teams whose tasks are kept', () => {
+    expect(teamSummary(picks(['Bench', 'Till']), true)).toBe(
+      'Chapters without Bench and Till’s tasks are folded away.',
+    );
+  });
+
+  it('calls tasks with no team unowned', () => {
+    expect(teamSummary(picks([], true), true)).toBe('Chapters without unowned tasks are folded away.');
+    expect(teamSummary(picks(['Till'], true), true)).toBe(
+      'Chapters without Till’s tasks or unowned ones are folded away.',
+    );
+  });
+
+  it('says any team when every team is picked', () => {
+    expect(teamSummary(picks(['Bench', 'Till'], false, true), true)).toBe(
+      'Chapters without any team’s tasks are folded away.',
+    );
+  });
+
+  it('says when nothing matches', () => {
+    expect(teamSummary(picks(['Till']), false)).toBe('Till has no tasks yet.');
+    expect(teamSummary(picks(['Bench', 'Till']), false)).toBe('Bench and Till have no tasks yet.');
+    expect(teamSummary(picks([], true), false)).toBe('Every task has a team.');
+    expect(teamSummary(picks(['Till'], true), false)).toBe('Till has no tasks yet, and every task has a team.');
+    expect(teamSummary(picks(['Bench', 'Till'], false, true), false)).toBe('No team has tasks yet.');
   });
 });
