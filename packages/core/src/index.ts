@@ -21,5 +21,6 @@ export * from './application/rate-task.ts';
 export * from './application/remove-team.ts';
 export * from './application/rename.ts';
 export * from './application/set-persona.ts';
+export * from './application/remove-persona.ts';
 export * from './application/steps.ts';
 export * from './application/undo-change.ts';

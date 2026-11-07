@@ -14,6 +14,7 @@ import {
   renameStepInMap,
   renameTaskInMap,
   removeTeamFromMap,
+  removePersonaFromMap,
   renamePersonaInMap,
   renameTeamInMap,
   setPersonaIconInMap,
@@ -164,6 +165,14 @@ export async function addTeamOnMap({ mapId, name }: { mapId: string; name: strin
 
 export async function removeTeamOnMap({ mapId, teamId }: { mapId: string; teamId: string }) {
   const { before, after } = await removeTeamFromMap({ maps })({ mapId: mapId as MapId, teamId: teamId as TeamId });
+  return { undoToken: remember(mapId as MapId, before, after) };
+}
+
+export async function removePersonaOnMap({ mapId, personaId }: { mapId: string; personaId: string }) {
+  const { before, after } = await removePersonaFromMap({ maps })({
+    mapId: mapId as MapId,
+    personaId: personaId as PersonaId,
+  });
   return { undoToken: remember(mapId as MapId, before, after) };
 }
 
