@@ -10,6 +10,7 @@ import {
   teamForNewTask,
   teamSummary,
   picksStillOnMap,
+  removeTeamWarning,
 } from './teams';
 
 const task = (id: string, teamId: string | null): TaskView => ({
@@ -197,5 +198,19 @@ describe('picksStillOnMap', () => {
 
   it('drops No team once the map has no teams, because every task is unowned', () => {
     expect([...picksStillOnMap(new Set([NO_TEAM]), [])]).toEqual([]);
+  });
+});
+
+describe('removeTeamWarning', () => {
+  it('says how many tasks lose their team', () => {
+    expect(removeTeamWarning(18)).toBe('Its 18 tasks stay on the map and lose their team. You can undo this.');
+  });
+
+  it('says one task, not one tasks', () => {
+    expect(removeTeamWarning(1)).toBe('Its 1 task stays on the map and loses its team. You can undo this.');
+  });
+
+  it('says so when the team has no tasks', () => {
+    expect(removeTeamWarning(0)).toBe('It has no tasks. You can undo this.');
   });
 });
