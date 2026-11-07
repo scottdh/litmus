@@ -16,3 +16,16 @@ export const chaptersWithTeams = (activities: ActivityView[], picked: PickedTeam
 /** With one team picked, a new task is theirs, so it doesn't fade the moment it's added. */
 export const teamForNewTask = (picked: PickedTeams): string | null =>
   picked.size === 1 ? ([...picked][0] ?? null) : null;
+
+const TEAM_NAMES = new Intl.ListFormat('en', { style: 'long', type: 'conjunction' });
+
+/** Every team on a map with more than one, so the chip can say "All teams". */
+export const isEveryTeam = (pickedCount: number, teamCount: number) => pickedCount > 1 && pickedCount === teamCount;
+
+/** "only" is said for a single team, where it's the point; for more it's noise. */
+export const teamChipLabel = (names: string[], teamCount: number) => {
+  if (isEveryTeam(names.length, teamCount)) return 'All teams';
+  if (names.length === 1) return `${TEAM_NAMES.format(names)} only`;
+  if (names.length === 2) return TEAM_NAMES.format(names);
+  return `${String(names.length)} teams`;
+};

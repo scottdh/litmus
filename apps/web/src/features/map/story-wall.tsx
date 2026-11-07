@@ -9,7 +9,7 @@ import { describeDestination, type Destination } from './drop';
 import { chapterState, focusSummary } from './focus';
 import { KeyPopover } from './key-popover';
 import { TeamPopover } from './team-popover';
-import { chaptersWithTeams, teamForNewTask, type PickedTeams } from './teams';
+import { chaptersWithTeams, isEveryTeam, teamChipLabel, teamForNewTask, type PickedTeams } from './teams';
 import { LightMark } from './light-mark';
 import { FILL_COLOUR, LIGHT_COPY } from './lights';
 import type { ReviewDraft } from './rating-section';
@@ -100,14 +100,18 @@ export function StoryWall({
   const keyButton = useRef<HTMLButtonElement>(null);
   const teamsButton = useRef<HTMLButtonElement>(null);
   const teamNames = map.teams.filter((team) => teams.has(team.id)).map((team) => team.name);
+  const allTeams = isEveryTeam(teamNames.length, map.teams.length);
+  const teamsPhrase = allTeams ? 'any team' : TEAM_NAMES.format(teamNames);
   const summary =
     teamNames.length === 0
       ? focusSummary(map.activities, focus)
       : chaptersWithTeams(map.activities, teams).length === 0
-        ? `${TEAM_NAMES.format(teamNames)} ${teamNames.length === 1 ? 'has' : 'have'} no tasks yet.`
-        : `Chapters without ${TEAM_NAMES.format(teamNames)}’s tasks are folded away.`;
+        ? allTeams
+          ? 'No team has tasks yet.'
+          : `${teamsPhrase} ${teamNames.length === 1 ? 'has' : 'have'} no tasks yet.`
+        : `Chapters without ${teamsPhrase}’s tasks are folded away.`;
 
-  const teamLabel = teamNames.length >= 3 ? `${String(teamNames.length)} teams` : TEAM_NAMES.format(teamNames);
+  const teamLabel = teamChipLabel(teamNames, map.teams.length);
   // Esc, or unfocusing every chapter, opens the whole story, so the teams that folded it go too.
   const teamsFoldSomething = chaptersWithTeams(map.activities, teams).length > 0;
   useEffect(() => {
@@ -365,10 +369,10 @@ export function StoryWall({
                 // This chip is about to disappear, so keyboard users need somewhere to land.
                 teamsButton.current?.focus();
               }}
-              aria-label={`Stop showing only ${TEAM_NAMES.format(teamNames)}`}
+              aria-label={allTeams ? 'Stop filtering by team' : `Stop showing only ${TEAM_NAMES.format(teamNames)}`}
               className={`${BUTTON} flex shrink-0 items-center gap-1.5 bg-ink text-canvas`}
             >
-              {teamLabel} only
+              {teamLabel}
               <span aria-hidden="true" className="opacity-70">
                 ×
               </span>
