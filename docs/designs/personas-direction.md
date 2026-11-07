@@ -86,7 +86,7 @@ Same as teams: the popover goes full width less 2 rem, toggle buttons are 44 px 
 ## 6. What it needs from outside
 
 - **Adding, renaming and choosing icons for personas.** Settled in section 8, question 1. The prototype only has the sample's personas.
-- **Removing a persona.** Not settled. It waits on the same question for teams (teams direction, section 8, question 1), and should follow whatever that answer is.
+- **Removing a persona.** Settled in section 9.
 - **Whether the icon set is the right eight.** The glyphs were chosen to fit the invented workshop. A real map will need others, so the set will grow.
 
 ## 7. Build split
@@ -107,3 +107,11 @@ Scott agreed with all five recommendations on 2026-11-07.
 3. **Subtasks and steps with no personas.** They follow their parent when filtering and show no icon. Rejected: taking on the parent's personas downwards, which blurs what was actually set.
 4. **New tasks while one persona is picked.** A task added to a chapter takes the picked persona, as part of the same change as the add, so Undo removes both. With two or more picked, or with none, a new task has no personas. If one team is picked as well, it takes both.
 5. **Esc while the popover is open.** Esc closes the popover and nothing else. The picks and the chapter focus stay. If Teams has the same bug, it gets the same fix.
+
+## 9. Removing a persona
+
+Built in #68, following Remove team and the rule for changes that lose data (teams direction, section 13).
+
+- The persona drawer ends with a hairline and **Remove persona**, under "It comes off every task, subtask and step it's on." The button asks first, in the same popover as Remove team: "Remove Rider?", then "It comes off 9 tasks, which stay on the map. You can undo this." Cancel is focused.
+- The count is the Personas popover's: a task counts if it, or any of its subtasks or steps, has the persona. So it matches the popover and the drawer's list. Counting every item it's set on directly was rejected, because that number appears nowhere else.
+- Confirming takes the persona off the map and off every task, subtask and step, in one change, closes the drawer and shows the Undo toast. Undo brings it all back. A removed persona that was picked stops being picked.
