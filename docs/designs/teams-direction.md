@@ -59,7 +59,7 @@ Built in #37, as proposed.
 
 ## 9. Decided in #40 and built in #41 and #42
 
-- **Removing a team** is a **Remove team** button at the foot of the team drawer, under "Its tasks stay on the map and lose their team." It has no confirmation, because Undo brings back the team and every assignment in one step. A removed team that was picked stops being picked, and the focus is recomputed from what's left.
+- **Removing a team** is a **Remove team** button at the foot of the team drawer, under "Its tasks stay on the map and lose their team." It first had no confirmation, because Undo brings back the team and every assignment in one step; §13 replaced that with a confirm. A removed team that was picked stops being picked, and the focus is recomputed from what's left.
 - **No team** is a last row in the Teams popover, with its count and no Open. It filters like a team and shares the chip: "No team only ×" and "Till and No team ×", with the chip wording from #48 otherwise. With only No team picked, a new task gets no team.
 - **The Teams button now shows with no teams.** Removing the last team would otherwise leave no way to add another. With none, the popover holds only Add team.
 
@@ -90,3 +90,12 @@ Decided by Scott on 2026-11-07, in #61. This reverses "Teams on subtasks too" in
 - **The team drawer** lists a subtask a team has under another team's task in its task's place, with "Subtask of …" under it in `muted` 13 px. Opening it opens its task's row.
 - **Adding.** With one team picked, a new subtask goes to that team too, unless it's the task's own, so it doesn't fade as it lands.
 - **Not done:** the subtask's team isn't shown on the row. The drawer says it, as for tasks (question 3 in section 8).
+
+## 13. Remove team asks first, in a popover
+
+Decided by Scott on 2026-11-07, from a prototype of five options (#63).
+
+- **Remove team** opens a popover on the button: "Remove Bench?", then "Its 18 tasks stay on the map and lose their team. You can undo this." It holds **Cancel** and a solid red **Remove team**, and focus starts on Cancel. Escape or Cancel closes it and leaves the drawer open. Confirming removes the team with the usual Undo.
+- Why: Undo alone wasn't enough. It appears as a plain header button while the drawer closes, far from the click, and Scott never noticed it while removing teams. The confirm says Undo exists, so it's a pause, not the only safety net.
+- Rejected: **Undo only**, because the Undo is too easy to miss; **inline** (the button turns into the question), easy to miss on a phone and it moves the layout; a **dialog**, too heavy for a change Undo can reverse, and it covers the map; and an **Undo toast**, which protects only if you react within about 8 seconds.
+- Still open: Undo is just as easy to miss after every other change. That's a separate question from this confirm.
