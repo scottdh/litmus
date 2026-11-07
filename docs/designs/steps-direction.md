@@ -19,7 +19,10 @@ Scott's word for this level was sub-subtask. The product says "step", because th
 
 - A subtask takes its steps with it when it moves among subtasks or to another task.
 - It can't move out to a chapter while it has steps, because only subtasks hold them. The drag isn't offered, and Move to leaves out the ends of chapters. Turning steps into subtasks instead would give them lights and lose their notes, and letting tasks hold steps would add a second place to look.
-- Steps themselves can't be moved or reordered yet. New ones go at the end.
+- A step can be reordered among its siblings or moved to any other subtask, and keeps its note. New ones still go at the end.
+- Dragging a step shows a line between steps, or an outline round a subtask it can drop into, landing at the end of that subtask's steps. Dropping on an empty subtask gives it its first step. A step can't land among tasks or subtasks, so it never becomes one or takes a light.
+- In a step's drawer, Move up and Move down sit under the note, because a step has no light to sit beside. They stay within its subtask. Move to lists every subtask, grouped by chapter. Every move gets the same Undo as any other.
+- Dragging a task or subtask still treats an open subtask and its steps as one block, so only steps drop between steps.
 
 **Rejected:**
 
@@ -30,4 +33,4 @@ Scott's word for this level was sub-subtask. The product says "step", because th
 
 - The column is narrow by the third indent, so long step names run to five or six lines.
 - Notes are a click further away than in either rejected direction, in a drawer that doesn't show the subtask's light or review.
-- Dropping onto an open subtask lands before or after the whole block, including its steps, so a drop can't land between steps.
+- Move to names a subtask without its task, so two subtasks with the same name in one chapter look the same there.
