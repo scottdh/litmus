@@ -28,16 +28,23 @@ export function PersonaField({
 
   const toggle = (id: string) => {
     const on = !shown.has(id);
-    const before = shown;
-    const next = new Set(shown);
-    if (on) next.add(id);
-    else next.delete(id);
+    // Puts back only this persona, so a quick second toggle that did save isn't lost with it.
     const undo = () => {
-      setShown(before);
+      setShown((current) => {
+        const next = new Set(current);
+        if (on) next.delete(id);
+        else next.add(id);
+        return next;
+      });
       setFailed(true);
     };
     setFailed(false);
-    setShown(next);
+    setShown((current) => {
+      const next = new Set(current);
+      if (on) next.add(id);
+      else next.delete(id);
+      return next;
+    });
     void onChange(id, on).then((result) => {
       if (!result.ok) undo();
     }, undo);
