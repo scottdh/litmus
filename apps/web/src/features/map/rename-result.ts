@@ -36,4 +36,6 @@ export type AddChapter = (input: { mapId: string; name: string; before: string |
 
 export type AssignTeam = (input: { mapId: string; id: string; teamId: string | null }) => Promise<RenameResult>;
 
+export type RemoveTeam = (input: { mapId: string; id: string }) => Promise<MoveResult>;
+
 export type AddTeam = (input: { mapId: string; name: string }) => Promise<AddResult>;

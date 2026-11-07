@@ -4,8 +4,50 @@ import { useState, type Ref } from 'react';
 import { PopoverPanel, PopoverRoot, PopoverTitle, PopoverTrigger } from '../../ui/popover';
 import { AddControl } from './add-field';
 import { BUTTON } from './button-style';
+import { NO_TEAM } from './teams';
 
 const taskCount = (count: number) => `${String(count)} ${count === 1 ? 'task' : 'tasks'}`;
+
+function PickRow({
+  name,
+  count,
+  pressed,
+  onToggle,
+}: {
+  name: string;
+  count: number;
+  pressed: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={pressed}
+      onClick={onToggle}
+      className="flex min-h-11 min-w-0 grow cursor-pointer items-center gap-2.5 rounded-sm px-1.5 text-start text-[14px] transition-colors duration-150 ease-out hover:bg-canvas"
+    >
+      <span
+        aria-hidden="true"
+        className={`grid size-4 shrink-0 place-items-center rounded-[3px] shadow-raised transition-colors duration-150 ease-out ${pressed ? 'bg-ink text-canvas' : 'bg-surface'}`}
+      >
+        {pressed && (
+          <svg viewBox="0 0 12 12" className="size-3">
+            <path
+              d="M2.5 6.5 5 9l4.5-6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.75"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        )}
+      </span>
+      <span className="grow">{name}</span>
+      <span className="text-[12px] text-muted tabular-nums">{taskCount(count)}</span>
+    </button>
+  );
+}
 
 /**
  * Picks whose work to show. Any number can be picked; everything else fades, and empty chapters fold away.
@@ -52,36 +94,14 @@ export function TeamPopover({
             const pressed = picked.has(team.id);
             return (
               <li key={team.id} className="group/team flex items-center gap-1">
-                <button
-                  type="button"
-                  aria-pressed={pressed}
-                  onClick={() => {
+                <PickRow
+                  name={team.name}
+                  count={tasks.filter((task) => task.teamId === team.id).length}
+                  pressed={pressed}
+                  onToggle={() => {
                     onToggle(team.id);
                   }}
-                  className="flex min-h-11 min-w-0 grow cursor-pointer items-center gap-2.5 rounded-sm px-1.5 text-start text-[14px] transition-colors duration-150 ease-out hover:bg-canvas"
-                >
-                  <span
-                    aria-hidden="true"
-                    className={`grid size-4 shrink-0 place-items-center rounded-[3px] shadow-raised transition-colors duration-150 ease-out ${pressed ? 'bg-ink text-canvas' : 'bg-surface'}`}
-                  >
-                    {pressed && (
-                      <svg viewBox="0 0 12 12" className="size-3">
-                        <path
-                          d="M2.5 6.5 5 9l4.5-6"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.75"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    )}
-                  </span>
-                  <span className="grow">{team.name}</span>
-                  <span className="text-[12px] text-muted tabular-nums">
-                    {taskCount(tasks.filter((task) => task.teamId === team.id).length)}
-                  </span>
-                </button>
+                />
                 <button
                   type="button"
                   aria-label={`Rename ${team.name}`}
@@ -96,6 +116,20 @@ export function TeamPopover({
               </li>
             );
           })}
+          <li className="flex items-center gap-1">
+            <PickRow
+              name="No team"
+              count={tasks.filter((task) => task.teamId === null).length}
+              pressed={picked.has(NO_TEAM)}
+              onToggle={() => {
+                onToggle(NO_TEAM);
+              }}
+            />
+            {/* Holds the place of Rename, so the counts line up. */}
+            <span aria-hidden="true" className="invisible shrink-0 px-1.5 text-[12px] max-lg:min-h-11">
+              Rename
+            </span>
+          </li>
         </ul>
         <div className="mt-1 flex min-h-10 items-center px-1.5">
           <AddControl

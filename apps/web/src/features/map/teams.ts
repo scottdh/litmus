@@ -3,9 +3,12 @@ import type { ActivityView, TaskView } from '@litmus/core';
 /** Picked teams are view state only: nothing about them reaches the domain. */
 export type PickedTeams = ReadonlySet<string>;
 
-/** Outside the picked teams. Nothing fades while no team is picked, and a task with no team fades once any is. */
+/** Picked like a team, to show the tasks nobody has. It can't clash with a team id, which always starts "tm_". */
+export const NO_TEAM = 'no-team';
+
+/** Outside the picked teams. Nothing fades while none is picked, and a task with no team fades unless No team is. */
 export const isOffTeam = (task: TaskView, picked: PickedTeams) =>
-  picked.size > 0 && (task.teamId === null || !picked.has(task.teamId));
+  picked.size > 0 && !picked.has(task.teamId ?? NO_TEAM);
 
 /** The chapters to keep open: those holding any task of a picked team. */
 export const chaptersWithTeams = (activities: ActivityView[], picked: PickedTeams) =>
@@ -14,8 +17,10 @@ export const chaptersWithTeams = (activities: ActivityView[], picked: PickedTeam
     .map((activity) => activity.id);
 
 /** With one team picked, a new task is theirs, so it doesn't fade the moment it's added. */
-export const teamForNewTask = (picked: PickedTeams): string | null =>
-  picked.size === 1 ? ([...picked][0] ?? null) : null;
+export const teamForNewTask = (picked: PickedTeams): string | null => {
+  const only = picked.size === 1 ? [...picked][0] : undefined;
+  return only === undefined || only === NO_TEAM ? null : only;
+};
 
 const TEAM_NAMES = new Intl.ListFormat('en', { style: 'long', type: 'conjunction' });
 

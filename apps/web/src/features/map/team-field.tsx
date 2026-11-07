@@ -19,7 +19,7 @@ export function TeamField({
   const [failed, setFailed] = useState(false);
   // Shows the choice at once, rather than waiting for the map to come back from the server.
   const [shown, setShown] = useState(teamId);
-  const name = teams.find((team) => team.id === teamId)?.name ?? 'No team yet';
+  const name = teams.find((team) => team.id === teamId)?.name ?? 'No team';
 
   if (inherited) {
     return (
@@ -58,7 +58,7 @@ export function TeamField({
             }}
             className="h-8 cursor-pointer appearance-none rounded-sm bg-surface ps-2 pe-7 text-base font-medium shadow-raised max-lg:h-11 lg:text-[13px]"
           >
-            <option value={NO_TEAM}>No team yet</option>
+            <option value={NO_TEAM}>No team</option>
             {teams.map((team) => (
               <option key={team.id} value={team.id}>
                 {team.name}

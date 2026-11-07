@@ -18,6 +18,7 @@ import {
   assignTeamOnMap,
   moveOnMap,
   rateOnMap,
+  removeTeamOnMap,
   renameOnMap,
   setStepNoteOnMap,
   undoChangeOnMap,
@@ -175,6 +176,19 @@ export async function addTeamAction(input: { mapId: unknown; name: unknown }): P
   const { mapId, name } = input;
   if (typeof mapId !== 'string' || typeof name !== 'string') return { ok: false, code: 'INVALID_INPUT' };
   return runAdd(() => addTeamOnMap({ mapId, name }));
+}
+
+export async function removeTeamAction(input: { mapId: unknown; id: unknown }): Promise<MoveResult> {
+  const { mapId, id } = input;
+  if (typeof mapId !== 'string' || typeof id !== 'string') return { ok: false, code: 'INVALID_INPUT' };
+  try {
+    const { undoToken } = await removeTeamOnMap({ mapId, teamId: id });
+    revalidatePath('/');
+    return { ok: true, undoToken };
+  } catch (error) {
+    if (error instanceof DomainError) return { ok: false, code: error.code };
+    throw error;
+  }
 }
 
 export async function undoChangeAction(token: unknown): Promise<RenameResult> {
