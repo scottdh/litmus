@@ -28,7 +28,7 @@ Two faces, set in `apps/web/src/app/layout.tsx`. Use nothing else.
 | ------------------- | ---------------------------------------------------- |
 | Chapter heading     | `font-story`, 28 px, line height 1.1, slightly tight |
 | Chapter on a rail   | `font-story`, 17 px, line height 1.2, `muted`        |
-| Page title          | Sans, 22 px, semibold                                |
+| Page title          | Sans, 15 px, semibold                                |
 | Task                | Sans, 15 px, line height 1.35                        |
 | Subtask             | Sans, 14 px, `muted`                                 |
 | Step                | Sans, 13 px, `muted`                                 |
@@ -44,6 +44,18 @@ Hover and press take 150 ms `ease-out`; list the properties, because lint bans `
 ## Components
 
 Shared components live in `apps/web/src/ui` and are the only place that imports Base UI. Product components live in `apps/web/src/features/map`.
+
+### Header
+
+`apps/web/src/features/map/story-wall.tsx`. One hairline-ruled row: the map name, a Sample tag when the data is invented, the live status line, then the buttons. The lights aren't explained on the page, because people learn them quickly. When the map is dimmed to one light, a chip filled with that light says so and clears it. `docs/designs/header-direction.md` has the reasoning.
+
+### KeyPopover
+
+`apps/web/src/features/map/key-popover.tsx`. Where the lights are explained: each light and its meaning, the definition of green, and the sample notice. Each light's row also dims the map. Explain a light here, not in the header.
+
+### Popover
+
+`apps/web/src/ui/popover.tsx`. Use for content opened from a button that shouldn't stay on the page. It opens under its trigger, keeps 16 px inside the window, fades in with opacity, and returns focus to the trigger when it closes.
 
 ### Disclosure
 
