@@ -10,7 +10,10 @@ const map: MapView = {
     { id: 'tm_bench', name: 'Bench' },
     { id: 'tm_till', name: 'Till' },
   ],
-  personas: [],
+  personas: [
+    { id: 'ps_rider', name: 'Rider', icon: 'person' },
+    { id: 'ps_desk', name: 'Front desk', icon: 'bell' },
+  ],
   activities: [
     { id: 'act_1', name: 'First', tasks: [], mix: [] },
     {
@@ -34,8 +37,8 @@ const map: MapView = {
           id: 'tsk_parent',
           name: 'With children',
           teamId: null,
-          ownPersonaIds: [],
-          personaIds: [],
+          ownPersonaIds: ['ps_rider'],
+          personaIds: ['ps_rider', 'ps_desk'],
           light: 'yellow',
           review: null,
           earlierReview: null,
@@ -46,8 +49,8 @@ const map: MapView = {
               light: 'green',
               review: 'Fine.',
               ownPersonaIds: [],
-              personaIds: [],
-              steps: [{ id: 'stp_1', name: 'A step', note: 'A note', personaIds: [] }],
+              personaIds: ['ps_desk'],
+              steps: [{ id: 'stp_1', name: 'A step', note: 'A note', personaIds: ['ps_desk'] }],
             },
           ],
           mix: [],
@@ -90,6 +93,8 @@ describe('findSubject', () => {
       chapterId: 'act_2',
       path: 'Chapter 2 · Second',
       teamId: 'tm_bench',
+      ownPersonaIds: [],
+      personaIds: [],
       light: 'red',
       review: 'Broken.',
       earlierReview: null,
@@ -98,10 +103,12 @@ describe('findSubject', () => {
     });
   });
 
-  it('lists the subtasks a task’s light follows from', () => {
+  it('lists the subtasks a task’s light follows from, with their personas', () => {
     expect(findSubject(map, 'tsk_parent')).toMatchObject({
       light: 'yellow',
-      subtasks: [{ id: 'tsk_child', name: 'A child', light: 'green' }],
+      ownPersonaIds: ['ps_rider'],
+      personaIds: ['ps_rider', 'ps_desk'],
+      subtasks: [{ id: 'tsk_child', name: 'A child', light: 'green', personaIds: ['ps_desk'] }],
     });
   });
 
@@ -113,11 +120,13 @@ describe('findSubject', () => {
       chapterId: 'act_2',
       path: 'Chapter 2 · Second · With children',
       teamId: null,
+      ownPersonaIds: [],
+      personaIds: ['ps_desk'],
       light: 'green',
       review: 'Fine.',
       earlierReview: null,
       subtasks: [],
-      steps: [{ id: 'stp_1', name: 'A step', note: 'A note', personaIds: [] }],
+      steps: [{ id: 'stp_1', name: 'A step', note: 'A note', personaIds: ['ps_desk'] }],
     });
   });
 
@@ -127,6 +136,7 @@ describe('findSubject', () => {
       id: 'stp_1',
       name: 'A step',
       note: 'A note',
+      personaIds: ['ps_desk'],
       chapterId: 'act_2',
       path: 'Chapter 2 · Second · With children · A child',
     });
