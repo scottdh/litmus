@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
   DomainError,
+  addTaskToMap,
   getMapView,
   setPersonaInMap,
+  undoChange,
   type MapId,
   type MapRepository,
   type PersonaId,
@@ -121,6 +123,23 @@ describe('personas', () => {
       on: true,
     });
     await expect(setting).rejects.toMatchObject({ code: 'MAP_NOT_FOUND' });
+  });
+});
+
+describe('adding a task for a persona', () => {
+  it('saves the persona with the task in one change, so undo takes both away', async () => {
+    const maps = repository();
+    const { id, before, after } = await addTaskToMap({ maps, newId: () => 'new' })({
+      mapId: MAP_ID,
+      name: 'New',
+      to: { chapterId: 'act_1' },
+      personaIds: [DESK],
+    });
+    const added = (await getMapView({ maps })(MAP_ID)).activities[0]?.tasks.find((task) => task.id === id);
+    expect(added?.personaIds).toEqual([DESK]);
+
+    await undoChange({ maps })({ mapId: MAP_ID, before, after });
+    expect((await getMapView({ maps })(MAP_ID)).activities[0]?.tasks.map((task) => task.id)).toEqual(['tsk_1']);
   });
 });
 
