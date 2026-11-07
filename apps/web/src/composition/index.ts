@@ -12,6 +12,7 @@ import {
   renameChapter,
   renameStepInMap,
   renameTaskInMap,
+  removeTeamFromMap,
   renameTeamInMap,
   setStepNoteInMap,
   undoChange,
@@ -139,6 +140,11 @@ export async function addChapterOnMap({
 export async function addTeamOnMap({ mapId, name }: { mapId: string; name: string }) {
   const { id, before, after } = await addTeamToMap({ maps, newId })({ mapId: mapId as MapId, name });
   return { id, undoToken: remember(mapId as MapId, before, after) };
+}
+
+export async function removeTeamOnMap({ mapId, teamId }: { mapId: string; teamId: string }) {
+  const { before, after } = await removeTeamFromMap({ maps })({ mapId: mapId as MapId, teamId: teamId as TeamId });
+  return { undoToken: remember(mapId as MapId, before, after) };
 }
 
 /** Only the latest move or add can be undone. */

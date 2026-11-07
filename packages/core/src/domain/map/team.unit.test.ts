@@ -113,15 +113,10 @@ describe('removeTeam', () => {
   const two: StoryMap = {
     ...map,
     teams: [...map.teams, { id: 'tm_till' as TeamId, name: 'Till' }],
-    activities: [
-      {
-        ...map.activities[0]!,
-        tasks: [
-          ...map.activities[0]!.tasks,
-          { id: 'tsk_3' as TaskId, name: 'Tills', teamId: 'tm_till' as TeamId, subtasks: [] },
-        ],
-      },
-    ],
+    activities: map.activities.map((activity) => ({
+      ...activity,
+      tasks: [...activity.tasks, { id: 'tsk_3' as TaskId, name: 'Tills', teamId: 'tm_till' as TeamId, subtasks: [] }],
+    })),
   };
 
   it('takes the team off the map', () => {

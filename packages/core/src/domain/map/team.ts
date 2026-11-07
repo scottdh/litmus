@@ -13,6 +13,23 @@ export function renameTeam(map: StoryMap, id: TeamId, name: string): StoryMap {
   return { ...map, teams: map.teams.map((team) => (team.id === id ? { ...team, name: tidied } : team)) };
 }
 
+/** Takes a team off the map. Its tasks stay, with no team. */
+export function removeTeam(map: StoryMap, id: TeamId): StoryMap {
+  if (!map.teams.some((team) => team.id === id)) throw notFound('TEAM_NOT_FOUND', `No team with id ${id}.`);
+  return {
+    ...map,
+    teams: map.teams.filter((team) => team.id !== id),
+    activities: map.activities.map((activity) => ({
+      ...activity,
+      tasks: activity.tasks.map((task) => {
+        if (task.teamId !== id) return task;
+        const { id: taskId, name, subtasks } = task;
+        return { id: taskId, name, subtasks };
+      }),
+    })),
+  };
+}
+
 /** Gives a top-level task to a team, or takes it away with null. Subtasks share their task's team. */
 export function assignTeam(map: StoryMap, taskId: TaskId, teamId: TeamId | null): StoryMap {
   if (teamId !== null && !map.teams.some((team) => team.id === teamId)) {

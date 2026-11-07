@@ -6,6 +6,7 @@ import {
   addTaskAction,
   addTeamAction,
   assignTeamAction,
+  removeTeamAction,
   moveAction,
   noteStepAction,
   rateAction,
@@ -32,6 +33,7 @@ export default async function HomePage() {
       addChapter={addChapterAction}
       assignTeam={assignTeamAction}
       addTeam={addTeamAction}
+      removeTeam={removeTeamAction}
     />
   );
 }

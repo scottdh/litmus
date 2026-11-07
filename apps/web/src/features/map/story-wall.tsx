@@ -9,7 +9,7 @@ import { describeDestination, type Destination } from './drop';
 import { chapterState, focusSummary } from './focus';
 import { KeyPopover } from './key-popover';
 import { TeamPopover } from './team-popover';
-import { chaptersWithTeams, isEveryTeam, teamChipLabel, teamForNewTask, type PickedTeams } from './teams';
+import { NO_TEAM, chaptersWithTeams, isEveryTeam, teamChipLabel, teamForNewTask, type PickedTeams } from './teams';
 import { LightMark } from './light-mark';
 import { FILL_COLOUR, LIGHT_COPY } from './lights';
 import type { ReviewDraft } from './rating-section';
@@ -23,6 +23,7 @@ import type {
   Move,
   NoteStep,
   Rate,
+  RemoveTeam,
   Rename,
   UndoChange,
 } from './rename-result';
@@ -65,6 +66,7 @@ export function StoryWall({
   addChapter,
   assignTeam,
   addTeam,
+  removeTeam,
 }: {
   map: MapView;
   isSample: boolean;
@@ -78,6 +80,7 @@ export function StoryWall({
   addChapter: AddChapter;
   assignTeam: AssignTeam;
   addTeam: AddTeam;
+  removeTeam: RemoveTeam;
 }) {
   const [reviewDrafts, setReviewDrafts] = useState<Record<string, ReviewDraft>>({});
   const [dim, setDim] = useState<Light | null>(null);
@@ -99,24 +102,44 @@ export function StoryWall({
   const expandAll = useRef<HTMLButtonElement>(null);
   const keyButton = useRef<HTMLButtonElement>(null);
   const teamsButton = useRef<HTMLButtonElement>(null);
-  const teamNames = map.teams.filter((team) => teams.has(team.id)).map((team) => team.name);
-  const allTeams = isEveryTeam(teamNames.length, map.teams.length);
+  const teamNames = [
+    ...map.teams.filter((team) => teams.has(team.id)).map((team) => team.name),
+    ...(teams.has(NO_TEAM) ? ['No team'] : []),
+  ];
+  const onlyNoTeam = teams.size === 1 && teams.has(NO_TEAM);
+  // No team counts as one more pick, so picking it with every team is still everything.
+  const pickableCount = map.teams.length + (teams.has(NO_TEAM) ? 1 : 0);
+  const allTeams = isEveryTeam(teamNames.length, pickableCount);
   const teamsPhrase = allTeams ? 'any team' : TEAM_NAMES.format(teamNames);
   const summary =
     teamNames.length === 0
       ? focusSummary(map.activities, focus)
       : chaptersWithTeams(map.activities, teams).length === 0
-        ? allTeams
-          ? 'No team has tasks yet.'
-          : `${teamsPhrase} ${teamNames.length === 1 ? 'has' : 'have'} no tasks yet.`
-        : `Chapters without ${teamsPhrase}’s tasks are folded away.`;
+        ? onlyNoTeam
+          ? 'Every task has a team.'
+          : allTeams
+            ? 'No team has tasks yet.'
+            : `${teamsPhrase} ${teamNames.length === 1 ? 'has' : 'have'} no tasks yet.`
+        : teams.has(NO_TEAM)
+          ? `Chapters with no tasks for ${teamsPhrase} are folded away.`
+          : `Chapters without ${teamsPhrase}’s tasks are folded away.`;
 
-  const teamLabel = teamChipLabel(teamNames, map.teams.length);
+  const teamLabel = teamChipLabel(teamNames, pickableCount);
   // Esc, or unfocusing every chapter, opens the whole story, so the teams that folded it go too.
   const teamsFoldSomething = chaptersWithTeams(map.activities, teams).length > 0;
   useEffect(() => {
     if (teams.size > 0 && focus.length === 0 && teamsFoldSomething) setTeams(new Set());
   }, [focus.length, teams.size, teamsFoldSomething]);
+
+  // A team that's been removed can't stay picked.
+  const hasRemovedPick = [...teams].some((id) => id !== NO_TEAM && !map.teams.some((team) => team.id === id));
+  useEffect(() => {
+    if (!hasRemovedPick) return;
+    const next = new Set([...teams].filter((id) => id === NO_TEAM || map.teams.some((team) => team.id === id)));
+    setTeams(next);
+    if (next.size === 0) clear();
+    else setFocus(chaptersWithTeams(map.activities, next));
+  }, [hasRemovedPick]);
 
   /** Picking teams folds away every chapter they have nothing in, by setting the focus. */
   const toggleTeam = (id: string) => {
@@ -194,6 +217,22 @@ export function StoryWall({
         setChangeProblem('That move didn’t work, so nothing changed.');
       },
     );
+  };
+
+  const removeTeamNow = (id: string) => {
+    const name = findSubject(map, id)?.name ?? '';
+    const failed = () => {
+      setChangeProblem(`${name} couldn’t be removed, so nothing changed.`);
+    };
+    setChangeProblem(null);
+    void removeTeam({ mapId: savedMap.id, id }).then((result) => {
+      if (!result.ok) {
+        failed();
+        return;
+      }
+      setLastChange({ token: result.undoToken, message: `Removed ${name}.` });
+      closeDrawer();
+    }, failed);
   };
 
   const undoLastChange = () => {
@@ -378,19 +417,17 @@ export function StoryWall({
               </span>
             </button>
           )}
-          {map.teams.length > 0 && (
-            <TeamPopover
-              teams={map.teams}
-              activities={map.activities}
-              picked={teams}
-              onToggle={toggleTeam}
-              onRename={openDrawer}
-              onAdd={(name) => {
-                report(name, addTeam({ mapId: savedMap.id, name }), () => undefined);
-              }}
-              triggerRef={teamsButton}
-            />
-          )}
+          <TeamPopover
+            teams={map.teams}
+            activities={map.activities}
+            picked={teams}
+            onToggle={toggleTeam}
+            onRename={openDrawer}
+            onAdd={(name) => {
+              report(name, addTeam({ mapId: savedMap.id, name }), () => undefined);
+            }}
+            triggerRef={teamsButton}
+          />
           <KeyPopover dim={dim} onDim={setDim} isSample={isSample} triggerRef={keyButton} />
           {lastChange && (
             <button type="button" onClick={undoLastChange} className={`${BUTTON} shrink-0 shadow-raised`}>
@@ -507,6 +544,9 @@ export function StoryWall({
               saveName(subject.id, kind, name);
             }}
             onClose={closeDrawer}
+            onRemoveTeam={() => {
+              removeTeamNow(subject.id);
+            }}
             onAssignTeam={(teamId) => assignTeam({ mapId: savedMap.id, id: subject.id, teamId })}
             onAddSubtask={(name) => {
               report(name, addTask({ mapId: savedMap.id, name, to: { parentId: subject.id } }), () => {

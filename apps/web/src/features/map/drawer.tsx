@@ -41,6 +41,7 @@ export function Drawer({
   onNote,
   onAddChapter,
   onAssignTeam,
+  onRemoveTeam,
 }: {
   map: MapView;
   onMove: (to: Destination) => void;
@@ -59,6 +60,7 @@ export function Drawer({
   onNote: (note: string) => Promise<RenameResult>;
   onAddChapter: (where: 'before' | 'after') => void;
   onAssignTeam: (teamId: string | null) => Promise<RenameResult>;
+  onRemoveTeam: () => void;
 }) {
   return (
     <aside
@@ -257,6 +259,16 @@ export function Drawer({
             ))}
           </div>
         ))}
+      {subject.kind === 'team' && (
+        <div className="flex w-full flex-col items-start gap-1.5 border-t-(length:--hairline) border-line pt-4">
+          <button type="button" onClick={onRemoveTeam} className={`${BUTTON} shadow-raised`}>
+            Remove team
+          </button>
+          <p className="text-[13px] leading-snug text-pretty text-muted">
+            Its tasks stay on the map and lose their team.
+          </p>
+        </div>
+      )}
       {subject.kind === 'chapter' && (
         <div className="flex flex-wrap gap-2">
           <button
