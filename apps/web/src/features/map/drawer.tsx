@@ -261,7 +261,7 @@ export function Drawer({
         ))}
       {subject.kind === 'team' && (
         <div className="flex w-full flex-col items-start gap-1.5 border-t-(length:--hairline) border-line pt-4">
-          <button type="button" onClick={onRemoveTeam} className={`${BUTTON} shadow-raised`}>
+          <button type="button" onClick={onRemoveTeam} className={`${BUTTON} text-danger shadow-raised`}>
             Remove team
           </button>
           <p className="text-[13px] leading-snug text-pretty text-muted">
