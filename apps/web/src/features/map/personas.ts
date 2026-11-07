@@ -59,3 +59,10 @@ export const personaSummary = (
   if (teams.onlyNoTeam) return `Chapters with no unowned tasks for ${personas} are folded away.`;
   return `Chapters without ${teams.phrase}’s tasks for ${personas} are folded away.`;
 };
+
+/** What removing a persona does, said before it's done. Counted like the Personas popover, so the numbers match. */
+export const removePersonaWarning = (taskCount: number) => {
+  if (taskCount === 0) return 'It isn’t on any tasks. You can undo this.';
+  if (taskCount === 1) return 'It comes off 1 task, which stays on the map. You can undo this.';
+  return `It comes off ${String(taskCount)} tasks, which stay on the map. You can undo this.`;
+};

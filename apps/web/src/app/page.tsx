@@ -8,6 +8,7 @@ import {
   addTeamAction,
   assignTeamAction,
   removeTeamAction,
+  removePersonaAction,
   moveAction,
   noteStepAction,
   rateAction,
@@ -37,6 +38,7 @@ export default async function HomePage() {
       assignTeam={assignTeamAction}
       addTeam={addTeamAction}
       removeTeam={removeTeamAction}
+      removePersona={removePersonaAction}
       setPersona={setPersonaAction}
       addPersona={addPersonaAction}
       setPersonaIcon={setPersonaIconAction}

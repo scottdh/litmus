@@ -11,7 +11,9 @@ import { NoteField } from './note-field';
 import { PersonaField } from './persona-field';
 import { PersonaIconField } from './persona-icon-field';
 import { PersonaName } from './persona-icon';
-import { RemoveTeam } from './remove-team';
+import { RemoveConfirm } from './remove-confirm';
+import { removePersonaWarning } from './personas';
+import { removeTeamWarning } from './teams';
 import { RatingSection, type ReviewDraft } from './rating-section';
 import type { Rate, RenameResult } from './rename-result';
 import { StepMark } from './step-mark';
@@ -49,8 +51,8 @@ export function Drawer({
   onNote,
   onAddChapter,
   onAssignTeam,
-  onRemoveTeam,
-  removingTeam,
+  onRemove,
+  removing,
   onSetPersona,
   onSetPersonaIcon,
 }: {
@@ -72,8 +74,8 @@ export function Drawer({
   onNote: (note: string) => Promise<RenameResult>;
   onAddChapter: (where: 'before' | 'after') => void;
   onAssignTeam: (teamId: string | null) => Promise<RenameResult>;
-  onRemoveTeam: () => void;
-  removingTeam: boolean;
+  onRemove: () => void;
+  removing: boolean;
   onSetPersona: (personaId: string, on: boolean) => Promise<RenameResult>;
   onSetPersonaIcon: (icon: PersonaIcon) => Promise<RenameResult>;
 }) {
@@ -294,16 +296,21 @@ export function Drawer({
             ))}
           </div>
         ))}
-      {subject.kind === 'team' && (
+      {(subject.kind === 'team' || subject.kind === 'persona') && (
         <div className="flex w-full flex-col items-start gap-1.5 border-t-(length:--hairline) border-line pt-4">
-          <RemoveTeam
+          <RemoveConfirm
+            label={subject.kind === 'team' ? 'Remove team' : 'Remove persona'}
             name={subject.name}
-            taskCount={subject.chapters.reduce((count, chapter) => count + chapter.tasks.length, 0)}
-            removing={removingTeam}
-            onRemove={onRemoveTeam}
+            warning={(subject.kind === 'team' ? removeTeamWarning : removePersonaWarning)(
+              subject.chapters.reduce((count, chapter) => count + chapter.tasks.length, 0),
+            )}
+            removing={removing}
+            onRemove={onRemove}
           />
           <p className="text-[13px] leading-snug text-pretty text-muted">
-            Its tasks stay on the map and lose their team.
+            {subject.kind === 'team'
+              ? 'Its tasks stay on the map and lose their team.'
+              : 'It comes off every task, subtask and step it’s on.'}
           </p>
         </div>
       )}

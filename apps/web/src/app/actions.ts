@@ -23,6 +23,7 @@ import {
   moveOnMap,
   rateOnMap,
   removeTeamOnMap,
+  removePersonaOnMap,
   renameOnMap,
   setStepNoteOnMap,
   undoChangeOnMap,
@@ -233,4 +234,17 @@ export async function removeTeamAction(input: { mapId: unknown; id: unknown }): 
 export async function undoChangeAction(token: unknown): Promise<RenameResult> {
   if (typeof token !== 'string') return { ok: false, code: 'INVALID_INPUT' };
   return run(() => undoChangeOnMap(token));
+}
+
+export async function removePersonaAction(input: { mapId: unknown; id: unknown }): Promise<MoveResult> {
+  const { mapId, id } = input;
+  if (typeof mapId !== 'string' || typeof id !== 'string') return { ok: false, code: 'INVALID_INPUT' };
+  try {
+    const { undoToken } = await removePersonaOnMap({ mapId, personaId: id });
+    revalidatePath('/');
+    return { ok: true, undoToken };
+  } catch (error) {
+    if (error instanceof DomainError) return { ok: false, code: error.code };
+    throw error;
+  }
 }

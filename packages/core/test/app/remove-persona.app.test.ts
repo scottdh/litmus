@@ -25,7 +25,7 @@ function repository(): MapRepository {
         {
           id: 'act_1',
           name: 'First',
-          tasks: [{ id: 'leaf' as TaskId, name: 'Leaf', teamId: null, personaIds: [RIDER], subtasks: [] }],
+          tasks: [{ id: 'leaf' as TaskId, name: 'Leaf', personaIds: [RIDER], subtasks: [] }],
         },
       ],
     },

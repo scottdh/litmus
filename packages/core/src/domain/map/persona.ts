@@ -61,3 +61,20 @@ export function setPersona(map: StoryMap, itemId: string, personaId: PersonaId, 
     })),
   };
 }
+
+/** Takes a persona off the map, and off every task, subtask and step it was on. */
+export function removePersona(map: StoryMap, id: PersonaId): StoryMap {
+  ensurePersona(map, id);
+  const strip = <T extends Carried>(item: T): T =>
+    item.personaIds === undefined ? item : { ...item, personaIds: item.personaIds.filter((other) => other !== id) };
+  return {
+    ...map,
+    personas: map.personas.filter((persona) => persona.id !== id),
+    activities: map.activities.map((activity) => ({
+      ...activity,
+      tasks: activity.tasks.map((task) =>
+        strip({ ...task, subtasks: task.subtasks.map((sub) => strip({ ...sub, steps: sub.steps.map(strip) })) }),
+      ),
+    })),
+  };
+}

@@ -41,6 +41,7 @@ import type {
   NoteStep,
   Rate,
   RemoveTeam,
+  RemovePersona,
   Rename,
   SetPersona,
   SetPersonaIcon,
@@ -92,6 +93,7 @@ export function StoryWall({
   addPersona,
   setPersonaIcon,
   removeTeam,
+  removePersona,
 }: {
   map: MapView;
   isSample: boolean;
@@ -109,6 +111,7 @@ export function StoryWall({
   addPersona: AddPersona;
   setPersonaIcon: SetPersonaIcon;
   removeTeam: RemoveTeam;
+  removePersona: RemovePersona;
 }) {
   const [reviewDrafts, setReviewDrafts] = useState<Record<string, ReviewDraft>>({});
   const [dim, setDim] = useState<Light | null>(null);
@@ -174,14 +177,17 @@ export function StoryWall({
     }
   }, [focus.length, picking, picksFoldSomething]);
 
-  // A team that's been removed can't stay picked.
+  // A team or persona that's been removed can't stay picked.
   const stillPicked = picksStillOnMap(
     teams,
     map.teams.map((team) => team.id),
   );
-  const hasRemovedPick = stillPicked.size < teams.size;
+  const personasStillPicked: PickedPersonas = new Set(
+    [...personas].filter((id) => map.personas.some((persona) => persona.id === id)),
+  );
+  const hasRemovedPick = stillPicked.size < teams.size || personasStillPicked.size < personas.size;
   useEffect(() => {
-    if (hasRemovedPick) refold(stillPicked, personas);
+    if (hasRemovedPick) refold(stillPicked, personasStillPicked);
   }, [hasRemovedPick]);
 
   /** Picking teams or personas folds away every chapter with nothing of theirs, by setting the focus. */
@@ -266,17 +272,18 @@ export function StoryWall({
     );
   };
 
-  const [removingTeam, setRemovingTeam] = useState(false);
-  const removeTeamNow = (id: string) => {
+  const [removing, setRemoving] = useState(false);
+  /** Removes a team or a persona. Both lose data, so both arrive here through a confirm. */
+  const removeNow = (id: string, kind: 'team' | 'persona') => {
     // A second click before the first lands would fail, and contradict the first in the status line.
-    if (removingTeam) return;
+    if (removing) return;
     const name = findSubject(map, id)?.name ?? '';
     const failed = () => {
       setChangeProblem(`${name} couldn’t be removed, so nothing changed.`);
     };
     setChangeProblem(null);
-    setRemovingTeam(true);
-    void removeTeam({ mapId: savedMap.id, id })
+    setRemoving(true);
+    void (kind === 'team' ? removeTeam : removePersona)({ mapId: savedMap.id, id })
       .then((result) => {
         if (!result.ok) {
           failed();
@@ -286,7 +293,7 @@ export function StoryWall({
         closeDrawer();
       }, failed)
       .finally(() => {
-        setRemovingTeam(false);
+        setRemoving(false);
       });
   };
 
@@ -644,9 +651,9 @@ export function StoryWall({
               saveName(subject.id, kind, name);
             }}
             onClose={closeDrawer}
-            removingTeam={removingTeam}
-            onRemoveTeam={() => {
-              removeTeamNow(subject.id);
+            removing={removing}
+            onRemove={() => {
+              if (subject.kind === 'team' || subject.kind === 'persona') removeNow(subject.id, subject.kind);
             }}
             onAssignTeam={(teamId) => assignTeam({ mapId: savedMap.id, id: subject.id, teamId })}
             onSetPersonaIcon={(icon) => setPersonaIcon({ mapId: savedMap.id, id: subject.id, icon })}
