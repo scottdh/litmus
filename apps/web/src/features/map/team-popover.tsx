@@ -80,6 +80,7 @@ export function TeamPopover({
             <li className="flex items-center gap-1">
               <PickRow
                 name="No team"
+                muted
                 count={tasks.filter((task) => task.teamId === null).length}
                 pressed={picked.has(NO_TEAM)}
                 onToggle={() => {
