@@ -5,6 +5,7 @@ import type { ComponentProps } from 'react';
 export const PopoverRoot = Popover.Root;
 export const PopoverTrigger = Popover.Trigger;
 export const PopoverTitle = Popover.Title;
+export const PopoverClose = Popover.Close;
 
 /** Esc pressed inside a popover only closes it, so page-wide Esc handlers leave it alone. */
 export const isInPopover = (event: KeyboardEvent) =>

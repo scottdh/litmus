@@ -70,3 +70,10 @@ export const teamChipLabel = (names: string[], teamCount: number) => {
   if (names.length === 2) return TEAM_NAMES.format(names);
   return `${String(names.length)} teams`;
 };
+
+/** What removing a team does, said before it's done. Undo is mentioned because the confirm is only a pause, not the safety net. */
+export const removeTeamWarning = (taskCount: number) => {
+  if (taskCount === 0) return 'It has no tasks. You can undo this.';
+  if (taskCount === 1) return 'Its 1 task stays on the map and loses its team. You can undo this.';
+  return `Its ${String(taskCount)} tasks stay on the map and lose their team. You can undo this.`;
+};

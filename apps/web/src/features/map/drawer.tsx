@@ -10,6 +10,7 @@ import { NameField } from './name-field';
 import { NoteField } from './note-field';
 import { PersonaField } from './persona-field';
 import { PersonaName } from './persona-icon';
+import { RemoveTeam } from './remove-team';
 import { RatingSection, type ReviewDraft } from './rating-section';
 import type { Rate, RenameResult } from './rename-result';
 import { StepMark } from './step-mark';
@@ -288,14 +289,12 @@ export function Drawer({
         ))}
       {subject.kind === 'team' && (
         <div className="flex w-full flex-col items-start gap-1.5 border-t-(length:--hairline) border-line pt-4">
-          <button
-            type="button"
-            onClick={onRemoveTeam}
-            aria-disabled={removingTeam}
-            className={`${BUTTON} text-danger shadow-raised aria-disabled:cursor-default aria-disabled:opacity-60`}
-          >
-            Remove team
-          </button>
+          <RemoveTeam
+            name={subject.name}
+            taskCount={subject.chapters.reduce((count, chapter) => count + chapter.tasks.length, 0)}
+            removing={removingTeam}
+            onRemove={onRemoveTeam}
+          />
           <p className="text-[13px] leading-snug text-pretty text-muted">
             Its tasks stay on the map and lose their team.
           </p>
