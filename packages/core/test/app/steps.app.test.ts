@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   addStepToMap,
   getMapView,
+  moveStepInMap,
   renameStepInMap,
   setStepNoteInMap,
   type MapId,
@@ -65,6 +66,20 @@ describe('steps', () => {
     const { id } = await addStepToMap({ maps, newId })({ mapId: MAP_ID, name: 'Fresh', subtaskId: CHILD });
     await setStepNoteInMap({ maps })({ mapId: MAP_ID, stepId: id, note: 'Invented research.' });
     expect((await stepsOf(maps))?.[0]?.note).toBe('Invented research.');
+  });
+
+  it('saves a moved step, and hands back what’s needed to undo it', async () => {
+    const maps = repository();
+    const first = await addStepToMap({ maps, newId: () => 'one' })({ mapId: MAP_ID, name: 'One', subtaskId: CHILD });
+    await addStepToMap({ maps, newId: () => 'two' })({ mapId: MAP_ID, name: 'Two', subtaskId: CHILD });
+    const { before, after } = await moveStepInMap({ maps })({
+      mapId: MAP_ID,
+      stepId: first.id,
+      to: { subtaskId: CHILD, before: null },
+    });
+    expect((await stepsOf(maps))?.map((step) => step.name)).toEqual(['Two', 'One']);
+    expect(before.map).not.toEqual(after.map);
+    expect(after.ratings).toEqual(before.ratings);
   });
 
   it('reports a map that does not exist', async () => {
