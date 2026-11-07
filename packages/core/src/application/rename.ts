@@ -1,6 +1,7 @@
 import { notFound } from '../kernel/errors.ts';
 import { renameActivity, renameTask } from '../domain/map/rename.ts';
-import type { MapId, StoryMap, TaskId } from '../domain/map/story-map.ts';
+import { renameTeam } from '../domain/map/team.ts';
+import type { MapId, StoryMap, TaskId, TeamId } from '../domain/map/story-map.ts';
 import type { MapRepository } from './ports.ts';
 
 const change = async (maps: MapRepository, mapId: MapId, apply: (map: StoryMap) => StoryMap) => {
@@ -18,3 +19,8 @@ export const renameChapter =
   (deps: { maps: MapRepository }) =>
   ({ mapId, activityId, name }: { mapId: MapId; activityId: string; name: string }) =>
     change(deps.maps, mapId, (map) => renameActivity(map, activityId, name));
+
+export const renameTeamInMap =
+  (deps: { maps: MapRepository }) =>
+  ({ mapId, teamId, name }: { mapId: MapId; teamId: TeamId; name: string }) =>
+    change(deps.maps, mapId, (map) => renameTeam(map, teamId, name));

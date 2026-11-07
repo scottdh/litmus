@@ -55,7 +55,7 @@ Shared components live in `apps/web/src/ui` and are the only place that imports 
 
 ### TeamPopover
 
-`apps/web/src/features/map/team-popover.tsx`. Shows one or more teams' tasks, opened from Teams just before Key. Each team is a checkbox row with its task count. Picking fades every other task, folds away chapters with none of theirs by setting the chapter focus, and puts a chip filled with `ink`, "Bench and Till only ×", in the header row to clear it. Teams never sort, group or colour tasks. The logic lives in `teams.ts`. `docs/designs/teams-direction.md` has the reasoning.
+`apps/web/src/features/map/team-popover.tsx`. Shows one or more teams' tasks, opened from Teams just before Key. Each team is a checkbox row with its task count. Picking fades every other task, folds away chapters with none of theirs by setting the chapter focus, and puts a chip filled with `ink`, "Bench and Till only ×", in the header row to clear it. It's also where teams are added, with Add team at the end of the list, and where Rename on a row opens that team in the drawer. Esc in the Add team field ends only the field. Teams never sort, group or colour tasks. The logic lives in `teams.ts`. `docs/designs/teams-direction.md` has the reasoning.
 
 ### TeamField
 
@@ -75,7 +75,7 @@ Shared components live in `apps/web/src/ui` and are the only place that imports 
 
 ### Drawer
 
-`apps/web/src/features/map/drawer.tsx`. Where a task's detail lives, and where names are edited. It runs the full height of the window at the right edge, and the page makes room for it, so the map and its controls stay usable. On a phone it fills the screen. An X at the top closes it and stays in view while the drawer scrolls. It holds the name, the team, the light and the review, and a step's name and note. Add new task detail here rather than to the row. `docs/designs/task-drawer-direction.md` has the reasoning.
+`apps/web/src/features/map/drawer.tsx`. Where a task's detail lives, and where names are edited. It runs the full height of the window at the right edge, and the page makes room for it, so the map and its controls stay usable. On a phone it fills the screen. An X at the top closes it and stays in view while the drawer scrolls. It holds the name, the team, the light and the review, a step's name and note, and a team's name with its tasks under their chapters. Add new task detail here rather than to the row. `docs/designs/task-drawer-direction.md` has the reasoning.
 
 ### RatingSection
 

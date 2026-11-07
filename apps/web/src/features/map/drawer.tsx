@@ -19,6 +19,7 @@ const LABEL: Record<Subject['kind'], string> = {
   task: 'Task name',
   subtask: 'Subtask name',
   step: 'Step name',
+  team: 'Team name',
 };
 
 /** Runs the full height of the window, with the page making room so the map and its controls stay usable. On a phone it fills the screen. */
@@ -30,6 +31,7 @@ export function Drawer({
   reviewDraft,
   onReviewDraft,
   onOpenChild,
+  onOpenTask,
   subject,
   onDraft,
   onSave,
@@ -47,6 +49,7 @@ export function Drawer({
   reviewDraft: ReviewDraft | null;
   onReviewDraft: (draft: ReviewDraft | null) => void;
   onOpenChild: (id: string) => void;
+  onOpenTask: (id: string, chapterId: string) => void;
   subject: Subject;
   onDraft: (name: string) => void;
   onSave: (name: string) => void;
@@ -92,7 +95,7 @@ export function Drawer({
           key={subject.id}
           value={subject.name}
           label={LABEL[subject.kind]}
-          selectOnFocus={subject.kind === 'chapter'}
+          selectOnFocus={subject.kind === 'chapter' || subject.kind === 'team'}
           onDraft={onDraft}
           onSave={onSave}
           onFinish={onClose}
@@ -217,6 +220,43 @@ export function Drawer({
           />
         </>
       )}
+      {subject.kind === 'team' &&
+        (subject.chapters.length === 0 ? (
+          <p className="text-[14px] leading-snug text-pretty text-muted">
+            No tasks yet. Give a task to {subject.name} from its drawer.
+          </p>
+        ) : (
+          <div className="flex w-full flex-col gap-4">
+            {subject.chapters.map((chapter) => (
+              <section key={chapter.id} aria-labelledby={`team-${chapter.id}`}>
+                <h3 id={`team-${chapter.id}`} className="text-[13px] text-muted">
+                  {chapter.name}
+                </h3>
+                <ul>
+                  {chapter.tasks.map((task) => (
+                    <li key={task.id}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onOpenTask(task.id, chapter.id);
+                        }}
+                        className="group/row flex min-h-9 w-full cursor-pointer items-start gap-2 py-2 text-left text-[14px] leading-snug text-pretty max-lg:min-h-11"
+                      >
+                        <span className={`pt-0.5 ${MARK_COLOUR[task.light]}`}>
+                          <LightMark light={task.light} className="size-3" />
+                          <span className="sr-only">{LIGHT_COPY[task.light].label}: </span>
+                        </span>
+                        <span className="underline decoration-transparent decoration-from-font underline-offset-2 transition-[text-decoration-color] duration-150 ease-out group-hover/row:decoration-current">
+                          {task.name}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </div>
+        ))}
       {subject.kind === 'chapter' && (
         <div className="flex flex-wrap gap-2">
           <button
@@ -239,7 +279,7 @@ export function Drawer({
           </button>
         </div>
       )}
-      {subject.kind !== 'chapter' && <MoveTo map={map} id={subject.id} onMove={onMove} />}
+      {subject.kind !== 'chapter' && subject.kind !== 'team' && <MoveTo map={map} id={subject.id} onMove={onMove} />}
     </aside>
   );
 }

@@ -1,6 +1,6 @@
 # Decision: teams, and showing one team's tasks
 
-Decided by Scott on 2026-11-07, from a working prototype on the invented sample map. Method: built in place, then refitted to the one-row header (`docs/designs/header-direction.md`). Adding and renaming teams (section 6) is still a proposal.
+Decided by Scott on 2026-11-07, from a working prototype on the invented sample map. Method: built in place, then refitted to the one-row header (`docs/designs/header-direction.md`). Adding and renaming teams (section 6) followed in #37.
 
 **The need:** each task is the responsibility of one team, whose job is to turn it from unsupported to green. A team needs to see its own work across the whole story without reading every chapter, and anyone opening a task needs to see who has it.
 
@@ -38,12 +38,13 @@ A subtask's drawer shows the same row read-only: the team's name, and "Set on it
 - Picking teams replaces any focus you'd set by hand, and clearing them clears the focus.
 - Which teams are picked isn't remembered across reloads, unlike the focus.
 
-## 6. Proposal: adding and renaming teams
+## 6. Adding and renaming teams
 
-Not built yet. Ticket #37.
+Built in #37, as proposed.
 
 - **Add team** sits at the end of the Teams popover and works like every other add: a field appears where the team will, Enter adds, Esc gives up, and the add gets the usual Undo in the row.
-- **Rename** shows on each team's row in the popover, like Rename on a chapter. It opens the team in the drawer, because the drawer is where names are edited. The team drawer holds the name, and lists the team's tasks under their chapters, each opening its own drawer. That makes the drawer a team's overview as well as where it's renamed.
+- **Rename** shows on each team's row in the popover, like Rename on a chapter: on hover or focus with a mouse, and always on a phone. It opens the team in the drawer, because the drawer is where names are edited. The team drawer holds the name, and lists the team's tasks under their chapters, each opening its own drawer, and adding its chapter back to the focus if it was folded. A team with no tasks says "No tasks yet. Give a task to Bench from its drawer." That makes the drawer a team's overview as well as where it's renamed.
+- Esc in the Add team field ends only the field, and the popover stays open.
 
 ## 7. Build split
 

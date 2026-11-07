@@ -18,6 +18,7 @@ import type {
   AddResult,
   AddStep,
   AddTask,
+  AddTeam,
   AssignTeam,
   Move,
   NoteStep,
@@ -63,6 +64,7 @@ export function StoryWall({
   noteStep,
   addChapter,
   assignTeam,
+  addTeam,
 }: {
   map: MapView;
   isSample: boolean;
@@ -75,6 +77,7 @@ export function StoryWall({
   noteStep: NoteStep;
   addChapter: AddChapter;
   assignTeam: AssignTeam;
+  addTeam: AddTeam;
 }) {
   const [reviewDrafts, setReviewDrafts] = useState<Record<string, ReviewDraft>>({});
   const [dim, setDim] = useState<Light | null>(null);
@@ -125,7 +128,8 @@ export function StoryWall({
   };
   const found = selectedId === null ? null : findSubject(map, selectedId);
   // A chapter that's gone to the background has no tasks on show, so its drawer closes too.
-  const subject = found && (focus.length === 0 || focus.includes(found.chapterId)) ? found : null;
+  const subject =
+    found && (found.kind === 'team' || focus.length === 0 || focus.includes(found.chapterId)) ? found : null;
 
   const [lastChange, setLastChange] = useState<{ token: string; message: string } | null>(null);
   const [changeProblem, setChangeProblem] = useState<string | null>(null);
@@ -206,7 +210,8 @@ export function StoryWall({
 
   const closeDrawer = useCallback(() => {
     setSelectedId((id) => {
-      if (id !== null) document.getElementById(`open-${id}`)?.focus({ preventScroll: true });
+      // A team was opened from the Teams popover, which has closed, so focus goes back to Teams.
+      if (id !== null) (document.getElementById(`open-${id}`) ?? teamsButton.current)?.focus({ preventScroll: true });
       return null;
     });
   }, []);
@@ -237,7 +242,7 @@ export function StoryWall({
     setDrafts((current) => Object.fromEntries(Object.entries(current).filter(([key]) => key !== id)));
   };
 
-  const saveName = (id: string, kind: 'chapter' | 'task' | 'step', name: string) => {
+  const saveName = (id: string, kind: 'chapter' | 'task' | 'step' | 'team', name: string) => {
     setSaveFailed(false);
     void rename({ mapId: savedMap.id, kind, id, name }).then(
       (result) => {
@@ -375,6 +380,10 @@ export function StoryWall({
               activities={map.activities}
               picked={teams}
               onToggle={toggleTeam}
+              onRename={openDrawer}
+              onAdd={(name) => {
+                report(name, addTeam({ mapId: savedMap.id, name }), () => undefined);
+              }}
               triggerRef={teamsButton}
             />
           )}
@@ -478,6 +487,11 @@ export function StoryWall({
             onOpenChild={(id) => {
               // So the child's row is on show, for its underline and to return focus to.
               toggleTask(subject.id, true);
+              openDrawer(id);
+            }}
+            onOpenTask={(id, chapterId) => {
+              // A team's task can sit in a folded chapter, which has no rows to show it.
+              if (focusing && !focus.includes(chapterId)) toggleChapter(chapterId);
               openDrawer(id);
             }}
             subject={subject}
