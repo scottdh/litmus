@@ -1,5 +1,5 @@
 'use client';
-import { LIGHTS, type Light, type MapView } from '@litmus/core';
+import type { Light, MapView } from '@litmus/core';
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AddField } from './add-field';
 import { BUTTON } from './button-style';
@@ -7,6 +7,7 @@ import { Chapter } from './chapter';
 import { Drawer } from './drawer';
 import { describeDestination, type Destination } from './drop';
 import { chapterState, focusSummary } from './focus';
+import { KeyPopover } from './key-popover';
 import { LightMark } from './light-mark';
 import { FILL_COLOUR, LIGHT_COPY } from './lights';
 import type { ReviewDraft } from './rating-section';
@@ -84,6 +85,7 @@ export function StoryWall({
   } = useChapterFocus(savedMap.id, chapterIds, selectedId === null);
   const focusing = focus.length > 0;
   const expandAll = useRef<HTMLButtonElement>(null);
+  const keyButton = useRef<HTMLButtonElement>(null);
   const summary = focusSummary(map.activities, focus);
   const found = selectedId === null ? null : findSubject(map, selectedId);
   // A chapter that's gone to the background has no tasks on show, so its drawer closes too.
@@ -272,44 +274,18 @@ export function StoryWall({
 
   return (
     <main className={`mx-auto max-w-[1600px] px-4 pt-4 pb-16 ${subject ? 'lg:pe-100' : ''}`}>
-      {isSample && (
-        <p className="mb-5 w-fit rounded-sm bg-light-grey px-2 py-1 text-[13px] text-on-light-grey">
-          Sample data: an invented bike workshop. These ratings aren’t real, and changes last until the server restarts.
-        </p>
-      )}
-      <header
-        className={`flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-10 ${subject ? 'max-lg:invisible' : ''}`}
-      >
-        <div>
-          <h1 className="text-[22px] leading-tight font-semibold tracking-[-0.01em] text-balance">{map.name}</h1>
-          <p className="mt-1 max-w-[60ch] text-[13px] leading-normal text-pretty text-muted">
-            Green means deployed to a real environment and completable end to end with realistic data. Mocks don’t
-            count.
-          </p>
-        </div>
-        <ul aria-label="Dim the map to one light" className="flex flex-wrap gap-x-1 gap-y-3 lg:justify-end">
-          {LIGHTS.map((light) => (
-            <li key={light}>
-              <button
-                type="button"
-                aria-pressed={dim === light}
-                onClick={() => {
-                  setDim(dim === light ? null : light);
-                }}
-                className={`relative flex h-8 cursor-pointer items-center gap-1.5 rounded-sm px-2 text-[13px] font-medium transition-transform duration-150 ease-out before:absolute before:inset-x-0 before:-inset-y-1.5 active:scale-[0.96] aria-pressed:outline-2 aria-pressed:outline-offset-1 aria-pressed:outline-ink ${FILL_COLOUR[light]}`}
-              >
-                <LightMark light={light} className="size-3" />
-                {LIGHT_COPY[light].label}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </header>
-
       <div
-        className={`my-4 flex min-h-12 flex-wrap items-center justify-between gap-x-4 gap-y-3 border-y-(length:--hairline) border-line py-2 ${subject ? 'max-lg:invisible' : ''}`}
+        className={`mb-3 flex min-h-12 flex-wrap items-center gap-x-5 gap-y-2 border-b-(length:--hairline) border-line py-2 ${subject ? 'max-lg:invisible' : ''}`}
       >
-        <p aria-live="polite" className="min-w-48 flex-1 text-[14px] leading-snug text-pretty text-muted">
+        <div className="flex min-w-0 items-center gap-2">
+          <h1 className="text-[15px] leading-tight font-semibold text-balance">{map.name}</h1>
+          {isSample && (
+            <span className="shrink-0 rounded-sm bg-light-grey px-1.5 py-0.5 text-[12px] leading-none text-on-light-grey">
+              Sample
+            </span>
+          )}
+        </div>
+        <p aria-live="polite" className="min-w-48 flex-1 text-[13px] leading-snug text-pretty text-muted">
           {[
             saveFailed ? 'That name couldn’t be saved, so the old one is back.' : '',
             changeProblem ?? '',
@@ -320,7 +296,26 @@ export function StoryWall({
             .filter(Boolean)
             .join(' ')}
         </p>
-        <div className="ms-auto flex shrink-0 gap-2">
+        <div className="ms-auto flex shrink-0 flex-wrap justify-end gap-2">
+          {dim !== null && (
+            <button
+              type="button"
+              onClick={() => {
+                setDim(null);
+                // This chip is about to disappear, so keyboard users need somewhere to land.
+                keyButton.current?.focus();
+              }}
+              aria-label={`Stop dimming to ${LIGHT_COPY[dim].label.toLowerCase()}`}
+              className={`${BUTTON} flex shrink-0 items-center gap-1.5 ${FILL_COLOUR[dim]}`}
+            >
+              <LightMark light={dim} className="size-3" />
+              {LIGHT_COPY[dim].label} only
+              <span aria-hidden="true" className="opacity-70">
+                ×
+              </span>
+            </button>
+          )}
+          <KeyPopover dim={dim} onDim={setDim} isSample={isSample} triggerRef={keyButton} />
           {lastChange && (
             <button type="button" onClick={undoLastChange} className={`${BUTTON} shrink-0 shadow-raised`}>
               Undo
