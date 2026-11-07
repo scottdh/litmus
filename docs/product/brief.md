@@ -16,11 +16,11 @@ A long-lived map with three properties:
 2. **Evidence-rich.** Task cards carry personas, thinking, information needs, quotes, clips and screenshots.
 3. **Health-visible.** Every task carries a light showing how well the product supports it, backed by evidence. See `docs/product/rating-model.md`.
 
-Each task can have a team: the people responsible for turning it green. Teams name the tasks they own, and order and nest them in the way that makes sense to them. The map changes a lot while teams work this out, and settles over time. See `docs/designs/teams-direction.md`.
+Each task can have a team: the people responsible for turning it green. Teams name the tasks they own, and order and nest them in the way that makes sense to them, all on one shared map. Agreeing that order is much of the point: it aligns teams on what users are trying to achieve, and in what order. The map changes a lot while teams work this out, and settles over time. See `docs/designs/teams-direction.md`.
 
 Later mechanics:
 
-- **AI-assisted building:** AI spots gaps in the map and puts them in a parking lot, for teams to place on the map themselves. It also fills tasks in with research, problems and opportunities, starting from a pasted transcript. It never commits on its own.
+- **AI-assisted building:** AI spots gaps in the map and puts them in a parking lot, for teams to place on the map themselves. It also summarises research on a task: what users are trying to achieve, their problems and pain points, and how-might-wes. Each summary links to the raw data, which stays in a research repository. It never commits on its own.
 - **AI narration:** readable prose at task, activity and map level, from the structured data.
 - **Delivery link-back:** delivery work links to the task it serves.
 - **Dense view:** Story reads well but shows little at once, so a separate view will serve at-a-glance scanning. See `docs/designs/wall-direction.md`.

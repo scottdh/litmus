@@ -53,6 +53,7 @@ Evidence is one of: a review note, a heuristic review, a quote, a clip or a metr
 ## How it renders
 
 - **Tasks stay in narrative order, always.** No sort by colour. Reordering turns a journey into a backlog.
+- **There's one shared map.** Teams arrange its order and nesting together, by hand. There's no per-team arrangement and no automatic sort, because agreeing the order is how teams align on what users are trying to achieve.
 - **The stacked bar under each activity is the executive read.** It shows the mix without averaging it.
 - **Not applicable is distinct from not built,** so an empty band reads as honestly empty.
 

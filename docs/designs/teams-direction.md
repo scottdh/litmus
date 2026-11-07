@@ -10,7 +10,7 @@ This settles part of open conflict 2: an earlier version of the idea assigned wo
 
 - **On top-level tasks only.** A task has one team or none. Its subtasks share it, because a parent's light follows from its subtasks and splitting ownership under one light would leave nobody answerable for it.
 - A subtask moved out to a chapter keeps the team it was working under. A task moved in under another task takes on that task's team, because the team was only ever on the task.
-- A team is a name. It has no colour, because colour on the map means a light. Picking teams in the filter never reorders tasks. How teams arrange their own tasks is a separate question (open conflict 13).
+- A team is a name. It has no colour, because colour on the map means a light. Picking teams in the filter never reorders tasks. Teams arrange their tasks by hand on the one shared map (`docs/product/rating-model.md`).
 
 ## 2. In the drawer
 
