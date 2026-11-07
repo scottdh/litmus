@@ -8,12 +8,15 @@ export function PickRow({
   icon,
   count,
   pressed,
+  muted = false,
   onToggle,
 }: {
   name: string;
   icon?: ReactNode;
   count: number;
   pressed: boolean;
+  /** For a row that isn't one of the list's own, like No team. */
+  muted?: boolean;
   onToggle: () => void;
 }) {
   return (
@@ -41,7 +44,7 @@ export function PickRow({
         )}
       </span>
       {icon}
-      <span className="grow">{name}</span>
+      <span className={muted ? 'grow text-muted' : 'grow'}>{name}</span>
       <span className="text-[12px] text-muted tabular-nums">{taskCount(count)}</span>
     </button>
   );
