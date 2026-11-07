@@ -1,6 +1,14 @@
 import type { ActivityView, TaskView } from '@litmus/core';
 import { describe, expect, it } from 'vitest';
-import { NO_TEAM, chaptersWithTeams, isOffTeam, teamChipLabel, teamForNewTask, teamSummary } from './teams';
+import {
+  NO_TEAM,
+  chaptersWithTeams,
+  isOffTeam,
+  teamChipLabel,
+  teamForNewTask,
+  teamSummary,
+  picksStillOnMap,
+} from './teams';
 
 const task = (id: string, teamId: string | null): TaskView => ({
   id,
@@ -132,5 +140,15 @@ describe('teamSummary', () => {
     expect(teamSummary(picks([], true), false)).toBe('Every task has a team.');
     expect(teamSummary(picks(['Till'], true), false)).toBe('Till has no tasks yet, and every task has a team.');
     expect(teamSummary(picks(['Bench', 'Till'], false, true), false)).toBe('No team has tasks yet.');
+  });
+});
+
+describe('picksStillOnMap', () => {
+  it('drops a team that has been removed', () => {
+    expect([...picksStillOnMap(new Set(['bench', 'till', NO_TEAM]), ['bench'])]).toEqual(['bench', NO_TEAM]);
+  });
+
+  it('drops No team once the map has no teams, because every task is unowned', () => {
+    expect([...picksStillOnMap(new Set([NO_TEAM]), [])]).toEqual([]);
   });
 });
