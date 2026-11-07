@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest';
 import {
   DomainError,
   addTaskToMap,
+  addTeamToMap,
   assignTeamInMap,
   getMapView,
+  renameTeamInMap,
   undoChange,
   type MapId,
   type MapRepository,
@@ -78,5 +80,23 @@ describe('teams', () => {
     await undoChange({ maps })({ mapId: MAP_ID, before, after });
     const view = await getMapView({ maps })(MAP_ID);
     expect(view.activities[0]?.tasks.map((task) => task.id)).toEqual(['tsk_1']);
+  });
+
+  it('adds a team, and undo takes it away', async () => {
+    const maps = repository();
+    const { id, before, after } = await addTeamToMap({ maps, newId: () => 'new' })({ mapId: MAP_ID, name: 'Till' });
+    expect((await getMapView({ maps })(MAP_ID)).teams).toEqual([
+      { id: BENCH, name: 'Bench' },
+      { id, name: 'Till' },
+    ]);
+
+    await undoChange({ maps })({ mapId: MAP_ID, before, after });
+    expect((await getMapView({ maps })(MAP_ID)).teams).toEqual([{ id: BENCH, name: 'Bench' }]);
+  });
+
+  it('keeps a renamed team', async () => {
+    const maps = repository();
+    await renameTeamInMap({ maps })({ mapId: MAP_ID, teamId: BENCH, name: 'Workbench' });
+    expect((await getMapView({ maps })(MAP_ID)).teams).toEqual([{ id: BENCH, name: 'Workbench' }]);
   });
 });

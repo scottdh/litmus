@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { MapId, StoryMap, TaskId, TeamId } from './story-map.ts';
-import { assignTeam } from './team.ts';
+import { addTeam, assignTeam, renameTeam } from './team.ts';
 import { moveTaskInMap } from './move.ts';
 import { addTask } from './add.ts';
 
@@ -76,5 +76,35 @@ describe('moving a task under another', () => {
     const parent = moved.activities[0]?.tasks.find((task) => task.id === 'tsk_1');
     expect(parent?.subtasks.map((sub) => sub.id)).toContain('tsk_2');
     expect(parent?.teamId).toBe(BENCH);
+  });
+});
+
+describe('addTeam', () => {
+  it('adds a team at the end, with its name tidied', () => {
+    const added = addTeam(map, { id: 'tm_till' as TeamId, name: '  Till \n' });
+    expect(added.teams).toEqual([
+      { id: BENCH, name: 'Bench' },
+      { id: 'tm_till', name: 'Till' },
+    ]);
+  });
+
+  it('refuses an empty name', () => {
+    expect(() => addTeam(map, { id: 'tm_x' as TeamId, name: '   ' })).toThrow(
+      expect.objectContaining({ code: 'NAME_EMPTY' }),
+    );
+  });
+});
+
+describe('renameTeam', () => {
+  it('renames a team, and its tasks keep it', () => {
+    const renamed = renameTeam(map, BENCH, 'Workbench');
+    expect(renamed.teams).toEqual([{ id: BENCH, name: 'Workbench' }]);
+    expect(teamOf(renamed, 'tsk_1')).toBe(BENCH);
+  });
+
+  it('refuses a team that isn’t on the map', () => {
+    expect(() => renameTeam(map, 'tm_none' as TeamId, 'Name')).toThrow(
+      expect.objectContaining({ code: 'TEAM_NOT_FOUND' }),
+    );
   });
 });

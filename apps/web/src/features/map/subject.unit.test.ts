@@ -6,7 +6,10 @@ const map: MapView = {
   id: 'map_1',
   name: 'A small map',
   productName: 'Thing',
-  teams: [],
+  teams: [
+    { id: 'tm_bench', name: 'Bench' },
+    { id: 'tm_till', name: 'Till' },
+  ],
   activities: [
     { id: 'act_1', name: 'First', tasks: [], mix: [] },
     {
@@ -48,6 +51,20 @@ const map: MapView = {
 };
 
 describe('findSubject', () => {
+  it('finds a team, with its tasks under their chapters', () => {
+    expect(findSubject(map, 'tm_bench')).toEqual({
+      kind: 'team',
+      id: 'tm_bench',
+      name: 'Bench',
+      path: 'Team',
+      chapters: [{ id: 'act_2', name: 'Second', tasks: [{ id: 'tsk_leaf', name: 'On its own', light: 'red' }] }],
+    });
+  });
+
+  it('finds a team with no tasks yet', () => {
+    expect(findSubject(map, 'tm_till')).toMatchObject({ kind: 'team', chapters: [] });
+  });
+
   it('finds a chapter, with its place in the story', () => {
     expect(findSubject(map, 'act_2')).toEqual({
       kind: 'chapter',
