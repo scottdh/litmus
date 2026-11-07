@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
   DomainError,
+  addPersonaToMap,
   addTaskToMap,
   getMapView,
+  renamePersonaInMap,
+  setPersonaIconInMap,
   setPersonaInMap,
   undoChange,
   type MapId,
@@ -140,6 +143,25 @@ describe('adding a task for a persona', () => {
 
     await undoChange({ maps })({ mapId: MAP_ID, before, after });
     expect((await getMapView({ maps })(MAP_ID)).activities[0]?.tasks.map((task) => task.id)).toEqual(['tsk_1']);
+  });
+});
+
+describe('managing personas', () => {
+  it('adds a persona with the next unused icon, and undo takes it away', async () => {
+    const maps = repository();
+    const { id, before, after } = await addPersonaToMap({ maps, newId: () => 'new' })({ mapId: MAP_ID, name: 'Owner' });
+    expect(id).toBe('ps_new');
+    expect((await getMapView({ maps })(MAP_ID)).personas.at(-1)).toEqual({ id, name: 'Owner', icon: 'box' });
+
+    await undoChange({ maps })({ mapId: MAP_ID, before, after });
+    expect((await getMapView({ maps })(MAP_ID)).personas.map((persona) => persona.id)).toEqual([RIDER, DESK, MECHANIC]);
+  });
+
+  it('keeps a renamed persona and a new icon', async () => {
+    const maps = repository();
+    await renamePersonaInMap({ maps })({ mapId: MAP_ID, personaId: DESK, name: 'Counter' });
+    await setPersonaIconInMap({ maps })({ mapId: MAP_ID, personaId: DESK, icon: 'house' });
+    expect((await getMapView({ maps })(MAP_ID)).personas[1]).toEqual({ id: DESK, name: 'Counter', icon: 'house' });
   });
 });
 

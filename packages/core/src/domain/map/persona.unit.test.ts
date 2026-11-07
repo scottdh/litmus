@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import type { MapId, PersonaId, StepId, StoryMap, TaskId, TeamId } from './story-map.ts';
-import { setPersona } from './persona.ts';
+import {
+  PERSONA_ICONS,
+  type MapId,
+  type PersonaIcon,
+  type PersonaId,
+  type StepId,
+  type StoryMap,
+  type TaskId,
+  type TeamId,
+} from './story-map.ts';
+import { addPersona, renamePersona, setPersona, setPersonaIcon } from './persona.ts';
 import { moveTaskInMap } from './move.ts';
 import { assignTeam, removeTeam } from './team.ts';
 import { addTask } from './add.ts';
@@ -152,5 +161,65 @@ describe('adding a task for a persona', () => {
         personaIds: ['ps_none' as PersonaId],
       }),
     ).toThrow(expect.objectContaining({ code: 'PERSONA_NOT_FOUND' }));
+  });
+});
+
+describe('addPersona', () => {
+  it('adds a persona at the end, with the next unused icon', () => {
+    const added = addPersona(map, { id: 'ps_new' as PersonaId, name: '  Owner ' });
+    expect(added.personas.at(-1)).toEqual({ id: 'ps_new', name: 'Owner', icon: 'wrench' });
+  });
+
+  it('skips icons already worn, wherever they sit in the set', () => {
+    const worn = { ...map, personas: [{ id: RIDER, name: 'Rider', icon: 'wrench' as const }] };
+    expect(addPersona(worn, { id: 'ps_new' as PersonaId, name: 'New' }).personas.at(-1)?.icon).toBe('person');
+  });
+
+  it('starts the set again once every icon is worn', () => {
+    const full = {
+      ...map,
+      personas: PERSONA_ICONS.map((icon, index) => ({ id: `ps_${String(index)}` as PersonaId, name: icon, icon })),
+    };
+    expect(addPersona(full, { id: 'ps_new' as PersonaId, name: 'New' }).personas.at(-1)?.icon).toBe('person');
+  });
+
+  it('refuses an empty name', () => {
+    expect(() => addPersona(map, { id: 'ps_new' as PersonaId, name: '  ' })).toThrow(
+      expect.objectContaining({ code: 'NAME_EMPTY' }),
+    );
+  });
+});
+
+describe('renamePersona', () => {
+  it('tidies and keeps the new name', () => {
+    expect(renamePersona(map, DESK, ' Front   counter ').personas[1]?.name).toBe('Front counter');
+  });
+
+  it('refuses an empty name', () => {
+    expect(() => renamePersona(map, DESK, '')).toThrow(expect.objectContaining({ code: 'NAME_EMPTY' }));
+  });
+
+  it('refuses a persona that isn’t on the map', () => {
+    expect(() => renamePersona(map, 'ps_none' as PersonaId, 'X')).toThrow(
+      expect.objectContaining({ code: 'PERSONA_NOT_FOUND' }),
+    );
+  });
+});
+
+describe('setPersonaIcon', () => {
+  it('changes a persona’s icon', () => {
+    expect(setPersonaIcon(map, DESK, 'phone').personas[1]?.icon).toBe('phone');
+  });
+
+  it('refuses an icon outside the set', () => {
+    expect(() => setPersonaIcon(map, DESK, 'rocket' as PersonaIcon)).toThrow(
+      expect.objectContaining({ code: 'ICON_NOT_FOUND' }),
+    );
+  });
+
+  it('refuses a persona that isn’t on the map', () => {
+    expect(() => setPersonaIcon(map, 'ps_none' as PersonaId, 'star')).toThrow(
+      expect.objectContaining({ code: 'PERSONA_NOT_FOUND' }),
+    );
   });
 });
