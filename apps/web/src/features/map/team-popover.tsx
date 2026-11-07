@@ -116,20 +116,22 @@ export function TeamPopover({
               </li>
             );
           })}
-          <li className="flex items-center gap-1">
-            <PickRow
-              name="No team"
-              count={tasks.filter((task) => task.teamId === null).length}
-              pressed={picked.has(NO_TEAM)}
-              onToggle={() => {
-                onToggle(NO_TEAM);
-              }}
-            />
-            {/* Holds the place of Rename, so the counts line up. */}
-            <span aria-hidden="true" className="invisible shrink-0 px-1.5 text-[12px] max-lg:min-h-11">
-              Rename
-            </span>
-          </li>
+          {teams.length > 0 && (
+            <li className="flex items-center gap-1">
+              <PickRow
+                name="No team"
+                count={tasks.filter((task) => task.teamId === null).length}
+                pressed={picked.has(NO_TEAM)}
+                onToggle={() => {
+                  onToggle(NO_TEAM);
+                }}
+              />
+              {/* Holds the place of Rename, so the counts line up. */}
+              <span aria-hidden="true" className="invisible shrink-0 px-1.5 text-[12px] max-lg:min-h-11">
+                Rename
+              </span>
+            </li>
+          )}
         </ul>
         <div className="mt-1 flex min-h-10 items-center px-1.5">
           <AddControl
@@ -141,9 +143,11 @@ export function TeamPopover({
             onAdd={onAdd}
           />
         </div>
-        <p className="mx-1.5 mt-3 border-t-(length:--hairline) border-line pt-3 text-[12px] leading-snug text-pretty text-muted">
-          Other tasks fade, and chapters with none of theirs fold away.
-        </p>
+        {teams.length > 0 && (
+          <p className="mx-1.5 mt-3 border-t-(length:--hairline) border-line pt-3 text-[12px] leading-snug text-pretty text-muted">
+            Other tasks fade, and chapters with none of theirs fold away.
+          </p>
+        )}
       </PopoverPanel>
     </PopoverRoot>
   );
