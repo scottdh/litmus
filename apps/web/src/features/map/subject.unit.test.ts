@@ -13,6 +13,7 @@ const map: MapView = {
   personas: [
     { id: 'ps_rider', name: 'Rider', icon: 'person' },
     { id: 'ps_desk', name: 'Front desk', icon: 'bell' },
+    { id: 'ps_owner', name: 'Owner', icon: 'key' },
   ],
   activities: [
     { id: 'act_1', name: 'First', tasks: [], mix: [] },
@@ -214,6 +215,23 @@ describe('findSubject', () => {
       chapterId: 'act_2',
       path: 'Chapter 2 · Second · With children · A child',
     });
+  });
+
+  it('finds a persona, with the tasks it rolls up to under their chapters', () => {
+    expect(findSubject(map, 'ps_desk')).toEqual({
+      kind: 'persona',
+      id: 'ps_desk',
+      name: 'Front desk',
+      icon: 'bell',
+      path: 'Persona',
+      chapters: [
+        { id: 'act_2', name: 'Second', tasks: [{ id: 'tsk_parent', name: 'With children', light: 'yellow' }] },
+      ],
+    });
+  });
+
+  it('finds a persona with no tasks yet', () => {
+    expect(findSubject(map, 'ps_owner')).toMatchObject({ kind: 'persona', chapters: [] });
   });
 
   it('finds nothing for an id that is not on the map', () => {
