@@ -15,10 +15,11 @@ All tokens live in `apps/web/src/app/globals.css`. Lint rejects hardcoded colour
 | Dividers                                     | `line`, at `--hairline` width                             |
 | A light drawn on the page, as a mark or bar  | `mark-green`, `mark-yellow`, `mark-red`, `mark-grey`      |
 | A control filled with a light, with its text | `light-*` with `on-light-*`                               |
+| A control that removes something             | `danger` as text, never as a fill                         |
 | Out of scope                                 | The `hatch` utility with `muted` text                     |
 | Elevation                                    | `shadow-raised`, which becomes a single ring in dark mode |
 
-Every `on-light-*` is at least 4.5:1 on its fill. Every `mark-*` is at least 3:1 on `canvas` and `surface`. Recheck if you change either.
+Every `on-light-*` is at least 4.5:1 on its fill. Every `mark-*` is at least 3:1 on `canvas` and `surface`, and `danger` at least 4.5:1. Recheck if you change any of them. `danger` stays text on the quiet button, because a red fill would read as a red light, like the "Red only" chip.
 
 ## Type
 
