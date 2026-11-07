@@ -7,7 +7,7 @@ export type Rate = (input: { mapId: string; id: string; light: Light; note: stri
 
 export type Rename = (input: {
   mapId: string;
-  kind: 'chapter' | 'task' | 'step';
+  kind: 'chapter' | 'task' | 'step' | 'team';
   id: string;
   name: string;
 }) => Promise<RenameResult>;
@@ -35,3 +35,5 @@ export type NoteStep = (input: { mapId: string; id: string; note: string }) => P
 export type AddChapter = (input: { mapId: string; name: string; before: string | null }) => Promise<AddResult>;
 
 export type AssignTeam = (input: { mapId: string; id: string; teamId: string | null }) => Promise<RenameResult>;
+
+export type AddTeam = (input: { mapId: string; name: string }) => Promise<AddResult>;

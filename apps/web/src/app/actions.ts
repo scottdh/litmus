@@ -14,6 +14,7 @@ import {
   addChapterOnMap,
   addStepOnMap,
   addTaskOnMap,
+  addTeamOnMap,
   assignTeamOnMap,
   moveOnMap,
   rateOnMap,
@@ -47,7 +48,7 @@ export async function renameAction(input: {
     typeof mapId !== 'string' ||
     typeof id !== 'string' ||
     typeof name !== 'string' ||
-    (kind !== 'chapter' && kind !== 'task' && kind !== 'step')
+    (kind !== 'chapter' && kind !== 'task' && kind !== 'step' && kind !== 'team')
   ) {
     return { ok: false, code: 'INVALID_INPUT' };
   }
@@ -168,6 +169,12 @@ export async function assignTeamAction(input: { mapId: unknown; id: unknown; tea
     return { ok: false, code: 'INVALID_INPUT' };
   }
   return run(() => assignTeamOnMap({ mapId, id, teamId }));
+}
+
+export async function addTeamAction(input: { mapId: unknown; name: unknown }): Promise<AddResult> {
+  const { mapId, name } = input;
+  if (typeof mapId !== 'string' || typeof name !== 'string') return { ok: false, code: 'INVALID_INPUT' };
+  return runAdd(() => addTeamOnMap({ mapId, name }));
 }
 
 export async function undoChangeAction(token: unknown): Promise<RenameResult> {

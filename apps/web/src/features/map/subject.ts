@@ -2,6 +2,14 @@ import type { Light, MapView } from '@litmus/core';
 
 /** Whatever the drawer is showing. */
 export type Subject =
+  | {
+      kind: 'team';
+      id: string;
+      name: string;
+      path: string;
+      /** Only chapters holding the team's tasks, in story order. */
+      chapters: { id: string; name: string; tasks: { id: string; name: string; light: Light }[] }[];
+    }
   | { kind: 'chapter'; id: string; name: string; chapterId: string; path: string }
   | { kind: 'step'; id: string; name: string; note: string; chapterId: string; path: string }
   | {
@@ -22,6 +30,20 @@ export type Subject =
     };
 
 export function findSubject(map: MapView, id: string): Subject | null {
+  const team = map.teams.find((other) => other.id === id);
+  if (team) {
+    const chapters = map.activities
+      .map((chapter) => ({
+        id: chapter.id,
+        name: chapter.name,
+        tasks: chapter.tasks
+          .filter((task) => task.teamId === id)
+          .map((task) => ({ id: task.id, name: task.name, light: task.light })),
+      }))
+      .filter((chapter) => chapter.tasks.length > 0);
+    return { kind: 'team', id, name: team.name, path: 'Team', chapters };
+  }
+
   for (const [index, chapter] of map.activities.entries()) {
     const place = `Chapter ${String(index + 1)}`;
     if (chapter.id === id) return { kind: 'chapter', id, name: chapter.name, chapterId: chapter.id, path: place };

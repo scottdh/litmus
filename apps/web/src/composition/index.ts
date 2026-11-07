@@ -2,6 +2,7 @@ import {
   addChapter,
   addStepToMap,
   addTaskToMap,
+  addTeamToMap,
   assignTeamInMap,
   getMapView,
   invariantViolation,
@@ -11,6 +12,7 @@ import {
   renameChapter,
   renameStepInMap,
   renameTaskInMap,
+  renameTeamInMap,
   setStepNoteInMap,
   undoChange,
   type AddDestination,
@@ -50,11 +52,12 @@ export async function renameOnMap({
   name,
 }: {
   mapId: string;
-  kind: 'chapter' | 'task' | 'step';
+  kind: 'chapter' | 'task' | 'step' | 'team';
   id: string;
   name: string;
 }) {
   if (kind === 'chapter') await renameChapter({ maps })({ mapId: mapId as MapId, activityId: id, name });
+  else if (kind === 'team') await renameTeamInMap({ maps })({ mapId: mapId as MapId, teamId: id as TeamId, name });
   else if (kind === 'step') await renameStepInMap({ maps })({ mapId: mapId as MapId, stepId: id as StepId, name });
   else await renameTaskInMap({ maps })({ mapId: mapId as MapId, taskId: id as TaskId, name });
 }
@@ -130,6 +133,11 @@ export async function addChapterOnMap({
   before: string | null;
 }) {
   const { id, before, after } = await addChapter({ maps, newId })({ mapId: mapId as MapId, name, before: place });
+  return { id, undoToken: remember(mapId as MapId, before, after) };
+}
+
+export async function addTeamOnMap({ mapId, name }: { mapId: string; name: string }) {
+  const { id, before, after } = await addTeamToMap({ maps, newId })({ mapId: mapId as MapId, name });
   return { id, undoToken: remember(mapId as MapId, before, after) };
 }
 
