@@ -55,7 +55,7 @@ Shared components live in `apps/web/src/ui` and are the only place that imports 
 
 ### TeamPopover
 
-`apps/web/src/features/map/team-popover.tsx`. Shows one or more teams' tasks, opened from Teams just before Key. Each team is a checkbox row with its task count. Picking fades every other task, folds away chapters with none of theirs by setting the chapter focus, and puts a chip filled with `ink`, "Bench and Till only ×", in the header row to clear it. It's also where teams are added, with Add team at the end of the list, and where Rename on a row opens that team in the drawer. Esc in the Add team field ends only the field. Picking teams never reorders tasks, and teams have no colour. The logic lives in `teams.ts`. `docs/designs/teams-direction.md` has the reasoning.
+`apps/web/src/features/map/team-popover.tsx`. Shows one or more teams' tasks, opened from Teams just before Key. Each team is a checkbox row with its task count. Picking fades every other task, folds away chapters with none of theirs by setting the chapter focus, and puts a chip filled with `ink` in the header row to clear it. The chip says "only" for one team ("Till only ×"), and drops it for more: "Bench and Till ×", "3 teams ×", or "All teams ×". It's also where teams are added, with Add team at the end of the list, and where Rename on a row opens that team in the drawer. Esc in the Add team field ends only the field. Picking teams never reorders tasks, and teams have no colour. The logic lives in `teams.ts`. `docs/designs/teams-direction.md` has the reasoning.
 
 ### TeamField
 
