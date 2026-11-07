@@ -17,8 +17,9 @@ export function PersonaIconField({
 
   const pick = (next: PersonaIcon) => {
     const before = shown;
+    // Only puts the old icon back if nothing newer has been picked since.
     const undo = () => {
-      setShown(before);
+      setShown((current) => (current === next ? before : current));
       setFailed(true);
     };
     setFailed(false);
