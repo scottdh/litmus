@@ -23,6 +23,7 @@ function repository(): MapRepository {
         id: MAP_ID,
         name: 'A small map',
         teams: [],
+        personas: [],
         activities: [
           {
             id: 'act_1',
@@ -51,7 +52,7 @@ describe('steps', () => {
       subtaskId: CHILD,
     });
     expect(id).toBe('stp_new');
-    expect(await stepsOf(maps)).toEqual([{ id: 'stp_new', name: 'Fresh', note: '' }]);
+    expect(await stepsOf(maps)).toEqual([{ id: 'stp_new', name: 'Fresh', note: '', personaIds: [] }]);
     expect(before).not.toEqual(after);
   });
 

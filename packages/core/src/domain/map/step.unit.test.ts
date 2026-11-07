@@ -10,6 +10,7 @@ const map: StoryMap = {
   id: 'map_1' as MapId,
   name: 'A small map',
   teams: [],
+  personas: [],
   activities: [
     {
       id: 'act_1',

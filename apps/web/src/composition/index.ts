@@ -14,6 +14,7 @@ import {
   renameTaskInMap,
   removeTeamFromMap,
   renameTeamInMap,
+  setPersonaInMap,
   setStepNoteInMap,
   undoChange,
   type AddDestination,
@@ -24,6 +25,7 @@ import {
   type MapRecord,
   type MapRepository,
   type MoveDestination,
+  type PersonaId,
   type StepDestination,
   type StepId,
   type TaskId,
@@ -157,4 +159,18 @@ export async function undoChangeOnMap(token: string) {
 
 export async function assignTeamOnMap({ mapId, id, teamId }: { mapId: string; id: string; teamId: string | null }) {
   await assignTeamInMap({ maps })({ mapId: mapId as MapId, taskId: id as TaskId, teamId: teamId as TeamId | null });
+}
+
+export async function setPersonaOnMap({
+  mapId,
+  id,
+  personaId,
+  on,
+}: {
+  mapId: string;
+  id: string;
+  personaId: string;
+  on: boolean;
+}) {
+  await setPersonaInMap({ maps })({ mapId: mapId as MapId, itemId: id, personaId: personaId as PersonaId, on });
 }

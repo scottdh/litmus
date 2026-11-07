@@ -16,6 +16,7 @@ function locate(map: StoryMap, id: TaskId) {
           id: sub.id,
           name: sub.name,
           ...(task.teamId ? { teamId: task.teamId } : {}),
+          ...(sub.personaIds ? { personaIds: sub.personaIds } : {}),
           subtasks: [],
         };
         return { task: asTask, steps: sub.steps, parentId: task.id };
@@ -68,7 +69,18 @@ export function moveTaskInMap(
         const landing = 'parentId' in to && to.parentId === task.id;
         return {
           ...task,
-          subtasks: landing ? insert(subtasks, { id, name: found.task.name, steps: found.steps }, to.before) : subtasks,
+          subtasks: landing
+            ? insert(
+                subtasks,
+                {
+                  id,
+                  name: found.task.name,
+                  ...(found.task.personaIds ? { personaIds: found.task.personaIds } : {}),
+                  steps: found.steps,
+                },
+                to.before,
+              )
+            : subtasks,
         };
       });
     const landing = 'chapterId' in to && to.chapterId === activity.id;

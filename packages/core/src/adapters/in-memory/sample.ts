@@ -3,7 +3,18 @@ import type { MapRepository } from '../../application/ports.ts';
 import type { Evidence } from '../../domain/map/evidence.ts';
 import type { Light } from '../../domain/map/light.ts';
 import { createRating, type Rating } from '../../domain/map/rating.ts';
-import type { Activity, MapId, ProductId, Step, StepId, TaskId, Team, TeamId } from '../../domain/map/story-map.ts';
+import type {
+  Activity,
+  MapId,
+  Persona,
+  PersonaId,
+  ProductId,
+  Step,
+  StepId,
+  TaskId,
+  Team,
+  TeamId,
+} from '../../domain/map/story-map.ts';
 import { createInMemoryMapRepository } from './map-repository.ts';
 
 // Invented: a repair app for a neighbourhood bike workshop. Worst-case content on purpose. Never put real data here.
@@ -252,11 +263,82 @@ const teamFor = (chapter: number, taskName: string): { teamId?: TeamId } => {
   return team ? { teamId: team } : {};
 };
 
+const RIDER = 'ps_rider' as PersonaId;
+const DESK = 'ps_desk' as PersonaId;
+const MECHANIC = 'ps_mechanic' as PersonaId;
+const STOCK = 'ps_stock' as PersonaId;
+const OWNER = 'ps_owner' as PersonaId;
+
+const PERSONAS: Persona[] = [
+  { id: RIDER, name: 'Rider', icon: 'person' },
+  { id: DESK, name: 'Front desk', icon: 'bell' },
+  { id: MECHANIC, name: 'Mechanic', icon: 'wrench' },
+  { id: STOCK, name: 'Stock keeper', icon: 'box' },
+  { id: OWNER, name: 'Owner', icon: 'key' },
+];
+
+// Who usually does the work in each chapter. It lands on tasks without subtasks, and on subtasks, so parents show the roll-up.
+const CHAPTER_PERSONAS: PersonaId[][] = [
+  [RIDER],
+  [RIDER],
+  [DESK],
+  [MECHANIC],
+  [RIDER],
+  [MECHANIC],
+  [RIDER],
+  [RIDER],
+  [],
+];
+const PERSONAS_BY_NAME: Record<string, PersonaId[]> = {
+  'Check in the bike': [],
+  'Agree what happens if the mechanic finds something else wrong': [DESK, RIDER],
+  'Get a rough estimate': [MECHANIC, DESK],
+  'Leave accessories safely': [RIDER, DESK],
+  'Book by phone': [DESK],
+  'Pick a drop-off slot': [RIDER, DESK],
+  'See stock at the other branch': [STOCK],
+  'Correct a wrong count': [STOCK],
+  'Set a reorder level': [STOCK, OWNER],
+  'See what’s reserved for other jobs': [STOCK, MECHANIC],
+  'Order a missing part': [STOCK],
+  'Estimate the labour': [MECHANIC, OWNER],
+  'Show what was found': [MECHANIC],
+  'Show the old and new price side by side': [DESK],
+  'Attach a photo': [MECHANIC],
+  'Call them instead': [DESK],
+  'Mark it ready': [MECHANIC, DESK],
+  'Text message': [DESK],
+  Email: [DESK],
+  'Understand what was done': [RIDER],
+  'Pay by card': [RIDER, DESK],
+  'Pay by cash': [RIDER, DESK],
+  'Use a deposit already paid': [DESK],
+  'Split the bill between two people': [RIDER],
+  'Refund a deposit': [DESK, OWNER],
+  'Claim on insurance': [RIDER, OWNER],
+  'Get a receipt': [RIDER],
+  'Collect after hours': [RIDER, OWNER],
+};
+// A few steps bring in someone the subtask doesn't name, so the roll-up has something to show.
+const STEP_PERSONAS: Record<string, PersonaId[]> = {
+  'Tell the customer it’s a different part, and why': [DESK],
+  'Remember the match for next time': [STOCK],
+  'Take the first payment': [DESK],
+  'Handle one card being declined': [DESK],
+  'Fall back to typing the code': [STOCK],
+};
+
+const personasFor = (chapter: number, name: string, leaf: boolean): { personaIds?: PersonaId[] } => {
+  const personas = PERSONAS_BY_NAME[name] ?? (leaf ? CHAPTER_PERSONAS[chapter] : []) ?? [];
+  return personas.length > 0 ? { personaIds: personas } : {};
+};
+
 const stepsFor = (subtaskId: string, name: string): Step[] =>
   (STEPS[name] ?? []).map(([stepName, note], index) => ({
     id: `stp_${subtaskId}_${String(index)}` as StepId,
     name: stepName,
     note,
+    ...(STEP_PERSONAS[stepName] ? { personaIds: STEP_PERSONAS[stepName] } : {}),
   }));
 
 // One is long on purpose, to find out what breaks.
@@ -297,14 +379,22 @@ function build() {
     tasks: rows.map(([taskName, detail], t) => {
       const id = `tsk_${String(a)}_${String(t)}`;
       if (typeof detail === 'string')
-        return { id: rate(id, detail), name: taskName, ...teamFor(a, taskName), subtasks: [] };
+        return {
+          id: rate(id, detail),
+          name: taskName,
+          ...teamFor(a, taskName),
+          ...personasFor(a, taskName, true),
+          subtasks: [],
+        };
       return {
         id: id as TaskId,
         name: taskName,
         ...teamFor(a, taskName),
+        ...personasFor(a, taskName, false),
         subtasks: detail.map(([subName, light], s) => ({
           id: rate(`${id}_${String(s)}`, light),
           name: subName,
+          ...personasFor(a, subName, true),
           steps: stepsFor(`${id}_${String(s)}`, subName),
         })),
       };
@@ -312,7 +402,7 @@ function build() {
   }));
 
   return {
-    map: { id: SAMPLE_MAP_ID, name: 'Spoke, the workshop app', teams: TEAMS, activities },
+    map: { id: SAMPLE_MAP_ID, name: 'Spoke, the workshop app', teams: TEAMS, personas: PERSONAS, activities },
     product: { id: PRODUCT_ID, name: 'Spoke' },
     ratings,
   };
