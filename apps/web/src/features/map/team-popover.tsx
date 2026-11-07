@@ -4,7 +4,7 @@ import { useState, type Ref } from 'react';
 import { PopoverPanel, PopoverRoot, PopoverTitle, PopoverTrigger } from '../../ui/popover';
 import { AddControl } from './add-field';
 import { BUTTON } from './button-style';
-import { PickRow } from './pick-row';
+import { PickRow, RENAME_BUTTON } from './pick-row';
 import { NO_TEAM, teamTaskCount } from './teams';
 
 /**
@@ -52,7 +52,7 @@ export function TeamPopover({
           {teams.map((team) => {
             const pressed = picked.has(team.id);
             return (
-              <li key={team.id} className="group/team flex items-center gap-1">
+              <li key={team.id} className="group/pick flex items-center gap-1">
                 <PickRow
                   name={team.name}
                   count={teamTaskCount(activities, team.id)}
@@ -68,7 +68,7 @@ export function TeamPopover({
                     setOpen(false);
                     onOpen(team.id);
                   }}
-                  className="relative shrink-0 cursor-pointer rounded-sm px-1.5 text-[12px] text-muted opacity-0 transition-[opacity,color] duration-150 ease-out group-hover/team:opacity-100 before:absolute before:inset-x-0 before:-inset-y-3 hover:text-ink focus-visible:opacity-100 max-lg:min-h-11 max-lg:opacity-100"
+                  className={RENAME_BUTTON}
                 >
                   Open
                 </button>
