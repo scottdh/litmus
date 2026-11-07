@@ -4,7 +4,7 @@ import { useState, type Ref } from 'react';
 import { PopoverPanel, PopoverRoot, PopoverTitle, PopoverTrigger } from '../../ui/popover';
 import { AddControl } from './add-field';
 import { BUTTON } from './button-style';
-import { PickRow, RENAME_BUTTON } from './pick-row';
+import { PickRow, OPEN_BUTTON } from './pick-row';
 import { NO_TEAM, teamTaskCount } from './teams';
 
 /**
@@ -68,7 +68,7 @@ export function TeamPopover({
                     setOpen(false);
                     onOpen(team.id);
                   }}
-                  className={RENAME_BUTTON}
+                  className={OPEN_BUTTON}
                 >
                   Open
                 </button>

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
-/** Rename on a pick row: shown on hover or focus with a mouse, and always on a phone. Its row is `group/pick`. */
-export const RENAME_BUTTON =
+/** Open on a pick row: shown on hover or focus with a mouse, and always on a phone. Its row is `group/pick`. */
+export const OPEN_BUTTON =
   'relative shrink-0 cursor-pointer rounded-sm px-1.5 text-[12px] text-muted opacity-0 transition-[opacity,color] duration-150 ease-out group-hover/pick:opacity-100 before:absolute before:inset-x-0 before:-inset-y-3 hover:text-ink focus-visible:opacity-100 max-lg:min-h-11 max-lg:opacity-100';
 
 const taskCount = (count: number) => `${String(count)} ${count === 1 ? 'task' : 'tasks'}`;

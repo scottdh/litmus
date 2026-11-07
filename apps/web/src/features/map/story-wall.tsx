@@ -516,7 +516,7 @@ export function StoryWall({
             onToggle={(id) => {
               refold(teams, flip(personas, id));
             }}
-            onRename={openDrawer}
+            onOpen={openDrawer}
             onAdd={(name) => {
               report(name, addPersona({ mapId: savedMap.id, name }), () => undefined);
             }}
