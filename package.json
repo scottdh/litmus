@@ -17,7 +17,8 @@
     "docs:check": "node tools/check-doc-paths.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "pnpm -r test",
+    "test": "pnpm -r test && pnpm test:tools",
+    "test:tools": "node --test tools/*.test.ts",
     "test:related": "pnpm --filter @litmus/core exec vitest related --run --maxWorkers=2",
     "pr": "node tools/pr.ts"
   },
