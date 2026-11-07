@@ -2,36 +2,31 @@
 import type { TeamView } from '@litmus/core';
 import { useState } from 'react';
 
-const NO_TEAM = '';
+/** "No team" on a task, and "Same as its task" on a subtask, which has no other way to have no team. */
+const NONE = '';
 
-/** Who turns this task from grey to green. A subtask shows its task's team without letting it change here. */
+/**
+ * Who turns this task from grey to green. A subtask can have a team of its own, or follow its task's, which can
+ * leave its task's light waiting on another team.
+ */
 export function TeamField({
   teams,
-  teamId,
-  inherited,
+  own,
+  following,
   onChange,
 }: {
   teams: TeamView[];
-  teamId: string | null;
-  inherited: boolean;
+  /** Set on this task or subtask. */
+  own: string | null;
+  /** For a subtask: the team it follows while it has none of its own. */
+  following: { teamId: string | null } | null;
   onChange: (teamId: string | null) => Promise<{ ok: boolean }>;
 }) {
   const [failed, setFailed] = useState(false);
   // Shows the choice at once, rather than waiting for the map to come back from the server.
-  const [shown, setShown] = useState(teamId);
-  const name = teams.find((team) => team.id === teamId)?.name ?? 'No team';
-
-  if (inherited) {
-    return (
-      <div className="flex w-full items-baseline justify-between gap-3 text-[14px] leading-snug">
-        <span className="text-[13px] text-muted">Team</span>
-        <span className="text-right">
-          {name}
-          <span className="block text-[13px] text-muted">Set on its task</span>
-        </span>
-      </div>
-    );
-  }
+  const [shown, setShown] = useState(own);
+  const nameOf = (id: string | null) => teams.find((team) => team.id === id)?.name ?? 'No team';
+  const none = following === null ? 'No team' : `Same as its task (${nameOf(following.teamId)})`;
 
   return (
     <div className="flex w-full flex-col gap-1">
@@ -42,9 +37,9 @@ export function TeamField({
         <span className="relative">
           <select
             id="drawer-team"
-            value={shown ?? NO_TEAM}
+            value={shown ?? NONE}
             onChange={(event) => {
-              const next = event.target.value === NO_TEAM ? null : event.target.value;
+              const next = event.target.value === NONE ? null : event.target.value;
               const before = shown;
               const undo = () => {
                 setShown(before);
@@ -58,7 +53,7 @@ export function TeamField({
             }}
             className="h-8 cursor-pointer appearance-none rounded-sm bg-surface ps-2 pe-7 text-base font-medium shadow-raised max-lg:h-11 lg:text-[13px]"
           >
-            <option value={NO_TEAM}>No team</option>
+            <option value={NONE}>{none}</option>
             {teams.map((team) => (
               <option key={team.id} value={team.id}>
                 {team.name}

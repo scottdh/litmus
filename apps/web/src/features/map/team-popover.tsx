@@ -5,7 +5,7 @@ import { PopoverPanel, PopoverRoot, PopoverTitle, PopoverTrigger } from '../../u
 import { AddControl } from './add-field';
 import { BUTTON } from './button-style';
 import { PickRow } from './pick-row';
-import { NO_TEAM } from './teams';
+import { NO_TEAM, teamTaskCount } from './teams';
 
 /**
  * Picks whose work to show. Any number can be picked; everything else fades, and empty chapters fold away.
@@ -28,7 +28,6 @@ export function TeamPopover({
   onAdd: (name: string) => void;
   triggerRef?: Ref<HTMLButtonElement>;
 }) {
-  const tasks = activities.flatMap((activity) => activity.tasks);
   const [open, setOpen] = useState(false);
   return (
     <PopoverRoot
@@ -56,7 +55,7 @@ export function TeamPopover({
               <li key={team.id} className="group/team flex items-center gap-1">
                 <PickRow
                   name={team.name}
-                  count={tasks.filter((task) => task.teamId === team.id).length}
+                  count={teamTaskCount(activities, team.id)}
                   pressed={pressed}
                   onToggle={() => {
                     onToggle(team.id);
@@ -81,7 +80,7 @@ export function TeamPopover({
               <PickRow
                 name="No team"
                 muted
-                count={tasks.filter((task) => task.teamId === null).length}
+                count={teamTaskCount(activities, NO_TEAM)}
                 pressed={picked.has(NO_TEAM)}
                 onToggle={() => {
                   onToggle(NO_TEAM);

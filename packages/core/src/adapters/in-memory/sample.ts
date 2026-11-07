@@ -258,6 +258,17 @@ const TASK_TEAM: Record<string, TeamId | null> = {
   'Join the waiting list': 'tm_reach' as TeamId,
 };
 
+// Subtasks another team has, so their task's light can wait on that team.
+const SUBTASK_TEAM: Record<string, TeamId> = {
+  'Filter by what’s open now': 'tm_counter' as TeamId,
+  'Say what I’ve already tried, in case it changes the quote': 'tm_bench' as TeamId,
+};
+
+const subtaskTeamFor = (subName: string): { teamId?: TeamId } => {
+  const team = SUBTASK_TEAM[subName];
+  return team ? { teamId: team } : {};
+};
+
 const teamFor = (chapter: number, taskName: string): { teamId?: TeamId } => {
   const team = taskName in TASK_TEAM ? TASK_TEAM[taskName] : CHAPTER_TEAM[chapter];
   return team ? { teamId: team } : {};
@@ -394,6 +405,7 @@ function build() {
         subtasks: detail.map(([subName, light], s) => ({
           id: rate(`${id}_${String(s)}`, light),
           name: subName,
+          ...subtaskTeamFor(subName),
           ...personasFor(a, subName, true),
           steps: stepsFor(`${id}_${String(s)}`, subName),
         })),

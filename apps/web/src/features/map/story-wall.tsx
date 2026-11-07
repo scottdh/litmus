@@ -617,9 +617,10 @@ export function StoryWall({
               toggleTask(subject.id, true);
               openDrawer(id);
             }}
-            onOpenTask={(id, chapterId) => {
+            onOpenTask={(id, chapterId, parentId) => {
               // A team's task can sit in a folded chapter, which has no rows to show it.
               if (focusing && !focus.includes(chapterId)) toggleChapter(chapterId);
+              if (parentId !== undefined) toggleTask(parentId, true);
               openDrawer(id);
             }}
             subject={subject}
@@ -638,7 +639,13 @@ export function StoryWall({
             onAssignTeam={(teamId) => assignTeam({ mapId: savedMap.id, id: subject.id, teamId })}
             onSetPersona={(personaId, on) => setPersona({ mapId: savedMap.id, id: subject.id, personaId, on })}
             onAddSubtask={(name) => {
-              report(name, addTask({ mapId: savedMap.id, name, to: { parentId: subject.id } }), () => {
+              const added = addTask({
+                mapId: savedMap.id,
+                name,
+                to: { parentId: subject.id },
+                teamId: teamForNewTask(teams),
+              });
+              report(name, added, () => {
                 toggleTask(subject.id, true);
               });
             }}

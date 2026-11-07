@@ -17,6 +17,8 @@ const sub = (id: string, personaIds: string[]): SubtaskView => ({
   name: id,
   light: 'grey',
   review: null,
+  teamId: null,
+  ownTeamId: null,
   ownPersonaIds: personaIds,
   personaIds,
   steps: [],

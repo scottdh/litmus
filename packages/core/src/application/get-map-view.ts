@@ -21,6 +21,10 @@ export interface SubtaskView {
   name: string;
   light: Light;
   review: string | null;
+  /** Its own team, or its task's when it follows it. Null when neither has one. */
+  teamId: string | null;
+  /** Null when it follows its task. */
+  ownTeamId: string | null;
   /** Set on this subtask. */
   ownPersonaIds: string[];
   /** Its own and its steps', in the map's persona order. */
@@ -110,6 +114,8 @@ export const getMapView =
             name: sub.name,
             light: lightOf(sub.id),
             review: reviewOf(sub.id),
+            teamId: sub.teamId ?? task.teamId ?? null,
+            ownTeamId: sub.teamId ?? null,
             ownPersonaIds: rollUp(sub.personaIds),
             personaIds: rollUp(sub.personaIds, ...sub.steps.map((step) => step.personaIds)),
             steps: sub.steps.map((step) => ({

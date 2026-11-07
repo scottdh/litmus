@@ -1,4 +1,4 @@
-import type { ActivityView, TaskView } from '@litmus/core';
+import type { ActivityView, SubtaskView, TaskView } from '@litmus/core';
 
 /** Picked teams are view state only: nothing about them reaches the domain. */
 export type PickedTeams = ReadonlySet<string>;
@@ -6,9 +6,23 @@ export type PickedTeams = ReadonlySet<string>;
 /** Picked like a team, to show the tasks nobody has. It can't clash with a team id, which always starts "tm_". */
 export const NO_TEAM = 'no-team';
 
-/** Outside the picked teams. Nothing fades while none is picked, and a task with no team fades unless No team is. */
+/** The task's own team and any its subtasks have, with No team for a task nobody has. */
+const teamsOf = (task: TaskView) => [task.teamId ?? NO_TEAM, ...task.subtasks.map((sub) => sub.teamId ?? NO_TEAM)];
+
+/**
+ * Outside the picked teams. Nothing fades while none is picked. A task stays if it or any of its subtasks is a
+ * picked team's, and a task with no team fades unless No team is picked.
+ */
 export const isOffTeam = (task: TaskView, picked: PickedTeams) =>
-  picked.size > 0 && !picked.has(task.teamId ?? NO_TEAM);
+  picked.size > 0 && !teamsOf(task).some((id) => picked.has(id));
+
+/** A subtask inside a task on show, whose team, its own or its task's, isn't picked. */
+export const isChildOffTeam = (sub: SubtaskView, picked: PickedTeams) =>
+  picked.size > 0 && !picked.has(sub.teamId ?? NO_TEAM);
+
+/** A task counts once for a team if it, or any of its subtasks, is theirs. */
+export const teamTaskCount = (activities: ActivityView[], teamId: string) =>
+  activities.flatMap((activity) => activity.tasks).filter((task) => teamsOf(task).includes(teamId)).length;
 
 /** The chapters to keep open: those holding any task of a picked team. */
 export const chaptersWithTeams = (activities: ActivityView[], picked: PickedTeams) =>
@@ -16,7 +30,7 @@ export const chaptersWithTeams = (activities: ActivityView[], picked: PickedTeam
     .filter((activity) => activity.tasks.some((task) => !isOffTeam(task, picked)))
     .map((activity) => activity.id);
 
-/** With one team picked, a new task is theirs, so it doesn't fade the moment it's added. */
+/** With one team picked, a new task or subtask is theirs, so it doesn't fade the moment it's added. */
 export const teamForNewTask = (picked: PickedTeams): string | null => {
   const only = picked.size === 1 ? [...picked][0] : undefined;
   return only === undefined || only === NO_TEAM ? null : only;

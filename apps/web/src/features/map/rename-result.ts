@@ -24,7 +24,7 @@ export type AddTask = (input: {
   mapId: string;
   name: string;
   to: { chapterId: string } | { parentId: string };
-  /** Only for a new top-level task. */
+  /** A new subtask given its task's team follows its task. */
   teamId?: string | null;
   /** The one picked persona, which the new task takes in the same change. */
   personaId?: string | null;

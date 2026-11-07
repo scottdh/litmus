@@ -120,7 +120,14 @@ describe('findSubject', () => {
   it('lists a subtask a team has under another team’s task, naming that task', () => {
     expect(findSubject(map, 'tm_till')).toMatchObject({
       kind: 'team',
-      chapters: [{ id: 'act_2', tasks: [{ id: 'tsk_till_part', name: 'Till part', light: 'red', under: 'Shared' }] }],
+      chapters: [
+        {
+          id: 'act_2',
+          tasks: [
+            { id: 'tsk_till_part', name: 'Till part', light: 'red', under: { id: 'tsk_shared', name: 'Shared' } },
+          ],
+        },
+      ],
     });
   });
 
