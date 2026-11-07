@@ -9,7 +9,7 @@ import {
   type TaskId,
   type TeamId,
 } from './story-map.ts';
-import { addPersona, renamePersona, setPersona, setPersonaIcon } from './persona.ts';
+import { addPersona, removePersona, renamePersona, setPersona, setPersonaIcon } from './persona.ts';
 import { moveTaskInMap } from './move.ts';
 import { assignTeam, removeTeam } from './team.ts';
 import { addTask } from './add.ts';
@@ -219,6 +219,32 @@ describe('setPersonaIcon', () => {
 
   it('refuses a persona that isn’t on the map', () => {
     expect(() => setPersonaIcon(map, 'ps_none' as PersonaId, 'star')).toThrow(
+      expect.objectContaining({ code: 'PERSONA_NOT_FOUND' }),
+    );
+  });
+});
+
+describe('removePersona', () => {
+  const everywhere = setPersona(setPersona(map, 'stp_1', DESK, true), 'stp_1', RIDER, true);
+
+  it('takes it off the map, keeping the others in order', () => {
+    expect(removePersona(map, RIDER).personas).toEqual([{ id: DESK, name: 'Front desk', icon: 'bell' }]);
+  });
+
+  it('takes it off every task, subtask and step it was on, and leaves the rest', () => {
+    const removed = removePersona(everywhere, DESK);
+    expect(task(removed, 'tsk_1')?.personaIds).toEqual([RIDER]);
+    expect(subtask(removed, 'sub_1')?.personaIds).toEqual([]);
+    expect(subtask(removed, 'sub_2')?.personaIds).toEqual([]);
+    expect(step(removed, 'stp_1')?.personaIds).toEqual([RIDER]);
+  });
+
+  it('leaves items that never had personas as they were', () => {
+    expect(task(removePersona(map, RIDER), 'tsk_2')).toEqual(task(map, 'tsk_2'));
+  });
+
+  it('refuses a persona that isn’t on the map', () => {
+    expect(() => removePersona(map, 'ps_none' as PersonaId)).toThrow(
       expect.objectContaining({ code: 'PERSONA_NOT_FOUND' }),
     );
   });
