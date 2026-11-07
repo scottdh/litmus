@@ -8,6 +8,8 @@ import { Drawer } from './drawer';
 import { describeDestination, type Destination } from './drop';
 import { chapterState, focusSummary } from './focus';
 import { KeyPopover } from './key-popover';
+import { TeamPopover } from './team-popover';
+import { chaptersWithTeams, teamForNewTask, type PickedTeams } from './teams';
 import { LightMark } from './light-mark';
 import { FILL_COLOUR, LIGHT_COPY } from './lights';
 import type { ReviewDraft } from './rating-section';
@@ -16,6 +18,7 @@ import type {
   AddResult,
   AddStep,
   AddTask,
+  AssignTeam,
   Move,
   NoteStep,
   Rate,
@@ -25,6 +28,8 @@ import type {
 import { findSubject } from './subject';
 import { useChapterFocus } from './use-chapter-focus';
 import { useTaskDrag } from './use-task-drag';
+
+const TEAM_NAMES = new Intl.ListFormat('en', { style: 'long', type: 'conjunction' });
 
 const CHAPTER_END = 'shrink-0 lg:border-l-(length:--hairline) lg:border-line lg:px-5 lg:first:border-l-0 lg:first:pl-0';
 
@@ -57,6 +62,7 @@ export function StoryWall({
   addStep,
   noteStep,
   addChapter,
+  assignTeam,
 }: {
   map: MapView;
   isSample: boolean;
@@ -68,9 +74,11 @@ export function StoryWall({
   addStep: AddStep;
   noteStep: NoteStep;
   addChapter: AddChapter;
+  assignTeam: AssignTeam;
 }) {
   const [reviewDrafts, setReviewDrafts] = useState<Record<string, ReviewDraft>>({});
   const [dim, setDim] = useState<Light | null>(null);
+  const [teams, setTeams] = useState<PickedTeams>(new Set());
   const [open, setOpen] = useState<ReadonlySet<string>>(new Set());
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
@@ -82,11 +90,32 @@ export function StoryWall({
     animate,
     toggle: toggleChapter,
     clear,
+    set: setFocus,
   } = useChapterFocus(savedMap.id, chapterIds, selectedId === null);
   const focusing = focus.length > 0;
   const expandAll = useRef<HTMLButtonElement>(null);
   const keyButton = useRef<HTMLButtonElement>(null);
-  const summary = focusSummary(map.activities, focus);
+  const teamsButton = useRef<HTMLButtonElement>(null);
+  const teamNames = map.teams.filter((team) => teams.has(team.id)).map((team) => team.name);
+  const summary =
+    teamNames.length === 0
+      ? focusSummary(map.activities, focus)
+      : chaptersWithTeams(map.activities, teams).length === 0
+        ? `${TEAM_NAMES.format(teamNames)} ${teamNames.length === 1 ? 'has' : 'have'} no tasks yet.`
+        : `Chapters without ${TEAM_NAMES.format(teamNames)}’s tasks are folded away.`;
+
+  /** Picking teams folds away every chapter they have nothing in, by setting the focus. */
+  const toggleTeam = (id: string) => {
+    const next = new Set(teams);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setTeams(next);
+    if (next.size === 0) {
+      clear();
+      return;
+    }
+    setFocus(chaptersWithTeams(map.activities, next));
+  };
   const found = selectedId === null ? null : findSubject(map, selectedId);
   // A chapter that's gone to the background has no tasks on show, so its drawer closes too.
   const subject = found && (focus.length === 0 || focus.includes(found.chapterId)) ? found : null;
@@ -315,17 +344,45 @@ export function StoryWall({
               </span>
             </button>
           )}
+          {teamNames.length > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                setTeams(new Set());
+                clear();
+                // This chip is about to disappear, so keyboard users need somewhere to land.
+                teamsButton.current?.focus();
+              }}
+              aria-label={`Stop showing only ${TEAM_NAMES.format(teamNames)}`}
+              className={`${BUTTON} flex shrink-0 items-center gap-1.5 bg-ink text-canvas`}
+            >
+              {TEAM_NAMES.format(teamNames)} only
+              <span aria-hidden="true" className="opacity-70">
+                ×
+              </span>
+            </button>
+          )}
+          {map.teams.length > 0 && (
+            <TeamPopover
+              teams={map.teams}
+              activities={map.activities}
+              picked={teams}
+              onToggle={toggleTeam}
+              triggerRef={teamsButton}
+            />
+          )}
           <KeyPopover dim={dim} onDim={setDim} isSample={isSample} triggerRef={keyButton} />
           {lastChange && (
             <button type="button" onClick={undoLastChange} className={`${BUTTON} shrink-0 shadow-raised`}>
               Undo
             </button>
           )}
-          {focusing && (
+          {(focusing || teams.size > 0) && (
             <button
               type="button"
               onClick={() => {
                 clear();
+                setTeams(new Set());
                 // This button is about to disappear, so keyboard users need somewhere to land.
                 expandAll.current?.focus();
               }}
@@ -356,6 +413,7 @@ export function StoryWall({
                 state={chapterState(focus, activity.id)}
                 animate={animate}
                 dim={dim}
+                teams={teams}
                 openTasks={open}
                 selectedId={subject?.id ?? null}
                 draggingId={dragging?.id ?? null}
@@ -367,7 +425,16 @@ export function StoryWall({
                 onToggleTask={toggleTask}
                 startAdding={newChapterId === activity.id}
                 onAddTask={(name) => {
-                  report(name, addTask({ mapId: savedMap.id, name, to: { chapterId: activity.id } }), () => undefined);
+                  report(
+                    name,
+                    addTask({
+                      mapId: savedMap.id,
+                      name,
+                      to: { chapterId: activity.id },
+                      teamId: teamForNewTask(teams),
+                    }),
+                    () => undefined,
+                  );
                 }}
               />
             </Fragment>
@@ -415,6 +482,7 @@ export function StoryWall({
               saveName(subject.id, kind, name);
             }}
             onClose={closeDrawer}
+            onAssignTeam={(teamId) => assignTeam({ mapId: savedMap.id, id: subject.id, teamId })}
             onAddSubtask={(name) => {
               report(name, addTask({ mapId: savedMap.id, name, to: { parentId: subject.id } }), () => {
                 toggleTask(subject.id, true);

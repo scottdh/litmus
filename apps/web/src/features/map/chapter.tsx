@@ -8,6 +8,7 @@ import { LightMark } from './light-mark';
 import { LIGHT_COPY, MARK_COLOUR } from './lights';
 import { MixBar } from './mix-bar';
 import { StepMark } from './step-mark';
+import { isOffTeam, type PickedTeams } from './teams';
 
 const isDimmed = (light: Light, dim: Light | null) => dim !== null && light !== dim;
 
@@ -243,6 +244,7 @@ export function Chapter({
   state,
   animate,
   dim,
+  teams,
   openTasks,
   selectedId,
   draggingId,
@@ -258,6 +260,7 @@ export function Chapter({
   state: ChapterState;
   animate: boolean;
   dim: Light | null;
+  teams: PickedTeams;
   openTasks: ReadonlySet<string>;
   selectedId: string | null;
   draggingId: string | null;
@@ -333,24 +336,31 @@ export function Chapter({
             <p className="mt-4 font-story text-[17px] text-muted">Nothing mapped here yet.</p>
           ) : (
             <ol className="mt-3">
-              {activity.tasks.map((task) => (
-                <li key={task.id} className="border-b-(length:--hairline) border-line last:border-b-0">
-                  <TaskRow
-                    task={task}
-                    open={openTasks.has(task.id)}
-                    openItems={openTasks}
-                    dim={dim}
-                    selectedId={selectedId}
-                    draggingId={draggingId}
-                    onStartDrag={onStartDrag}
-                    onOpenDrawer={onOpenDrawer}
-                    onToggle={(next) => {
-                      onToggleTask(task.id, next);
-                    }}
-                    onToggleItem={onToggleTask}
-                  />
-                </li>
-              ))}
+              {activity.tasks.map((task) => {
+                const offTeam = isOffTeam(task, teams);
+                return (
+                  <li
+                    key={task.id}
+                    className={`border-b-(length:--hairline) border-line transition-opacity duration-150 ease-out last:border-b-0 ${offTeam ? DIMMED : ''}`}
+                  >
+                    <TaskRow
+                      task={task}
+                      open={openTasks.has(task.id)}
+                      openItems={openTasks}
+                      // Already faded as a whole, so a light filter doesn't fade it twice.
+                      dim={offTeam ? null : dim}
+                      selectedId={selectedId}
+                      draggingId={draggingId}
+                      onStartDrag={onStartDrag}
+                      onOpenDrawer={onOpenDrawer}
+                      onToggle={(next) => {
+                        onToggleTask(task.id, next);
+                      }}
+                      onToggleItem={onToggleTask}
+                    />
+                  </li>
+                );
+              })}
             </ol>
           )}
           <div className="mt-1 flex min-h-10 items-center">

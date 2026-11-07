@@ -4,6 +4,7 @@ import {
   addChapterAction,
   addStepAction,
   addTaskAction,
+  assignTeamAction,
   moveAction,
   noteStepAction,
   rateAction,
@@ -28,6 +29,7 @@ export default async function HomePage() {
       addStep={addStepAction}
       noteStep={noteStepAction}
       addChapter={addChapterAction}
+      assignTeam={assignTeamAction}
     />
   );
 }

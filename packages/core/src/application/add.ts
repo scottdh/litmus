@@ -1,6 +1,6 @@
 import { notFound } from '../kernel/errors.ts';
 import { addActivity, addTask, type AddDestination } from '../domain/map/add.ts';
-import type { MapId, StoryMap, TaskId } from '../domain/map/story-map.ts';
+import type { MapId, StoryMap, TaskId, TeamId } from '../domain/map/story-map.ts';
 import type { MapRecord, MapRepository } from './ports.ts';
 
 interface Deps {
@@ -19,9 +19,9 @@ const change = async (maps: MapRepository, mapId: MapId, id: string, apply: (map
 
 export const addTaskToMap =
   ({ maps, newId }: Deps) =>
-  ({ mapId, name, to }: { mapId: MapId; name: string; to: AddDestination }) => {
+  ({ mapId, name, to, teamId = null }: { mapId: MapId; name: string; to: AddDestination; teamId?: TeamId | null }) => {
     const id = `tsk_${newId()}` as TaskId;
-    return change(maps, mapId, id, (map) => addTask(map, { id, name, to }));
+    return change(maps, mapId, id, (map) => addTask(map, { id, name, to, teamId }));
   };
 
 export const addChapter =

@@ -47,11 +47,19 @@ Shared components live in `apps/web/src/ui` and are the only place that imports 
 
 ### Header
 
-`apps/web/src/features/map/story-wall.tsx`. One hairline-ruled row: the map name, a Sample tag when the data is invented, the live status line, then the buttons. The lights aren't explained on the page, because people learn them quickly. When the map is dimmed to one light, a chip filled with that light says so and clears it. `docs/designs/header-direction.md` has the reasoning.
+`apps/web/src/features/map/story-wall.tsx`. One hairline-ruled row: the map name, a Sample tag when the data is invented, the live status line, then the buttons. The lights aren't explained on the page, because people learn them quickly. When the map is dimmed to one light, a chip filled with that light says so and clears it. Picked teams get a chip in the same way. `docs/designs/header-direction.md` has the reasoning.
 
 ### KeyPopover
 
 `apps/web/src/features/map/key-popover.tsx`. Where the lights are explained: each light and its meaning, the definition of green, and the sample notice. Each light's row also dims the map. Explain a light here, not in the header.
+
+### TeamPopover
+
+`apps/web/src/features/map/team-popover.tsx`. Shows one or more teams' tasks, opened from Teams just before Key. Each team is a checkbox row with its task count. Picking fades every other task, folds away chapters with none of theirs by setting the chapter focus, and puts a chip filled with `ink`, "Bench and Till only ×", in the header row to clear it. Teams never sort, group or colour tasks. The logic lives in `teams.ts`. `docs/designs/teams-direction.md` has the reasoning.
+
+### TeamField
+
+`apps/web/src/features/map/team-field.tsx`. A task's team, in the drawer under the name. Only top-level tasks have one; a subtask shows its task's team read-only, with "Set on its task". A change shows at once and puts the old team back if it can't be saved.
 
 ### Popover
 
@@ -67,7 +75,7 @@ Shared components live in `apps/web/src/ui` and are the only place that imports 
 
 ### Drawer
 
-`apps/web/src/features/map/drawer.tsx`. Where a task's detail lives, and where names are edited. It runs the full height of the window at the right edge, and the page makes room for it, so the map and its controls stay usable. On a phone it fills the screen. An X at the top closes it and stays in view while the drawer scrolls. It holds the name, the light and the review, and a step's name and note. Add new task detail here rather than to the row. `docs/designs/task-drawer-direction.md` has the reasoning.
+`apps/web/src/features/map/drawer.tsx`. Where a task's detail lives, and where names are edited. It runs the full height of the window at the right edge, and the page makes room for it, so the map and its controls stay usable. On a phone it fills the screen. An X at the top closes it and stays in view while the drawer scrolls. It holds the name, the team, the light and the review, and a step's name and note. Add new task detail here rather than to the row. `docs/designs/task-drawer-direction.md` has the reasoning.
 
 ### RatingSection
 

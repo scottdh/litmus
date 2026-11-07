@@ -23,9 +23,16 @@ export interface SubtaskView {
   steps: StepView[];
 }
 
+export interface TeamView {
+  id: string;
+  name: string;
+}
+
 export interface TaskView {
   id: string;
   name: string;
+  /** Null when no team has it yet. */
+  teamId: string | null;
   light: Light;
   /** Why it has this light. Always null for a task with subtasks, whose light follows from them. */
   review: string | null;
@@ -46,6 +53,7 @@ export interface MapView {
   id: string;
   name: string;
   productName: string;
+  teams: TeamView[];
   activities: ActivityView[];
 }
 
@@ -71,6 +79,7 @@ export const getMapView =
       id: record.map.id,
       name: record.map.name,
       productName: record.product.name,
+      teams: record.map.teams.map((team) => ({ id: team.id, name: team.name })),
       activities: record.map.activities.map((activity) => {
         const tasks = activity.tasks.map((task) => {
           const subtasks = task.subtasks.map((sub) => ({
@@ -84,6 +93,7 @@ export const getMapView =
           return {
             id: task.id,
             name: task.name,
+            teamId: task.teamId ?? null,
             light: subtasks.length > 0 ? deriveParentLight(subLights) : lightOf(task.id),
             review: subtasks.length > 0 ? null : reviewOf(task.id),
             earlierReview: subtasks.length > 0 ? reviewOf(task.id) : null,

@@ -11,7 +11,13 @@ function locate(map: StoryMap, id: TaskId) {
       if (task.id === id) return { task, steps: [], parentId: null };
       const sub = task.subtasks.find((other) => other.id === id);
       if (sub) {
-        const asTask: Task = { id: sub.id, name: sub.name, subtasks: [] };
+        // A subtask that becomes a task keeps the team it was working under.
+        const asTask: Task = {
+          id: sub.id,
+          name: sub.name,
+          ...(task.teamId ? { teamId: task.teamId } : {}),
+          subtasks: [],
+        };
         return { task: asTask, steps: sub.steps, parentId: task.id };
       }
     }
