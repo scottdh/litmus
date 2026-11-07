@@ -1,6 +1,13 @@
 import { invariantViolation, notFound } from '../../kernel/errors.ts';
 import { tidyName } from './rename.ts';
-import type { StoryMap, TaskId, TeamId } from './story-map.ts';
+import type { StoryMap, Task, TaskId, TeamId } from './story-map.ts';
+
+/** Takes only the team away, so everything else set on the task stays. */
+function withoutTeam(task: Task): Task {
+  const rest = { ...task };
+  delete rest.teamId;
+  return rest;
+}
 
 /** New teams go at the end of the list, with no tasks. */
 export function addTeam(map: StoryMap, input: { id: TeamId; name: string }): StoryMap {
@@ -21,12 +28,7 @@ export function removeTeam(map: StoryMap, id: TeamId): StoryMap {
     teams: map.teams.filter((team) => team.id !== id),
     activities: map.activities.map((activity) => ({
       ...activity,
-      tasks: activity.tasks.map((task) => {
-        if (task.teamId !== id) return task;
-        const rest = { ...task };
-        delete rest.teamId;
-        return rest;
-      }),
+      tasks: activity.tasks.map((task) => (task.teamId === id ? withoutTeam(task) : task)),
     })),
   };
 }
@@ -49,10 +51,7 @@ export function assignTeam(map: StoryMap, taskId: TaskId, teamId: TeamId | null)
       ...activity,
       tasks: activity.tasks.map((task) => {
         if (task.id !== taskId) return task;
-        if (teamId !== null) return { ...task, teamId };
-        const rest = { ...task };
-        delete rest.teamId;
-        return rest;
+        return teamId === null ? withoutTeam(task) : { ...task, teamId };
       }),
     })),
   };
