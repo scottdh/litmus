@@ -48,6 +48,7 @@ import type {
   UndoChange,
 } from './rename-result';
 import { isInPopover } from '../../ui/popover';
+import { UndoToast } from './undo-toast';
 import { findSubject } from './subject';
 import { useChapterFocus } from './use-chapter-focus';
 import { useTaskDrag } from './use-task-drag';
@@ -696,6 +697,12 @@ export function StoryWall({
           className={`pointer-events-none fixed z-20 rounded-sm ${indicator.kind === 'line' ? 'bg-ink' : 'outline-2 outline-ink'}`}
         />
       )}
+      <UndoToast
+        token={lastChange?.token ?? null}
+        text={lastChange?.message ?? ''}
+        onUndo={undoLastChange}
+        besideDrawer={Boolean(subject)}
+      />
     </main>
   );
 }
