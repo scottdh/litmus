@@ -6,6 +6,7 @@ const map: MapView = {
   id: 'map_1',
   name: 'A small map',
   productName: 'Thing',
+  teams: [],
   activities: [
     { id: 'act_1', name: 'First', tasks: [], mix: [] },
     {
@@ -16,6 +17,7 @@ const map: MapView = {
         {
           id: 'tsk_leaf',
           name: 'On its own',
+          teamId: 'tm_bench',
           light: 'red',
           review: 'Broken.',
           earlierReview: null,
@@ -25,6 +27,7 @@ const map: MapView = {
         {
           id: 'tsk_parent',
           name: 'With children',
+          teamId: null,
           light: 'yellow',
           review: null,
           earlierReview: null,
@@ -62,6 +65,7 @@ describe('findSubject', () => {
       name: 'On its own',
       chapterId: 'act_2',
       path: 'Chapter 2 · Second',
+      teamId: 'tm_bench',
       light: 'red',
       review: 'Broken.',
       earlierReview: null,
@@ -84,6 +88,7 @@ describe('findSubject', () => {
       name: 'A child',
       chapterId: 'act_2',
       path: 'Chapter 2 · Second · With children',
+      teamId: null,
       light: 'green',
       review: 'Fine.',
       earlierReview: null,
