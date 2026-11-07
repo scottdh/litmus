@@ -5,6 +5,7 @@ import { describeDestination, destinationFor, hoverZone, moveChoices, stepDestin
 const task = (id: string, name: string, subtasks: string[] = []) => ({
   id,
   name,
+  teamId: null,
   light: 'grey' as const,
   review: null,
   earlierReview: null,
@@ -22,6 +23,7 @@ const map: MapView = {
   id: 'map_1',
   name: 'A small map',
   productName: 'Thing',
+  teams: [],
   activities: [
     { id: 'act_1', name: 'First', mix: [], tasks: [task('a', 'A'), task('b', 'B', ['b1', 'b2']), task('c', 'C')] },
     { id: 'act_2', name: 'Second', mix: [], tasks: [task('d', 'D')] },

@@ -9,6 +9,7 @@ const stepId = (value: string) => value as StepId;
 const map: StoryMap = {
   id: 'map_1' as MapId,
   name: 'A small map',
+  teams: [],
   activities: [
     {
       id: 'act_1',

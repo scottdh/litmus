@@ -17,6 +17,7 @@ function repository(): MapRepository {
     map: {
       id: MAP_ID,
       name: 'A map',
+      teams: [],
       activities: [{ id: 'act_1', name: 'First', tasks: [{ id: 'leaf' as TaskId, name: 'Leaf', subtasks: [] }] }],
     },
     product: { id: 'prd_1' as ProductId, name: 'A product' },

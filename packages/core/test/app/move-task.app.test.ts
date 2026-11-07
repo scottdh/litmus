@@ -36,6 +36,7 @@ function repository(): MapRepository {
       map: {
         id: MAP_ID,
         name: 'A small map',
+        teams: [],
         activities: [
           {
             id: 'act_1',

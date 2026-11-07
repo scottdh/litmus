@@ -8,6 +8,7 @@ const id = (value: string) => value as TaskId;
 const map: StoryMap = {
   id: 'map_1' as MapId,
   name: 'A small map',
+  teams: [],
   activities: [
     {
       id: 'act_1',
