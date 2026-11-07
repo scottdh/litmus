@@ -3,7 +3,9 @@ import { describe, expect, it } from 'vitest';
 import {
   NO_TEAM,
   chaptersWithTeams,
+  isChildOffTeam,
   isOffTeam,
+  teamTaskCount,
   teamChipLabel,
   teamForNewTask,
   teamSummary,
@@ -21,6 +23,21 @@ const task = (id: string, teamId: string | null): TaskView => ({
   earlierReview: null,
   subtasks: [],
   mix: [],
+});
+
+const withSubtasks = (parent: TaskView, subTeamIds: (string | null)[]): TaskView => ({
+  ...parent,
+  subtasks: subTeamIds.map((own, index) => ({
+    id: `${parent.id}_${String(index)}`,
+    name: 'Sub',
+    light: 'grey',
+    review: null,
+    teamId: own ?? parent.teamId,
+    ownTeamId: own,
+    ownPersonaIds: [],
+    personaIds: [],
+    steps: [],
+  })),
 });
 
 const chapter = (id: string, tasks: TaskView[]): ActivityView => ({ id, name: id, tasks, mix: [] });
@@ -42,6 +59,36 @@ describe('isOffTeam', () => {
     expect(isOffTeam(task('a', 'bench'), picked)).toBe(false);
     expect(isOffTeam(task('c', 'till'), picked)).toBe(true);
     expect(isOffTeam(task('b', null), picked)).toBe(true);
+  });
+});
+
+describe('a subtask with a team of its own', () => {
+  const shared = withSubtasks(task('e', 'bench'), [null, 'till']);
+
+  it('shows its task when its team is picked', () => {
+    expect(isOffTeam(shared, new Set(['till']))).toBe(false);
+    expect(isOffTeam(shared, new Set(['bench']))).toBe(false);
+    expect(isOffTeam(shared, new Set(['reach']))).toBe(true);
+  });
+
+  it('fades inside a task on show when its team isn’t picked', () => {
+    const [following, own] = shared.subtasks;
+    if (!following || !own) throw new Error('missing subtasks');
+    expect(isChildOffTeam(own, new Set())).toBe(false);
+    expect(isChildOffTeam(own, new Set(['bench']))).toBe(true);
+    expect(isChildOffTeam(following, new Set(['bench']))).toBe(false);
+    expect(isChildOffTeam(following, new Set(['till']))).toBe(true);
+  });
+
+  it('counts its task for its team, once however many subtasks it has there', () => {
+    const tasks = [chapter('act_1', [shared, withSubtasks(task('f', null), ['till', 'till'])])];
+    expect(teamTaskCount(tasks, 'till')).toBe(2);
+    expect(teamTaskCount(tasks, 'bench')).toBe(1);
+    expect(teamTaskCount(tasks, NO_TEAM)).toBe(1);
+  });
+
+  it('keeps its chapter open', () => {
+    expect(chaptersWithTeams([chapter('act_9', [shared])], new Set(['till']))).toEqual(['act_9']);
   });
 });
 
