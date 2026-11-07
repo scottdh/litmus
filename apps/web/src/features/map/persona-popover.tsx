@@ -5,7 +5,7 @@ import { PopoverPanel, PopoverRoot, PopoverTitle, PopoverTrigger } from '../../u
 import { BUTTON } from './button-style';
 import { PersonaGlyph } from './persona-icon';
 import { personaTaskCount } from './personas';
-import { PickRow } from './team-popover';
+import { PickRow } from './pick-row';
 
 /** Picks whose work to show. Any number can be picked; everything else fades, and empty chapters fold away. */
 export function PersonaPopover({
