@@ -20,7 +20,7 @@ In the drawer:
 
 Chapters:
 
-- A chapter's click is taken by focus, so a Rename action opens the same drawer, with the name selected.
+- A chapter's click is taken by focus, so an Open link opens the same drawer, with the name selected. It said Rename until the team drawer outgrew the name (`teams-direction.md`, section 10).
 - Chapters on rails can't be renamed until they're focused.
 
 The drawer runs the full height of the window at the right edge, as it did in the prototype, and slides in. The page makes room for it, so the light controls stay reachable. On a phone it fills the screen.

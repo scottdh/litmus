@@ -43,7 +43,7 @@ A subtask's drawer shows the same row read-only: the team's name, and "Set on it
 Built in #37, as proposed.
 
 - **Add team** sits at the end of the Teams popover and works like every other add: a field appears where the team will, Enter adds, Esc gives up, and the add gets the usual Undo in the row.
-- **Rename** shows on each team's row in the popover, like Rename on a chapter: on hover or focus with a mouse, and always on a phone. It opens the team in the drawer, because the drawer is where names are edited. The team drawer holds the name, and lists the team's tasks under their chapters, each opening its own drawer, and adding its chapter back to the focus if it was folded. A team with no tasks says "No tasks yet. Give a task to Bench from its drawer." That makes the drawer a team's overview as well as where it's renamed.
+- **Rename** (now **Open**, see section 10) shows on each team's row in the popover, like Rename on a chapter: on hover or focus with a mouse, and always on a phone. It opens the team in the drawer, because the drawer is where names are edited. The team drawer holds the name, and lists the team's tasks under their chapters, each opening its own drawer, and adding its chapter back to the focus if it was folded. A team with no tasks says "No tasks yet. Give a task to Bench from its drawer." That makes the drawer a team's overview as well as where it's renamed.
 - Esc in the Add team field ends only the field, and the popover stays open.
 
 ## 7. Build split
@@ -60,5 +60,13 @@ Built in #37, as proposed.
 ## 9. Decided in #40 and built in #41 and #42
 
 - **Removing a team** is a **Remove team** button at the foot of the team drawer, under "Its tasks stay on the map and lose their team." It has no confirmation, because Undo brings back the team and every assignment in one step. A removed team that was picked stops being picked, and the focus is recomputed from what's left.
-- **No team** is a last row in the Teams popover, with its count and no Rename. It filters like a team and shares the chip: "No team only ×" and "Till and No team ×", with the chip wording from #48 otherwise. With only No team picked, a new task gets no team.
+- **No team** is a last row in the Teams popover, with its count and no Open. It filters like a team and shares the chip: "No team only ×" and "Till and No team ×", with the chip wording from #48 otherwise. With only No team picked, a new task gets no team.
 - **The Teams button now shows with no teams.** Removing the last team would otherwise leave no way to add another. With none, the popover holds only Add team.
+
+## 10. Open, not Rename
+
+Decided by Scott on 2026-11-07, once the team drawer could remove a team as well as rename it.
+
+- The link on a team's row, and on a chapter, says **Open**, and its accessible name is "Open Bench". It names where you go, not one thing you can do there, so it stays true as the drawer gains more. Personas follow when their drawer lands (#53).
+- Rejected: **View**, which suggests read-only; **More**, which suggests a menu; **Details**, which suggests information rather than somewhere to act; **Manage**, which is heavier than the product's voice; and a bare **›**, which rows already use for opening subtasks.
+- From the same design pass: Remove team ignores clicks while it saves, the status line calls tasks with no team "unowned" ("Chapters without Till's tasks or unowned ones are folded away."), and with no teams the popover says "No teams yet".
