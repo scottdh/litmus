@@ -7,8 +7,15 @@ export type Subject =
       id: string;
       name: string;
       path: string;
-      /** Only chapters holding the team's tasks, in story order. */
-      chapters: { id: string; name: string; tasks: { id: string; name: string; light: Light }[] }[];
+      /**
+       * Only chapters holding the team's tasks, in story order. A subtask the team has under another team's task
+       * is listed in its task's place, with `under` for that task.
+       */
+      chapters: {
+        id: string;
+        name: string;
+        tasks: { id: string; name: string; light: Light; under?: { id: string; name: string } }[];
+      }[];
     }
   | { kind: 'chapter'; id: string; name: string; chapterId: string; path: string }
   | { kind: 'step'; id: string; name: string; note: string; chapterId: string; path: string; personaIds: string[] }
@@ -18,8 +25,12 @@ export type Subject =
       name: string;
       chapterId: string;
       path: string;
-      /** A subtask shows its task's team, because that's where it's set. */
+      /** The team it's under: a subtask's own, or its task's when it follows it. */
       teamId: string | null;
+      /** Set on this one. Null for a subtask that follows its task. */
+      ownTeamId: string | null;
+      /** The team a subtask follows when it has none of its own. Always null for a task. */
+      taskTeamId: string | null;
       /** Set on this one. */
       ownPersonaIds: string[];
       /** Its own and everything beneath it. */
@@ -40,9 +51,18 @@ export function findSubject(map: MapView, id: string): Subject | null {
       .map((chapter) => ({
         id: chapter.id,
         name: chapter.name,
-        tasks: chapter.tasks
-          .filter((task) => task.teamId === id)
-          .map((task) => ({ id: task.id, name: task.name, light: task.light })),
+        tasks: chapter.tasks.flatMap((task) =>
+          task.teamId === id
+            ? [{ id: task.id, name: task.name, light: task.light }]
+            : task.subtasks
+                .filter((sub) => sub.ownTeamId === id)
+                .map((sub) => ({
+                  id: sub.id,
+                  name: sub.name,
+                  light: sub.light,
+                  under: { id: task.id, name: task.name },
+                })),
+        ),
       }))
       .filter((chapter) => chapter.tasks.length > 0);
     return { kind: 'team', id, name: team.name, path: 'Team', chapters };
@@ -61,6 +81,8 @@ export function findSubject(map: MapView, id: string): Subject | null {
           chapterId: chapter.id,
           path: `${place} · ${chapter.name}`,
           teamId: task.teamId,
+          ownTeamId: task.teamId,
+          taskTeamId: null,
           ownPersonaIds: task.ownPersonaIds,
           personaIds: task.personaIds,
           light: task.light,
@@ -78,7 +100,9 @@ export function findSubject(map: MapView, id: string): Subject | null {
             name: sub.name,
             chapterId: chapter.id,
             path: `${place} · ${chapter.name} · ${task.name}`,
-            teamId: task.teamId,
+            teamId: sub.teamId,
+            ownTeamId: sub.ownTeamId,
+            taskTeamId: task.teamId,
             ownPersonaIds: sub.ownPersonaIds,
             personaIds: sub.personaIds,
             light: sub.light,

@@ -10,7 +10,7 @@ import { MixBar } from './mix-bar';
 import { PersonaName } from './persona-icon';
 import { StepMark } from './step-mark';
 import { isChildOffPersona, isOffPick, type PickedPersonas } from './personas';
-import type { PickedTeams } from './teams';
+import { isChildOffTeam, type PickedTeams } from './teams';
 
 const isDimmed = (light: Light, dim: Light | null) => dim !== null && light !== dim;
 
@@ -151,6 +151,7 @@ function SubtaskRow({
 function TaskRow({
   task,
   personas,
+  pickedTeams,
   pickedPersonas,
   faded,
   open,
@@ -165,6 +166,7 @@ function TaskRow({
 }: {
   task: TaskView;
   personas: PersonaView[];
+  pickedTeams: PickedTeams;
   pickedPersonas: PickedPersonas;
   /** Already faded as a whole, so its subtasks and steps don't fade twice. */
   faded: boolean;
@@ -233,7 +235,9 @@ function TaskRow({
       <DisclosurePanel>
         <ol className="mb-2 ml-6">
           {task.subtasks.map((sub) => {
-            const subFaded = isDimmed(sub.light, dim) || (!faded && isChildOffPersona(sub.personaIds, pickedPersonas));
+            const subFaded =
+              isDimmed(sub.light, dim) ||
+              (!faded && (isChildOffTeam(sub, pickedTeams) || isChildOffPersona(sub.personaIds, pickedPersonas)));
             return (
               <li
                 key={sub.id}
@@ -389,6 +393,7 @@ export function Chapter({
                   >
                     <TaskRow
                       personas={personas}
+                      pickedTeams={teams}
                       pickedPersonas={pickedPersonas}
                       faded={offTeam}
                       task={task}

@@ -57,7 +57,8 @@ export function Drawer({
   reviewDraft: ReviewDraft | null;
   onReviewDraft: (draft: ReviewDraft | null) => void;
   onOpenChild: (id: string) => void;
-  onOpenTask: (id: string, chapterId: string) => void;
+  /** `parentId` is set for a subtask, so its row can be on show. */
+  onOpenTask: (id: string, chapterId: string, parentId?: string) => void;
   subject: Subject;
   onDraft: (name: string) => void;
   onSave: (name: string) => void;
@@ -116,8 +117,8 @@ export function Drawer({
         <TeamField
           key={`team-${subject.id}`}
           teams={map.teams}
-          teamId={subject.teamId}
-          inherited={subject.kind === 'subtask'}
+          own={subject.ownTeamId}
+          following={subject.kind === 'subtask' ? { teamId: subject.taskTeamId } : null}
           onChange={onAssignTeam}
         />
       )}
@@ -261,7 +262,7 @@ export function Drawer({
                       <button
                         type="button"
                         onClick={() => {
-                          onOpenTask(task.id, chapter.id);
+                          onOpenTask(task.id, chapter.id, task.under?.id);
                         }}
                         className="group/row flex min-h-9 w-full cursor-pointer items-start gap-2 py-2 text-left text-[14px] leading-snug text-pretty max-lg:min-h-11"
                       >
@@ -269,8 +270,13 @@ export function Drawer({
                           <LightMark light={task.light} className="size-3" />
                           <span className="sr-only">{LIGHT_COPY[task.light].label}: </span>
                         </span>
-                        <span className="underline decoration-transparent decoration-from-font underline-offset-2 transition-[text-decoration-color] duration-150 ease-out group-hover/row:decoration-current">
-                          {task.name}
+                        <span>
+                          <span className="underline decoration-transparent decoration-from-font underline-offset-2 transition-[text-decoration-color] duration-150 ease-out group-hover/row:decoration-current">
+                            {task.name}
+                          </span>
+                          {task.under && (
+                            <span className="block text-[13px] text-muted">Subtask of {task.under.name}</span>
+                          )}
                         </span>
                       </button>
                     </li>

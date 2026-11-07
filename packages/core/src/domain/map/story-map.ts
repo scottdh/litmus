@@ -40,6 +40,8 @@ export interface Step {
 export interface Subtask {
   id: TaskId;
   name: string;
+  /** Only when a different team has it. Without one, it follows its task's team. */
+  teamId?: TeamId;
   personaIds?: PersonaId[];
   steps: Step[];
 }
@@ -47,7 +49,7 @@ export interface Subtask {
 export interface Task {
   id: TaskId;
   name: string;
-  /** Only top-level tasks have a team. Their subtasks share it. */
+  /** Its subtasks follow it, unless they have a team of their own. */
   teamId?: TeamId;
   /** Only the ones set on this task. Its subtasks' and steps' personas roll up to it in the view. */
   personaIds?: PersonaId[];

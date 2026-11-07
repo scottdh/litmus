@@ -1,5 +1,6 @@
 import { invariantViolation, notFound } from '../../kernel/errors.ts';
 import type { StoryMap, Subtask, Task, TaskId } from './story-map.ts';
+import { withTeam } from './team.ts';
 
 /** Where a task lands. `before` names the sibling it goes in front of, and null means the end. */
 export type MoveDestination =
@@ -11,14 +12,11 @@ function locate(map: StoryMap, id: TaskId) {
       if (task.id === id) return { task, steps: [], parentId: null };
       const sub = task.subtasks.find((other) => other.id === id);
       if (sub) {
-        // A subtask that becomes a task keeps the team it was working under.
-        const asTask: Task = {
-          id: sub.id,
-          name: sub.name,
-          ...(task.teamId ? { teamId: task.teamId } : {}),
-          ...(sub.personaIds ? { personaIds: sub.personaIds } : {}),
-          subtasks: [],
-        };
+        // A subtask that becomes a task keeps the team it was working under, its own or its task's.
+        const asTask = withTeam<Task>(
+          { id: sub.id, name: sub.name, ...(sub.personaIds ? { personaIds: sub.personaIds } : {}), subtasks: [] },
+          sub.teamId ?? task.teamId ?? null,
+        );
         return { task: asTask, steps: sub.steps, parentId: task.id };
       }
     }
@@ -72,12 +70,16 @@ export function moveTaskInMap(
           subtasks: landing
             ? insert(
                 subtasks,
-                {
-                  id,
-                  name: found.task.name,
-                  ...(found.task.personaIds ? { personaIds: found.task.personaIds } : {}),
-                  steps: found.steps,
-                },
+                withTeam<Subtask>(
+                  {
+                    id,
+                    name: found.task.name,
+                    ...(found.task.personaIds ? { personaIds: found.task.personaIds } : {}),
+                    steps: found.steps,
+                  },
+                  found.task.teamId ?? null,
+                  task.teamId,
+                ),
                 to.before,
               )
             : subtasks,

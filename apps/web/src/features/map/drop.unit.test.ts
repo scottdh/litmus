@@ -17,6 +17,8 @@ const task = (id: string, name: string, subtasks: string[] = []) => ({
     name: sub.toUpperCase(),
     light: 'grey' as const,
     review: null,
+    teamId: null,
+    ownTeamId: null,
     ownPersonaIds: [],
     personaIds: [],
     steps: [] as { id: string; name: string; note: string; personaIds: string[] }[],
