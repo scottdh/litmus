@@ -55,11 +55,11 @@ Shared components live in `apps/web/src/ui` and are the only place that imports 
 
 ### TeamPopover
 
-`apps/web/src/features/map/team-popover.tsx`. Shows one or more teams' tasks, opened from Teams just before Key. Each team is a checkbox row with its task count. Picking fades every other task, folds away chapters with none of theirs by setting the chapter focus, and puts a chip filled with `ink` in the header row to clear it. The chip says "only" for one team ("Till only ×"), and drops it for more: "Bench and Till ×", "3 teams ×", or "All teams ×". It's also where teams are added, with Add team at the end of the list, and where Rename on a row opens that team in the drawer. Esc in the Add team field ends only the field. Picking teams never reorders tasks, and teams have no colour. The logic lives in `teams.ts`. `docs/designs/teams-direction.md` has the reasoning.
+`apps/web/src/features/map/team-popover.tsx`. Shows one or more teams' tasks, opened from Teams just before Key. Each team is a checkbox row with its task count, and a last "No team" row, with no Rename, picks the tasks nobody has; it counts as one more pick in the chip ("No team only ×", "Till and No team ×"). With no teams at all, the popover holds only Add team. Picking fades every other task, folds away chapters with none of theirs by setting the chapter focus, and puts a chip filled with `ink` in the header row to clear it. The chip says "only" for one team ("Till only ×"), and drops it for more: "Bench and Till ×", "3 teams ×", or "All teams ×". It's also where teams are added, with Add team at the end of the list, and where Rename on a row opens that team in the drawer. Esc in the Add team field ends only the field. Picking teams never reorders tasks, and teams have no colour. The logic lives in `teams.ts`. `docs/designs/teams-direction.md` has the reasoning.
 
 ### TeamField
 
-`apps/web/src/features/map/team-field.tsx`. A task's team, in the drawer under the name. Only top-level tasks have one; a subtask shows its task's team read-only, with "Set on its task". A change shows at once and puts the old team back if it can't be saved.
+`apps/web/src/features/map/team-field.tsx`. A task's team, in the drawer under the name, with "No team" for none. Only top-level tasks have one; a subtask shows its task's team read-only, with "Set on its task". A change shows at once and puts the old team back if it can't be saved.
 
 ### Popover
 
@@ -75,7 +75,7 @@ Shared components live in `apps/web/src/ui` and are the only place that imports 
 
 ### Drawer
 
-`apps/web/src/features/map/drawer.tsx`. Where a task's detail lives, and where names are edited. It runs the full height of the window at the right edge, and the page makes room for it, so the map and its controls stay usable. On a phone it fills the screen. An X at the top closes it and stays in view while the drawer scrolls. It holds the name, the team, the light and the review, a step's name and note, and a team's name with its tasks under their chapters. Add new task detail here rather than to the row. `docs/designs/task-drawer-direction.md` has the reasoning.
+`apps/web/src/features/map/drawer.tsx`. Where a task's detail lives, and where names are edited. It runs the full height of the window at the right edge, and the page makes room for it, so the map and its controls stay usable. On a phone it fills the screen. An X at the top closes it and stays in view while the drawer scrolls. It holds the name, the team, the light and the review, a step's name and note, and a team's name with its tasks under their chapters and a Remove team button, which keeps the tasks and clears their team, with the usual Undo. Add new task detail here rather than to the row. `docs/designs/task-drawer-direction.md` has the reasoning.
 
 ### RatingSection
 

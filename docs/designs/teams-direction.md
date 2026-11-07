@@ -14,7 +14,7 @@ This settles part of open conflict 2: an earlier version of the idea assigned wo
 
 ## 2. In the drawer
 
-A task's drawer has a **Team** row under the name: the label "Team" in `muted` 13 px, and a select on the right with "No team yet" and each team. A change saves at once and shows at once. If it fails, the old team comes back with "That team couldn't be saved, so it hasn't changed."
+A task's drawer has a **Team** row under the name: the label "Team" in `muted` 13 px, and a select on the right with "No team" and each team. A change saves at once and shows at once. If it fails, the old team comes back with "That team couldn't be saved, so it hasn't changed."
 
 A subtask's drawer shows the same row read-only: the team's name, and "Set on its task" under it in `muted` 13 px. Steps and chapters show no team.
 
@@ -53,6 +53,12 @@ Built in #37, as proposed.
 
 ## 8. Questions for Scott
 
-1. **Removing a team.** Recommend allowing it from the team drawer, with its tasks going back to "No team yet" and the usual Undo. The alternative is to leave removal out until real maps need it.
-2. **Finding tasks nobody has.** Recommend a "No team yet" row at the end of the Teams popover, so a squad can find work nobody owns. The alternative is to leave it to the drawer.
+1. **Removing a team.** Recommend allowing it from the team drawer, with its tasks going back to "No team" and the usual Undo. The alternative is to leave removal out until real maps need it.
+2. **Finding tasks nobody has.** Recommend a "No team" row at the end of the Teams popover, so a squad can find work nobody owns. The alternative is to leave it to the drawer.
 3. **Showing the team on the row.** Recommend not, because the row is reading-first and the drawer already says it. The alternative is a `muted` name under the task when no teams are picked.
+
+## 9. Decided in #40 and built in #41 and #42
+
+- **Removing a team** is a **Remove team** button at the foot of the team drawer, under "Its tasks stay on the map and lose their team." It has no confirmation, because Undo brings back the team and every assignment in one step. A removed team that was picked stops being picked, and the focus is recomputed from what's left.
+- **No team** is a last row in the Teams popover, with its count and no Rename. It filters like a team and shares the chip: "No team only ×" and "Till and No team ×", with the chip wording from #48 otherwise. With only No team picked, a new task gets no team.
+- **The Teams button now shows with no teams.** Removing the last team would otherwise leave no way to add another. With none, the popover holds only Add team.
