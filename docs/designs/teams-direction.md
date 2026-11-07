@@ -70,3 +70,10 @@ Decided by Scott on 2026-11-07, once the team drawer could remove a team as well
 - The link on a team's row, and on a chapter, says **Open**, and its accessible name is "Open Bench". It names where you go, not one thing you can do there, so it stays true as the drawer gains more. Personas follow when their drawer lands (#53).
 - Rejected: **View**, which suggests read-only; **More**, which suggests a menu; **Details**, which suggests information rather than somewhere to act; **Manage**, which is heavier than the product's voice; and a bare **›**, which rows already use for opening subtasks.
 - From the same design pass: Remove team ignores clicks while it saves, the status line calls tasks with no team "unowned" ("Chapters without Till's tasks or unowned ones are folded away."), and with no teams the popover says "No teams yet".
+
+## 11. No team is muted, and the hairline stays
+
+Decided by Scott on 2026-11-07, after the design pass on #59.
+
+- The **No team** row's name is `muted`, so it reads as a different kind of row from the teams above it, not a team called "No team". Its checkbox and count are the same as every row's, and it filters the same.
+- The **hairline above Remove team** stays. It sets the one destructive action apart from the fields above it.
