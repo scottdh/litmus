@@ -11,6 +11,7 @@ All tokens live in `apps/web/src/app/globals.css`. Lint rejects hardcoded colour
 | Use                                          | Token                                                     |
 | -------------------------------------------- | --------------------------------------------------------- |
 | Page, raised surface                         | `canvas`, `surface`                                       |
+| Hover and the selected row on the page       | `sunken`, with `shadow-current` for the selected row      |
 | Text, secondary text                         | `ink`, `muted`                                            |
 | Dividers                                     | `line`, at `--hairline` width                             |
 | A light drawn on the page, as a mark or bar  | `mark-green`, `mark-yellow`, `mark-red`, `mark-grey`      |
@@ -19,7 +20,7 @@ All tokens live in `apps/web/src/app/globals.css`. Lint rejects hardcoded colour
 | Out of scope                                 | The `hatch` utility with `muted` text                     |
 | Elevation                                    | `shadow-raised`, which becomes a single ring in dark mode |
 
-Every `on-light-*` is at least 4.5:1 on its fill. Every `mark-*` is at least 3:1 on `canvas` and `surface`, and `danger` at least 4.5:1. Recheck if you change any of them. `danger` stays text on the quiet button, because a red fill would read as a red light, like the "Red only" chip.
+Every `on-light-*` is at least 4.5:1 on its fill. Every `mark-*` is at least 3:1 on `canvas`, `surface` and `sunken`, and `danger` at least 4.5:1. Recheck if you change any of them. `danger` stays text on the quiet button, because a red fill would read as a red light, like the "Red only" chip.
 
 ## Type
 
@@ -40,7 +41,7 @@ Names are never truncated in the Story view.
 
 ## Motion
 
-Hover and press take 150 ms `ease-out`; list the properties, because lint bans `transition-all`. Press scales to 0.96. Panels fade in with opacity and never animate height. The drawer is the exception: it slides in from the right with `--motion-focus`. Chapter focus uses `--motion-focus`, 240 ms. It's the one place a width animates, which is allowed because task text sits in a fixed-width box and nothing reflows. `globals.css` handles reduced motion.
+Hover goes a shade darker: a raised control or a popover row dips from `surface` to `canvas`, and a row on the page, which is already `canvas`, dips to `sunken`. Hover and press take 150 ms `ease-out`; list the properties, because lint bans `transition-all`. Press scales to 0.96. Panels fade in with opacity and never animate height. The drawer is the exception: it slides in from the right with `--motion-focus`. Chapter focus uses `--motion-focus`, 240 ms. It's the one place a width animates, which is allowed because task text sits in a fixed-width box and nothing reflows. `globals.css` handles reduced motion.
 
 ## Components
 
@@ -90,7 +91,7 @@ Esc inside any popover only closes it: page-wide Esc handlers skip events from i
 
 ### Chapter
 
-`apps/web/src/features/map/chapter.tsx`. One activity in the story, in one of three states: at rest, focused, or in the background. In the background it shows only its number and name, because that's all a squad needs to add it to the focus. Don't show tasks or health there. A row opens the drawer, and only the chevron and mix bar expand subtasks. A subtask's chevron and count expand its steps in the same way. `docs/designs/focus-direction.md` has the reasoning.
+`apps/web/src/features/map/chapter.tsx`. One activity in the story, in one of three states: at rest, focused, or in the background. In the background it shows only its number and name, because that's all a squad needs to add it to the focus. Don't show tasks or health there. A row opens the drawer, and only the chevron and mix bar expand subtasks. A row fills with `sunken` on hover, reaching 6 px past its text so nothing moves, and keeps the fill with the `shadow-current` ring while its drawer is open. The expand control fills on its own, as a separate target. Nothing fills while a row is dragged. Names aren't underlined: a fill shows the whole target, and goes darker like every other control. Surface (lighter) and an `ink` tint (darker in light, lighter in dark) were tried and rejected. A subtask's chevron and count expand its steps in the same way. `docs/designs/focus-direction.md` has the reasoning.
 
 ### Drawer
 
