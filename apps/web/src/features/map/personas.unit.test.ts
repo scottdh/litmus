@@ -1,12 +1,15 @@
-import type { ActivityView, SubtaskView, TaskView } from '@litmus/core';
+import type { ActivityView, PersonaView, SubtaskView, TaskView } from '@litmus/core';
 import { describe, expect, it } from 'vitest';
 import {
   chaptersWithPicks,
   isChildOffPersona,
   isOffPick,
   isOffPersona,
+  personaByline,
   personaChipLabel,
   personaForNewTask,
+  personaSourceLine,
+  personaSources,
   personaSummary,
   personaTaskCount,
   removePersonaWarning,
@@ -178,5 +181,60 @@ describe('removePersonaWarning', () => {
 
   it('says so when it isn’t on any tasks', () => {
     expect(removePersonaWarning(0)).toBe('It isn’t on any tasks. You can undo this.');
+  });
+});
+
+describe('personaSources', () => {
+  it('lists, for each persona set further down, the children it comes from in their order', () => {
+    const sources = personaSources([
+      { name: 'Check the bike in', personaIds: ['desk'] },
+      { name: 'Look the bike over', personaIds: ['mech'] },
+      { name: 'Price the repair', personaIds: ['desk', 'mech'] },
+      { name: 'Wash the bike', personaIds: [] },
+    ]);
+    expect([...sources]).toEqual([
+      ['desk', ['Check the bike in', 'Price the repair']],
+      ['mech', ['Look the bike over', 'Price the repair']],
+    ]);
+  });
+
+  it('is empty with nothing beneath', () => {
+    expect(personaSources([]).size).toBe(0);
+  });
+});
+
+describe('personaSourceLine', () => {
+  it('names the one child it comes from', () => {
+    expect(personaSourceLine(['Check the bike in'], 'subtasks')).toBe('From Check the bike in');
+  });
+
+  it('counts two or more, as subtasks or steps', () => {
+    expect(personaSourceLine(['A', 'B'], 'subtasks')).toBe('From 2 subtasks');
+    expect(personaSourceLine(['A', 'B', 'C'], 'steps')).toBe('From 3 steps');
+  });
+});
+
+describe('personaByline', () => {
+  const personas: PersonaView[] = [
+    { id: 'rider', name: 'Rider', icon: 'person' },
+    { id: 'desk', name: 'Front desk', icon: 'bell' },
+    { id: 'mech', name: 'Mechanic', icon: 'wrench' },
+  ];
+  const names = (list: PersonaView[]) => list.map((persona) => persona.name);
+
+  it('splits its own from those set further down, each in the map’s order', () => {
+    const line = personaByline(personas, ['mech', 'rider'], new Map([['desk', ['Check the bike in']]]));
+    expect(names(line.own)).toEqual(['Rider', 'Mechanic']);
+    expect(names(line.below)).toEqual(['Front desk']);
+  });
+
+  it('counts one set here and further down as further down, since it can’t be cleared here', () => {
+    const line = personaByline(personas, ['desk'], new Map([['desk', ['Check the bike in']]]));
+    expect(line.own).toEqual([]);
+    expect(names(line.below)).toEqual(['Front desk']);
+  });
+
+  it('is empty with nothing set', () => {
+    expect(personaByline(personas, [], new Map())).toEqual({ own: [], below: [] });
   });
 });
