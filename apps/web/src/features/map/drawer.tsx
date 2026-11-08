@@ -18,7 +18,7 @@ import { removeTeamWarning } from './teams';
 import { RatingSection, type ReviewDraft } from './rating-section';
 import type { Rate, RenameResult } from './rename-result';
 import { StepMark } from './step-mark';
-import { TeamField } from './team-field';
+import { TeamLine } from './team-line';
 import type { Subject } from './subject';
 
 const LABEL: Record<Subject['kind'], string> = {
@@ -163,23 +163,23 @@ export function Drawer({
             onChange={onSetPersona}
           />
         )}
+        {isTask && (
+          <TeamLine
+            key={`team-${subject.id}`}
+            teams={map.teams}
+            own={subject.ownTeamId}
+            following={subject.kind === 'subtask' ? { teamId: subject.taskTeamId } : null}
+            onChange={onAssignTeam}
+          />
+        )}
         {subject.kind === 'persona' && (
           <PersonaIconField key={`icon-${subject.id}`} icon={subject.icon} onChange={onSetPersonaIcon} />
         )}
       </div>
 
-      {/* Its team, light or note, and where it sits. */}
+      {/* Its light or note, and where it sits. */}
       {(isTask || subject.kind === 'step') && (
         <div className="flex w-full flex-col items-start gap-4">
-          {isTask && (
-            <TeamField
-              key={`team-${subject.id}`}
-              teams={map.teams}
-              own={subject.ownTeamId}
-              following={subject.kind === 'subtask' ? { teamId: subject.taskTeamId } : null}
-              onChange={onAssignTeam}
-            />
-          )}
           {subject.kind === 'step' && (
             <>
               <NoteField key={`note-${subject.id}`} id={subject.id} value={subject.note} onSave={onNote} />
