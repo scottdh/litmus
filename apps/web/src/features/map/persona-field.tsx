@@ -1,6 +1,7 @@
 'use client';
 import type { PersonaView } from '@litmus/core';
 import { useState } from 'react';
+import { RAISED } from './button-style';
 import { PersonaGlyph } from './persona-icon';
 
 /**
@@ -66,7 +67,7 @@ export function PersonaField({
               onClick={() => {
                 toggle(persona.id);
               }}
-              className={`flex h-8 cursor-pointer items-center gap-1.5 rounded-sm ps-2 pe-2.5 text-[13px] font-medium transition-[background-color,color,box-shadow,scale] duration-150 ease-out active:scale-[0.96] max-lg:h-11 ${pressed ? 'bg-ink text-canvas' : 'text-muted shadow-raised hover:text-ink'}`}
+              className={`flex h-8 cursor-pointer items-center gap-1.5 rounded-sm ps-2 pe-2.5 text-[13px] font-medium transition-[background-color,color,box-shadow,scale] duration-150 ease-out active:scale-[0.96] max-lg:h-11 ${pressed ? 'bg-ink text-canvas' : `${RAISED} text-muted hover:text-ink`}`}
             >
               <PersonaGlyph icon={persona.icon} />
               {persona.name}

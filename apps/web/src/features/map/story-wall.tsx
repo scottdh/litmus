@@ -2,7 +2,7 @@
 import type { Light, MapView } from '@litmus/core';
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AddField } from './add-field';
-import { BUTTON } from './button-style';
+import { BUTTON, RAISED } from './button-style';
 import { Chapter } from './chapter';
 import { Drawer } from './drawer';
 import { describeDestination, type Destination } from './drop';
@@ -532,7 +532,7 @@ export function StoryWall({
           />
           <KeyPopover dim={dim} onDim={setDim} isSample={isSample} triggerRef={keyButton} />
           {lastChange && (
-            <button type="button" onClick={undoLastChange} className={`${BUTTON} shrink-0 shadow-raised`}>
+            <button type="button" onClick={undoLastChange} className={`${BUTTON} ${RAISED} shrink-0`}>
               Undo
             </button>
           )}
@@ -546,12 +546,12 @@ export function StoryWall({
                 // This button is about to disappear, so keyboard users need somewhere to land.
                 expandAll.current?.focus();
               }}
-              className={`${BUTTON} shrink-0 shadow-raised`}
+              className={`${BUTTON} ${RAISED} shrink-0`}
             >
               Show the whole story
             </button>
           )}
-          <button ref={expandAll} type="button" onClick={toggleAll} className={`${BUTTON} shrink-0 shadow-raised`}>
+          <button ref={expandAll} type="button" onClick={toggleAll} className={`${BUTTON} ${RAISED} shrink-0`}>
             {allOpen ? 'Collapse all' : 'Expand all'}
           </button>
         </div>
@@ -610,7 +610,7 @@ export function StoryWall({
               onClick={() => {
                 setNewChapterBefore(null);
               }}
-              className={`${BUTTON} shadow-raised`}
+              className={`${BUTTON} ${RAISED}`}
             >
               Add chapter
             </button>

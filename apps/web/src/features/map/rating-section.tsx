@@ -1,7 +1,7 @@
 'use client';
 import { LIGHTS, needsEvidence, type Light } from '@litmus/core';
 import { useRef, useState, type ReactNode } from 'react';
-import { BUTTON, ICON_BUTTON } from './button-style';
+import { BUTTON, ICON_BUTTON, RAISED } from './button-style';
 import { LightMark } from './light-mark';
 import { FILL_COLOUR, LIGHT_COPY, MARK_COLOUR } from './lights';
 import type { Rate } from './rename-result';
@@ -142,7 +142,7 @@ export function RatingSection({
               onClick={() => {
                 void save();
               }}
-              className={`${BUTTON} shadow-raised aria-disabled:cursor-not-allowed aria-disabled:text-muted`}
+              className={`${BUTTON} ${RAISED} aria-disabled:cursor-not-allowed aria-disabled:text-muted`}
             >
               {draft.light === light ? 'Save review' : `Set to ${LIGHT_COPY[draft.light].label.toLowerCase()}`}
             </button>

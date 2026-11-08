@@ -421,7 +421,7 @@ export function Chapter({
               label={`New task in ${activity.name}`}
               placeholder="Task name"
               startOpen={startAdding}
-              buttonClassName="-ms-2 text-muted hover:text-ink max-lg:h-11"
+              buttonClassName="-ms-2 text-muted hover:text-ink"
               fieldClassName="py-2 text-base leading-[1.35] lg:text-[15px]"
               onAdd={onAddTask}
             />
