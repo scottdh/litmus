@@ -104,6 +104,8 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
+    /* Controls give their own press feedback, so the browser's grey tap flash goes. */
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
