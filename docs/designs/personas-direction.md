@@ -54,11 +54,13 @@ The sample uses Rider (person), Front desk (bell), Mechanic (wrench), Stock keep
 
 ### 4.4 In the drawer
 
-`apps/web/src/features/map/persona-field.tsx`. Under Team for tasks and subtasks, and under the name for steps:
+`apps/web/src/features/map/persona-byline.tsx`, with the logic in `personas.ts`. Personas are set once and rarely changed, so they read as a fact about the item rather than a form field (section 10). Under the name of a task, subtask or step:
 
-- The label "Personas" in `muted` 13 px.
-- One toggle button per persona, wrapping: the icon, then the name, 13 px medium, 32 px tall (44 px on a phone). When it's on, it's filled with `ink` and the text is `canvas`. When it's off, it's `muted` with `shadow-raised`. Each click saves straight away and shows at once. If the save fails, the button goes back and this appears: "That persona couldn't be saved, so it hasn't changed."
-- Under the buttons, in `muted` 13 px: "Also from its subtasks:" (on a task) or "Also from its steps:" (on a subtask). Then each rolled-up persona that isn't set here, with its icon and name in `ink`. These aren't buttons, because they're set further down. Steps have nothing beneath them, so they show no such line.
+- A **byline** in `muted` 13 px, which is a button. Its own personas come first, each with its icon, in `ink`. Personas set further down follow on their own line, then "from its subtasks" (on a task) or "from its steps" (on a subtask). Lists use "and" before the last name. With none, it reads "Add personas" after a plus.
+- It opens a popover under it, aligned to its start: one checkbox row per persona in the map's order, with the icon, the name and a check. Each click saves straight away and shows at once. If the save fails, the tick goes back and this appears under the byline: "That persona couldn't be saved, so it hasn't changed."
+- A persona set further down is **ticked, greyed and locked**. Under its name: "From Check the bike in" for one child, or "From 2 subtasks" / "From 2 steps". When any are locked, a hairline note ends the popover: "Greyed ticks are set on its subtasks. Change them there." (or "its steps").
+- A persona set here and further down shows as locked, because it can't be cleared here. What's saved is unchanged, so it shows as this item's own again if it comes off the child.
+- No personas on the map: no byline.
 - In the drawer, the lists of subtasks and steps show each child's icons after its name.
 
 ### 4.5 Showing a persona's tasks
@@ -115,3 +117,11 @@ Built in #68, following Remove team and the rule for changes that lose data (tea
 - The persona drawer ends with a hairline and **Remove persona**, under "It comes off every task, subtask and step it's on." The button asks first, in the same popover as Remove team: "Remove Rider?", then "It comes off 9 tasks, which stay on the map. You can undo this." Cancel is focused.
 - The count is the Personas popover's: a task counts if it, or any of its subtasks or steps, has the persona. So it matches the popover and the drawer's list. Counting every item it's set on directly was rejected, because that number appears nowhere else.
 - Confirming takes the persona off the map and off every task, subtask and step, in one change, closes the drawer and shows the Undo toast. Undo brings it all back. A removed persona that was picked stops being picked.
+
+## 10. Setting personas in the drawer
+
+Decided from a prototype of four directions on 2026-11-08 (#78).
+
+- **Direction:** a byline under the name that opens a checklist popover. Personas are set-and-forget, so they take no raised controls in the drawer.
+- **Inherited personas** show once, as ticked and locked with where they come from, instead of a second "Also from its subtasks" line that repeated them and left them selectable above.
+- Rejected: **the wrap of toggle buttons** (section 4.4 before this), two or three rows of controls for something rarely changed. **A Team-style row** ("Personas · 4 personas ⌄"), which matched Team but hid the names behind icons and a count once three or more were set. **Icon-only toggles** beside the label, which kept one-click editing but needed a caption to say whose icons they were and stacked to two rows on a phone.
