@@ -1,7 +1,8 @@
 'use client';
 import type { MapView } from '@litmus/core';
-import { ICON_BUTTON, RAISED } from './button-style';
-import { SELECT, SelectChevron } from './select-chevron';
+import { Button } from '../../ui/button';
+import { SELECT } from '../../ui/control';
+import { SelectChevron } from './select-chevron';
 import { moveChoices, stepDestination, type Destination } from './drop';
 
 const STEPS = [
@@ -16,16 +17,16 @@ export function MoveArrows({ map, id, onMove }: { map: MapView; id: string; onMo
       {STEPS.map(({ label, step, path }) => {
         const to = stepDestination(map, id, step);
         return (
-          <button
+          <Button
             key={label}
-            type="button"
             aria-label={label}
             title={label}
             aria-disabled={to === null}
             onClick={() => {
               if (to) onMove(to);
             }}
-            className={`${ICON_BUTTON} ${RAISED} aria-disabled:cursor-not-allowed aria-disabled:text-muted`}
+            variant="raised"
+            shape="icon"
           >
             <svg
               aria-hidden="true"
@@ -39,7 +40,7 @@ export function MoveArrows({ map, id, onMove }: { map: MapView; id: string; onMo
             >
               <path d={path} />
             </svg>
-          </button>
+          </Button>
         );
       })}
     </div>
@@ -49,14 +50,14 @@ export function MoveArrows({ map, id, onMove }: { map: MapView; id: string; onMo
 /** With the arrows, reaches everything dragging can. */
 export function MoveTo({ map, id, onMove }: { map: MapView; id: string; onMove: (to: Destination) => void }) {
   return (
-    <span className="relative w-full">
+    <span className="relative max-lg:w-full">
       <select
         aria-label="Move to"
         value=""
         onChange={(event) => {
           if (event.target.value !== '') onMove(JSON.parse(event.target.value) as Destination);
         }}
-        className={`${SELECT} w-full`}
+        className={`${SELECT} max-lg:w-full lg:[field-sizing:content]`}
       >
         <option value="">Move to…</option>
         {moveChoices(map, id).map((group) => (

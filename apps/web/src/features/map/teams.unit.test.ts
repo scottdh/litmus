@@ -11,6 +11,8 @@ import {
   teamSummary,
   picksStillOnMap,
   removeTeamWarning,
+  teamChoices,
+  teamLine,
 } from './teams';
 
 const task = (id: string, teamId: string | null): TaskView => ({
@@ -212,5 +214,53 @@ describe('removeTeamWarning', () => {
 
   it('says so when the team has no tasks', () => {
     expect(removeTeamWarning(0)).toBe('It has no tasks. You can undo this.');
+  });
+});
+
+describe('teamLine', () => {
+  const teams = [
+    { id: 'tm_desk', name: 'Front of house' },
+    { id: 'tm_bench', name: 'Workshop' },
+  ];
+
+  it('names a team set on the item itself', () => {
+    expect(teamLine(teams, 'tm_bench', null)).toEqual({ name: 'Workshop', followed: false });
+    expect(teamLine(teams, 'tm_bench', { teamId: 'tm_desk' })).toEqual({ name: 'Workshop', followed: false });
+  });
+
+  it('names the task’s team for a subtask that follows it', () => {
+    expect(teamLine(teams, null, { teamId: 'tm_desk' })).toEqual({ name: 'Front of house', followed: true });
+  });
+
+  it('says a following subtask has no team when its task has none', () => {
+    expect(teamLine(teams, null, { teamId: null })).toEqual({ name: null, followed: true });
+  });
+
+  it('has no team for a task with none', () => {
+    expect(teamLine(teams, null, null)).toEqual({ name: null, followed: false });
+  });
+});
+
+describe('teamChoices', () => {
+  const teams = [
+    { id: 'tm_desk', name: 'Front of house' },
+    { id: 'tm_bench', name: 'Workshop' },
+  ];
+
+  it('offers No team first on a task', () => {
+    expect(teamChoices(teams, null)).toEqual([
+      { id: null, name: 'No team' },
+      { id: 'tm_desk', name: 'Front of house' },
+      { id: 'tm_bench', name: 'Workshop' },
+    ]);
+  });
+
+  it('offers Same as its task first on a subtask, naming the task’s team', () => {
+    expect(teamChoices(teams, { teamId: 'tm_bench' })[0]).toEqual({
+      id: null,
+      name: 'Same as its task',
+      note: 'Workshop',
+    });
+    expect(teamChoices(teams, { teamId: null })[0]).toEqual({ id: null, name: 'Same as its task', note: 'No team' });
   });
 });

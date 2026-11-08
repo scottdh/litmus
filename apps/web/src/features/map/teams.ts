@@ -1,4 +1,4 @@
-import type { ActivityView, SubtaskView, TaskView } from '@litmus/core';
+import type { ActivityView, SubtaskView, TaskView, TeamView } from '@litmus/core';
 
 /** Picked teams are view state only: nothing about them reaches the domain. */
 export type PickedTeams = ReadonlySet<string>;
@@ -77,3 +77,25 @@ export const removeTeamWarning = (taskCount: number) => {
   if (taskCount === 1) return 'Its 1 task stays on the map and loses its team. You can undo this.';
   return `Its ${String(taskCount)} tasks stay on the map and lose their team. You can undo this.`;
 };
+
+/** For a subtask: the team it follows while it has none of its own. Null on a task. */
+export type Following = { teamId: string | null } | null;
+
+const teamName = (teams: TeamView[], id: string | null) => teams.find((team) => team.id === id)?.name ?? null;
+
+/** What the team line names: the item's own team, or for a subtask with none, its task's. */
+export const teamLine = (teams: TeamView[], own: string | null, following: Following) =>
+  own === null && following !== null
+    ? { name: teamName(teams, following.teamId), followed: true }
+    : { name: teamName(teams, own), followed: false };
+
+/** The pick-one list. A subtask has no separate "No team": with none of its own it follows its task. */
+export const teamChoices = (
+  teams: TeamView[],
+  following: Following,
+): { id: string | null; name: string; note?: string }[] => [
+  following === null
+    ? { id: null, name: 'No team' }
+    : { id: null, name: 'Same as its task', note: teamName(teams, following.teamId) ?? 'No team' },
+  ...teams.map((team) => ({ id: team.id, name: team.name })),
+];

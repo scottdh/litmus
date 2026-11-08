@@ -1,5 +1,6 @@
 'use client';
 import { useLayoutEffect, useRef, useState } from 'react';
+import { LINE_FIELD } from '../../ui/control';
 
 const isBlank = (text: string) => text.trim() === '';
 
@@ -34,7 +35,8 @@ export function NameField({
 
   useLayoutEffect(() => {
     const element = field.current;
-    if (!element) return;
+    // On a touch screen focus would raise the keyboard over the drawer, so the name waits for a tap.
+    if (!element || window.matchMedia('(pointer: coarse)').matches) return;
     element.focus({ preventScroll: true });
     if (selectOnFocus) element.select();
     else element.setSelectionRange(element.value.length, element.value.length);
@@ -60,7 +62,7 @@ export function NameField({
         aria-label={label}
         aria-invalid={blankAttempt}
         aria-describedby={blankAttempt ? 'name-field-error' : undefined}
-        className={`block w-full resize-none overflow-hidden rounded-[2px] bg-transparent shadow-[0_1px_0_0_var(--line)] aria-invalid:outline-2 aria-invalid:outline-offset-2 aria-invalid:outline-mark-red ${className}`}
+        className={`${LINE_FIELD} ${className}`}
         onChange={(event) => {
           const next = event.target.value;
           setDraft(next);

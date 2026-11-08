@@ -11,6 +11,7 @@ All tokens live in `apps/web/src/app/globals.css`. Lint rejects hardcoded colour
 | Use                                          | Token                                                     |
 | -------------------------------------------- | --------------------------------------------------------- |
 | Page, raised surface                         | `canvas`, `surface`                                       |
+| Hover and the selected row on the page       | `sunken`, with `shadow-current` for the selected row      |
 | Text, secondary text                         | `ink`, `muted`                                            |
 | Dividers                                     | `line`, at `--hairline` width                             |
 | A light drawn on the page, as a mark or bar  | `mark-green`, `mark-yellow`, `mark-red`, `mark-grey`      |
@@ -19,7 +20,7 @@ All tokens live in `apps/web/src/app/globals.css`. Lint rejects hardcoded colour
 | Out of scope                                 | The `hatch` utility with `muted` text                     |
 | Elevation                                    | `shadow-raised`, which becomes a single ring in dark mode |
 
-Every `on-light-*` is at least 4.5:1 on its fill. Every `mark-*` is at least 3:1 on `canvas` and `surface`, and `danger` at least 4.5:1. Recheck if you change any of them. `danger` stays text on the quiet button, because a red fill would read as a red light, like the "Red only" chip.
+Every `on-light-*` is at least 4.5:1 on its fill. Every `mark-*` is at least 3:1 on `canvas`, `surface` and `sunken`, and `danger` at least 4.5:1. Recheck if you change any of them. `danger` stays text on the quiet button, because a red fill would read as a red light, like the "Red only" chip.
 
 ## Type
 
@@ -40,11 +41,26 @@ Names are never truncated in the Story view.
 
 ## Motion
 
-Hover and press take 150 ms `ease-out`; list the properties, because lint bans `transition-all`. Press scales to 0.96. Panels fade in with opacity and never animate height. The drawer is the exception: it slides in from the right with `--motion-focus`. Chapter focus uses `--motion-focus`, 240 ms. It's the one place a width animates, which is allowed because task text sits in a fixed-width box and nothing reflows. `globals.css` handles reduced motion.
+Hover goes a shade darker: a raised control or a popover row dips from `surface` to `canvas`, and a row on the page, which is already `canvas`, dips to `sunken`. Hover and press take 150 ms `ease-out`; list the properties, because lint bans `transition-all`. Press scales to 0.96. Panels fade in with opacity and never animate height. The drawer is the exception: it slides in from the right with `--motion-focus`. Chapter focus uses `--motion-focus`, 240 ms. It's the one place a width animates, which is allowed because task text sits in a fixed-width box and nothing reflows. `globals.css` handles reduced motion.
 
 ## Components
 
 Shared components live in `apps/web/src/ui` and are the only place that imports Base UI. Product components live in `apps/web/src/features/map`.
+
+### Buttons and fields
+
+`apps/web/src/ui/button.tsx` and `apps/web/src/ui/control.ts`. A button is `<Button variant shape>`, which defaults to `type="button"` and passes every other prop and the ref through. A Base UI trigger (`PopoverTrigger`, `PopoverClose`) takes the same classes from `button({ variant, shape })` on its `className`. `variant` is required, and every variant but `fill` carries its own hover, so a button can't ship without one. `className` takes only layout (`shrink-0`, `flex gap-1.5`, a margin) or a text colour such as `text-danger`. Never hand-roll a button's surface, ring or hover. A new variant goes in `control.ts`, and its test checks it has a hover.
+
+| Variant  | For                                                                            | Hover                      |
+| -------- | ------------------------------------------------------------------------------ | -------------------------- |
+| `raised` | Any button with a job: Save, Add step, Key, the move arrows, an unpicked light | `surface` dips to `canvas` |
+| `quiet`  | A secondary action with no surface: Cancel, Add task under a chapter           | `muted` text goes to `ink` |
+| `fill`   | A control filled with its meaning: the picked light, a header chip, Remove     | None; press still scales   |
+| `on-ink` | Text on the `ink` toast                                                        | The underline goes solid   |
+
+A `fill` stays put on hover because a darker light reads as a different light. A `raised` button with `aria-disabled` goes `muted` and stops reacting to hover and press, so don't add disabled styles at the call site. `shape="icon"` is the 32 px square, 44 px tall on a phone.
+
+Fields: `SELECT` for a dropdown (with `SelectChevron`), `TEXT_BOX` for a boxed note or review, and `LINE_FIELD` for a name written where it lives on the page. A `LINE_FIELD` shows focus by turning its rule `ink`, not with the outline, because opening a drawer focuses the name. Field labels are 13 px `muted`; a message that something couldn't be saved is `ink`. A tile that's really a radio, like the persona icons, uses `RAISED` on its label. Rows (a task, a pick row in a popover) aren't buttons in this sense; they fill as `Motion` describes.
 
 ### Header
 
@@ -68,9 +84,9 @@ Shared components live in `apps/web/src/ui` and are the only place that imports 
 
 Esc inside any popover only closes it: page-wide Esc handlers skip events from inside one (`isInPopover` in `apps/web/src/ui/popover.tsx`), so picks, the chapter focus and the drawer stay.
 
-### TeamField
+### TeamLine
 
-`apps/web/src/features/map/team-field.tsx`. A task's or subtask's team, in the drawer under the name. A task offers "No team"; a subtask offers "Same as its task (Bench)" instead, which follows its task. A change shows at once and puts the old team back if it can't be saved.
+`apps/web/src/features/map/team-line.tsx`. Who turns a task or subtask from grey to green, as a `muted` 13 px line under its personas, because a team changes about once a year. A small two-heads mark comes first, drawn like the persona glyphs and spaced like one, so the two lines start together. A team set on the item is in `ink`; a subtask with none of its own reads "Bench, same as its task", all `muted`, like personas set further down. With no team it reads "Add a team". The line opens a pick-one list: "No team" on a task, "Same as its task" with the task's team under it on a subtask, then each team. A pick shows at once, saves at once and closes the list; if it can't be saved the old team comes back with "That team couldn't be saved, so it hasn't changed." The list is a radio group, so Tab stops once and the arrows move.
 
 ### Persona icons
 
@@ -78,7 +94,7 @@ Esc inside any popover only closes it: page-wide Esc handlers skip events from i
 
 ### PersonaByline
 
-`apps/web/src/features/map/persona-byline.tsx`. Who carries out a task, subtask or step, as a `muted` 13 px line under its name, because personas are set once and rarely changed. Its own personas come first in `ink`, then those set further down "from its subtasks" or "from its steps". With none it reads "Add personas". A `muted` chevron, the one dropdowns use, ends the line and is kept on one line with the last word, because a phone has no hover to show the line opens anything. The line opens a checklist popover where any number can be ticked; a change shows at once and saves at once, and if it can't be saved the tick goes back with "That persona couldn't be saved, so it hasn't changed." Personas set further down are ticked, greyed and locked there, saying which subtask or step they come from, because that's where they're changed. Show a locked choice like this rather than listing it a second time. With no personas on the map, the line doesn't show.
+`apps/web/src/features/map/persona-byline.tsx`. Who carries out a task, subtask or step, as a `muted` 13 px line under its name, because personas are set once and rarely changed. Its own personas come first in `ink`, then those set further down "from its subtasks" or "from its steps". With none it reads "Add personas". The line opens a checklist popover where any number can be ticked; a change shows at once and saves at once, and if it can't be saved the tick goes back with "That persona couldn't be saved, so it hasn't changed." Personas set further down are ticked, greyed and locked there, saying which subtask or step they come from, because that's where they're changed. Show a locked choice like this rather than listing it a second time. With no personas on the map, the line doesn't show.
 
 ### Popover
 
@@ -90,11 +106,11 @@ Esc inside any popover only closes it: page-wide Esc handlers skip events from i
 
 ### Chapter
 
-`apps/web/src/features/map/chapter.tsx`. One activity in the story, in one of three states: at rest, focused, or in the background. In the background it shows only its number and name, because that's all a squad needs to add it to the focus. Don't show tasks or health there. A row opens the drawer, and only the chevron and mix bar expand subtasks. A subtask's chevron and count expand its steps in the same way. `docs/designs/focus-direction.md` has the reasoning.
+`apps/web/src/features/map/chapter.tsx`. One activity in the story, in one of three states: at rest, focused, or in the background. In the background it shows only its number and name, because that's all a squad needs to add it to the focus. Don't show tasks or health there. A row opens the drawer, and only the line under a task's name (its mix bar, "4 subtasks" and chevron) expands subtasks; it sits under the name so a long name gets the full width. A row fills with `sunken` on hover, reaching 6 px past its text so nothing moves, and keeps the fill with the `shadow-current` ring while its drawer is open. The expand control fills on its own, as a separate target. Nothing fills while a row is dragged. Names aren't underlined: a fill shows the whole target, and goes darker like every other control. Surface (lighter) and an `ink` tint (darker in light, lighter in dark) were tried and rejected. A subtask's chevron and count expand its steps in the same way. `docs/designs/focus-direction.md` has the reasoning.
 
 ### Drawer
 
-`apps/web/src/features/map/drawer.tsx`. Where a task's detail lives, and where names are edited. It runs the full height of the window at the right edge, and the page makes room for it, so the map and its controls stay usable. On a phone it fills the screen. An X at the top closes it and stays in view while the drawer scrolls. It holds the name, the team, the personas, the light and the review, a step's name and note, a persona's name, its icon and the tasks it rolls up to under their chapters, and a team's name with its tasks under their chapters. A team's drawer ends with Remove team and a persona's with Remove persona. Both ask in a popover on the button (`RemoveConfirm`), then keep the tasks and clear the team or persona from them, with the usual Undo. Add new task detail here rather than to the row. `docs/designs/task-drawer-direction.md` has the reasoning.
+`apps/web/src/features/map/drawer.tsx`. Where a task's detail lives, and where names are edited. It runs the full height of the window at the right edge, and the page makes room for it, so the map and its controls stay usable. On a phone it fills the screen. An X at the top closes it and stays in view while the drawer scrolls. It holds the name, the team, the personas, the light and the review, a step's name and note, a persona's name, its icon and the tasks it rolls up to under their chapters, and a team's name with its tasks under their chapters. A team's drawer ends with Remove team and a persona's with Remove persona. Both ask in a popover on the button (`RemoveConfirm`), then keep the tasks and clear the team or persona from them, with the usual Undo. It reads in groups, 24 px apart: what it is (name, personas, a persona's icon), then its team, light or note with the move arrows and Move to, then, under a hairline, what's under it (subtasks or steps, and Add). A row in the drawer that opens something dips from `surface` to `canvas` on hover, like a popover row, and its mark sits centred on the first line; it's `DrawerRow`, so don't copy the markup. On a phone the name isn't focused on opening, so the keyboard doesn't cover the drawer. Add new task detail here rather than to the row. `docs/designs/task-drawer-direction.md` has the reasoning.
 
 ### RatingSection
 

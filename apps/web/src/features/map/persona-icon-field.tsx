@@ -1,7 +1,7 @@
 'use client';
 import { PERSONA_ICONS, type PersonaIcon } from '@litmus/core';
 import { useState } from 'react';
-import { RAISED } from './button-style';
+import { RAISED } from '../../ui/control';
 import { PersonaGlyph } from './persona-icon';
 
 /** A persona's icon, picked from the fixed set. A change shows at once and saves at once. */
@@ -55,7 +55,7 @@ export function PersonaIconField({
         ))}
       </div>
       {failed && (
-        <p role="alert" className="text-[13px] text-pretty text-muted">
+        <p role="alert" className="text-[13px] leading-snug text-pretty">
           That icon couldn’t be saved, so it hasn’t changed.
         </p>
       )}

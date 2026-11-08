@@ -1,9 +1,7 @@
 'use client';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { BUTTON } from './button-style';
-
-const FIELD =
-  'block w-full scroll-mx-6 resize-none overflow-hidden rounded-[2px] bg-transparent shadow-[0_1px_0_0_var(--line)] placeholder:text-muted';
+import { Button } from '../../ui/button';
+import { LINE_FIELD, type Variant } from '../../ui/control';
 
 /**
  * A name that doesn't exist yet. Enter adds it, Esc gives up, and leaving adds anything typed.
@@ -50,7 +48,7 @@ export function AddField({
       aria-label={label}
       enterKeyHint={keepGoing ? 'next' : 'done'}
       placeholder={placeholder}
-      className={`${FIELD} ${className}`}
+      className={`${LINE_FIELD} scroll-mx-6 ${className}`}
       onChange={(event) => {
         setDraft(event.target.value);
       }}
@@ -81,12 +79,13 @@ export function AddField({
   );
 }
 
-/** A quiet button that becomes an AddField, and takes focus back when that's done by key. */
+/** A button that becomes an AddField, and takes focus back when that's done by key. */
 export function AddControl({
   action,
   label,
   placeholder,
   startOpen = false,
+  variant,
   buttonClassName = '',
   fieldClassName = '',
   onAdd,
@@ -95,12 +94,14 @@ export function AddControl({
   label: string;
   placeholder: string;
   startOpen?: boolean;
+  variant: Variant;
+  /** Layout only; the variant carries the colour and hover. */
   buttonClassName?: string;
   fieldClassName?: string;
   onAdd: (name: string) => void;
 }) {
   const [adding, setAdding] = useState(false);
-  const button = useRef<HTMLButtonElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
   const refocus = useRef(false);
 
   useEffect(() => {
@@ -108,7 +109,7 @@ export function AddControl({
   }, [startOpen]);
 
   useLayoutEffect(() => {
-    if (!adding && refocus.current) button.current?.focus();
+    if (!adding && refocus.current) trigger.current?.focus();
     refocus.current = false;
   }, [adding]);
 
@@ -128,15 +129,15 @@ export function AddControl({
     );
   }
   return (
-    <button
-      ref={button}
-      type="button"
+    <Button
+      ref={trigger}
       onClick={() => {
         setAdding(true);
       }}
-      className={`${BUTTON} ${buttonClassName}`}
+      variant={variant}
+      className={buttonClassName}
     >
       {action}
-    </button>
+    </Button>
   );
 }

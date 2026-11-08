@@ -1,7 +1,8 @@
 'use client';
 import { LIGHTS, needsEvidence, type Light } from '@litmus/core';
 import { useRef, useState, type ReactNode } from 'react';
-import { BUTTON, ICON_BUTTON, RAISED } from './button-style';
+import { Button } from '../../ui/button';
+import { TEXT_BOX } from '../../ui/control';
 import { LightMark } from './light-mark';
 import { FILL_COLOUR, LIGHT_COPY, MARK_COLOUR } from './lights';
 import type { Rate } from './rename-result';
@@ -71,9 +72,8 @@ export function RatingSection({
           {LIGHTS.map((option) => {
             const chosen = option === shown;
             return (
-              <button
+              <Button
                 key={option}
-                type="button"
                 aria-label={LIGHT_COPY[option].label}
                 title={LIGHT_COPY[option].label}
                 aria-pressed={chosen}
@@ -83,10 +83,12 @@ export function RatingSection({
                   onDraft({ light: option, note: draft?.note ?? '' });
                   requestAnimationFrame(() => field.current?.focus());
                 }}
-                className={`${ICON_BUTTON} ${chosen ? FILL_COLOUR[option] : `shadow-[inset_0_0_0_1px_var(--line)] ${MARK_COLOUR[option]}`}`}
+                variant={chosen ? 'fill' : 'raised'}
+                shape="icon"
+                className={chosen ? FILL_COLOUR[option] : MARK_COLOUR[option]}
               >
                 <LightMark light={option} />
-              </button>
+              </Button>
             );
           })}
         </div>
@@ -98,7 +100,7 @@ export function RatingSection({
         review !== null && <p className="text-[14px] leading-snug text-pretty whitespace-pre-wrap">{review}</p>
       ) : (
         <>
-          <label className="flex w-full flex-col gap-1 text-[13px]" htmlFor={`review-${id}`}>
+          <label className="text-[13px] text-muted" htmlFor={`review-${id}`}>
             Review
           </label>
           <textarea
@@ -123,7 +125,7 @@ export function RatingSection({
                 finish();
               }
             }}
-            className="block min-h-[4.5em] w-full resize-y rounded-sm bg-canvas p-2 text-base leading-snug shadow-[inset_0_0_0_1px_var(--line)] [field-sizing:content] aria-invalid:outline-2 aria-invalid:outline-offset-2 aria-invalid:outline-mark-red lg:text-[14px]"
+            className={TEXT_BOX}
           />
           {tried && missing && (
             <p id={`review-${id}-error`} role="alert" className="text-[13px] leading-snug">
@@ -136,19 +138,18 @@ export function RatingSection({
             </p>
           )}
           <div className="flex items-center gap-2">
-            <button
-              type="button"
+            <Button
               aria-disabled={missing || saving}
               onClick={() => {
                 void save();
               }}
-              className={`${BUTTON} ${RAISED} aria-disabled:cursor-not-allowed aria-disabled:text-muted`}
+              variant="raised"
             >
               {draft.light === light ? 'Save review' : `Set to ${LIGHT_COPY[draft.light].label.toLowerCase()}`}
-            </button>
-            <button type="button" onClick={finish} className={`${BUTTON} text-muted hover:text-ink`}>
+            </Button>
+            <Button onClick={finish} variant="quiet">
               Cancel
-            </button>
+            </Button>
           </div>
         </>
       )}

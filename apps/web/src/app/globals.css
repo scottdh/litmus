@@ -3,11 +3,12 @@
 /*
  * Tokens. Theme switches by flipping these variables, so components never use `dark:` for colour.
  * Light pairs are checked for contrast: every on-light token is at least 4.5:1 on its fill,
- * and every mark token is at least 3:1 on the canvas and surface.
+ * and every mark token is at least 3:1 on the canvas, surface and sunken.
  */
 :root {
   --canvas: oklch(0.975 0.006 85);
   --surface: oklch(0.995 0.003 85);
+  --sunken: oklch(0.95 0.007 85);
   --ink: oklch(0.24 0.012 85);
   --muted: oklch(0.47 0.012 85);
   --line: oklch(0.24 0.012 85 / 0.12);
@@ -45,6 +46,7 @@
   :root {
     --canvas: oklch(0.17 0.006 85);
     --surface: oklch(0.215 0.007 85);
+    --sunken: oklch(0.135 0.006 85);
     --ink: oklch(0.93 0.006 85);
     --muted: oklch(0.72 0.008 85);
     --line: oklch(0.32 0.007 85);
@@ -72,6 +74,7 @@
 @theme inline {
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
+  --color-sunken: var(--sunken);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-line: var(--line);
@@ -91,6 +94,7 @@
   --font-sans: var(--font-instrument-sans);
   --font-story: var(--font-newsreader);
   --shadow-raised: var(--elevation-raised);
+  --shadow-current: inset 0 0 0 var(--hairline) var(--line);
   --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
