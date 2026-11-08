@@ -8,7 +8,7 @@ import type { Destination } from './drop';
 import { MoveArrows, MoveTo } from './move-section';
 import { NameField } from './name-field';
 import { NoteField } from './note-field';
-import { PersonaField } from './persona-field';
+import { PersonaByline } from './persona-byline';
 import { PersonaIconField } from './persona-icon-field';
 import { PersonaName } from './persona-icon';
 import { RemoveConfirm } from './remove-confirm';
@@ -120,6 +120,17 @@ export function Drawer({
           onFinish={onClose}
         />
       </div>
+      {(subject.kind === 'task' || subject.kind === 'subtask' || subject.kind === 'step') &&
+        map.personas.length > 0 && (
+          <PersonaByline
+            key={`personas-${subject.id}`}
+            personas={map.personas}
+            own={subject.kind === 'step' ? subject.personaIds : subject.ownPersonaIds}
+            below={subject.kind === 'task' ? subject.subtasks : subject.kind === 'subtask' ? subject.steps : []}
+            noun={subject.kind === 'task' ? 'subtasks' : 'steps'}
+            onChange={onSetPersona}
+          />
+        )}
       {subject.kind === 'persona' && (
         <PersonaIconField key={`icon-${subject.id}`} icon={subject.icon} onChange={onSetPersonaIcon} />
       )}
@@ -132,17 +143,6 @@ export function Drawer({
           onChange={onAssignTeam}
         />
       )}
-      {(subject.kind === 'task' || subject.kind === 'subtask' || subject.kind === 'step') &&
-        map.personas.length > 0 && (
-          <PersonaField
-            key={`personas-${subject.id}`}
-            personas={map.personas}
-            own={subject.kind === 'step' ? subject.personaIds : subject.ownPersonaIds}
-            rolled={subject.personaIds}
-            from={subject.kind === 'task' ? 'its subtasks' : subject.kind === 'subtask' ? 'its steps' : null}
-            onChange={onSetPersona}
-          />
-        )}
       {subject.kind === 'step' && (
         <>
           <NoteField key={`note-${subject.id}`} id={subject.id} value={subject.note} onSave={onNote} />

@@ -1,4 +1,4 @@
-import type { ActivityView, TaskView } from '@litmus/core';
+import type { ActivityView, PersonaView, TaskView } from '@litmus/core';
 import { isOffTeam, type PickedTeams } from './teams';
 
 /** Picked personas are view state only: nothing about them reaches the domain. */
@@ -66,3 +66,29 @@ export const removePersonaWarning = (taskCount: number) => {
   if (taskCount === 1) return 'It comes off 1 task, which stays on the map. You can undo this.';
   return `It comes off ${String(taskCount)} tasks, which stay on the map. You can undo this.`;
 };
+
+/** For each persona set on a subtask or step beneath, the names of those it comes from, in their order. */
+export const personaSources = (children: { name: string; personaIds: string[] }[]) => {
+  const sources = new Map<string, string[]>();
+  for (const child of children) {
+    for (const id of child.personaIds) sources.set(id, [...(sources.get(id) ?? []), child.name]);
+  }
+  return sources;
+};
+
+/** Under a persona that's locked on in the drawer's checklist, because it's set further down. */
+export const personaSourceLine = (names: string[], noun: 'subtasks' | 'steps') =>
+  names.length === 1 ? `From ${names[0] ?? ''}` : `From ${String(names.length)} ${noun}`;
+
+/**
+ * The drawer's byline, in the map's persona order. One set here and further down counts as further down, because
+ * it can't be cleared here.
+ */
+export const personaByline = (
+  personas: PersonaView[],
+  own: string[],
+  below: ReadonlyMap<string, string[]>,
+): { own: PersonaView[]; below: PersonaView[] } => ({
+  own: personas.filter((persona) => own.includes(persona.id) && !below.has(persona.id)),
+  below: personas.filter((persona) => below.has(persona.id)),
+});
