@@ -106,7 +106,9 @@ function SubtaskRow({
           aria-label={`${stepCount(sub.steps.length)} of ${sub.name}`}
           className={`group flex min-h-9 shrink-0 cursor-pointer items-start justify-end gap-1 self-stretch ps-1.5 pt-2.5 text-[12px] text-muted tabular-nums transition-colors duration-150 ease-out hover:text-ink max-lg:min-h-11 max-lg:min-w-11 ${expandFill(draggingId !== null)}`}
         >
-          <span aria-hidden="true">{sub.steps.length}</span>
+          <span aria-hidden="true" className="leading-3">
+            {sub.steps.length}
+          </span>
           <Chevron />
         </DisclosureTrigger>
       </div>
@@ -215,7 +217,9 @@ function TaskRow({
           className={`group flex min-h-10 shrink-0 cursor-pointer items-start gap-1.5 self-stretch ps-1.5 pt-3 text-[12px] text-muted tabular-nums transition-colors duration-150 ease-out hover:text-ink max-lg:min-h-11 ${expandFill(draggingId !== null)}`}
         >
           <MixBar mix={task.mix} className="mt-1 h-1 w-8 rounded-full" />
-          <span aria-hidden="true">{task.subtasks.length}</span>
+          <span aria-hidden="true" className="leading-3">
+            {task.subtasks.length}
+          </span>
           <Chevron />
         </DisclosureTrigger>
       </div>
