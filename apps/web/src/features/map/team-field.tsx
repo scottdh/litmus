@@ -1,6 +1,7 @@
 'use client';
 import type { TeamView } from '@litmus/core';
 import { useState } from 'react';
+import { RAISED } from './button-style';
 
 /** "No team" on a task, and "Same as its task" on a subtask, which has no other way to have no team. */
 const NONE = '';
@@ -51,7 +52,7 @@ export function TeamField({
                 if (!result.ok) undo();
               }, undo);
             }}
-            className="h-8 cursor-pointer appearance-none rounded-sm bg-surface ps-2 pe-7 text-base font-medium shadow-raised max-lg:h-11 lg:text-[13px]"
+            className={`${RAISED} h-8 cursor-pointer appearance-none rounded-sm ps-2 pe-7 text-base font-medium transition-colors duration-150 ease-out max-lg:h-11 lg:text-[13px]`}
           >
             <option value={NONE}>{none}</option>
             {teams.map((team) => (
