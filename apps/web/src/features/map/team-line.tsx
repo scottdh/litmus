@@ -52,12 +52,15 @@ export function TeamLine({
   own,
   following,
   onChange,
+  className = '-mt-2',
 }: {
   teams: TeamView[];
   /** Set on this task or subtask. */
   own: string | null;
   following: Following;
   onChange: (teamId: string | null) => Promise<{ ok: boolean }>;
+  /** Pulls it up under the name: `-mt-2` as the persona byline sits, or `-mt-3` when it follows that byline. */
+  className?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -81,7 +84,7 @@ export function TeamLine({
   };
 
   return (
-    <div className="-mt-3 flex w-full flex-col items-start gap-1">
+    <div className={`${className} flex w-full flex-col items-start gap-1`}>
       <PopoverRoot open={open} onOpenChange={setOpen}>
         <PopoverTrigger className="-mx-1.5 min-w-0 self-stretch cursor-pointer rounded-sm px-1.5 py-1 text-start text-[13px] leading-relaxed text-pretty text-muted transition-colors duration-150 ease-out hover:bg-canvas max-lg:min-h-11">
           {line.name === null && !line.followed ? (
