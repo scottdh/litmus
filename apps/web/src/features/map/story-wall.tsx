@@ -1,7 +1,7 @@
 'use client';
 import { Button } from '../../ui/button';
 import type { Light, MapView } from '@litmus/core';
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type CSSProperties, Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AddField } from './add-field';
 import { Chapter } from './chapter';
 import { Drawer } from './drawer';
@@ -562,7 +562,15 @@ export function StoryWall({
           tabIndex={0}
           role="region"
           aria-label="The story, left to right"
-          className={`flex min-w-0 grow flex-col lg:-ms-4 lg:flex-row lg:gap-0 lg:overflow-x-auto lg:ps-4 lg:pb-4 ${subject ? 'max-lg:invisible lg:me-0' : 'lg:-me-4 lg:pe-4'} ${focusing ? 'gap-5' : 'gap-10'}`}
+          // Focused chapters share what the rails leave, between 272 and 600 px each. The story is the size container, so the drawer narrows them too.
+          style={
+            focusing
+              ? ({
+                  '--focus-width': `clamp(17rem, (100cqw - ${String(map.activities.length - focus.length)} * 3.5rem) / ${String(focus.length)}, 37.5rem)`,
+                } as CSSProperties)
+              : undefined
+          }
+          className={`flex min-w-0 grow flex-col lg:-ms-4 lg:@container lg:flex-row lg:gap-0 lg:overflow-x-auto lg:ps-4 lg:pb-4 ${subject ? 'max-lg:invisible lg:me-0' : 'lg:-me-4 lg:pe-4'} ${focusing ? 'gap-5' : 'gap-10'}`}
         >
           {map.activities.map((activity, index) => (
             <Fragment key={activity.id}>

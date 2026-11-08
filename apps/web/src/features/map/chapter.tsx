@@ -20,12 +20,25 @@ function isTaskDimmed(task: TaskView, dim: Light | null) {
 
 const DIMMED = 'opacity-30';
 
+// Where a chapter's task column has room, a task's mix bar and count sit at the end of its name's line, so it's one row.
+// The count is drawn one line tall, so it centres on the name's first line, and its target reaches down to the foot
+// of the row: 40 px, or 44 px on touch.
+const ONE_LINE_ROW = '@min-[24rem]/tasks:flex @min-[24rem]/tasks:items-start @min-[24rem]/tasks:gap-4';
+const ONE_LINE_NAME = '@min-[24rem]/tasks:[&>button]:min-h-10 @min-[24rem]/tasks:max-lg:[&>button]:min-h-11';
+const ONE_LINE_COUNT = [
+  'relative @min-[24rem]/tasks:ms-0 @min-[24rem]/tasks:-me-1.5 @min-[24rem]/tasks:px-1.5',
+  '@min-[24rem]/tasks:h-9 @min-[24rem]/tasks:max-lg:h-9',
+  '@min-[24rem]/tasks:before:absolute @min-[24rem]/tasks:before:inset-x-0 @min-[24rem]/tasks:before:top-0',
+  '@min-[24rem]/tasks:before:-bottom-1 @min-[24rem]/tasks:max-lg:before:-bottom-2',
+].join(' ');
+
 const subtaskCount = (count: number) => `${String(count)} ${count === 1 ? 'subtask' : 'subtasks'}`;
 
 // A row goes a shade darker on hover, like every other control, and keeps that fill with a ring while its drawer is open.
+// Touch has no hover, so the fill also shows while a row is pressed.
 // The fill reaches 6 px past the text so nothing moves. No hover fill while dragging, so only the drop indicator shows where a row lands.
 const rowFill = (dragging: boolean) =>
-  `-mx-1.5 rounded-sm px-1.5 transition-colors duration-150 ease-out aria-current:bg-sunken aria-current:shadow-current ${dragging ? '' : 'hover:bg-sunken'}`;
+  `-mx-1.5 rounded-sm px-1.5 transition-colors duration-150 ease-out aria-current:bg-sunken aria-current:shadow-current ${dragging ? '' : 'hover:bg-sunken active:bg-sunken'}`;
 
 // The expand control is its own target beside the row, so it fills on its own.
 const expandFill = (dragging: boolean) => `-me-1.5 rounded-sm pe-1.5 ${dragging ? '' : 'hover:bg-sunken'}`;
@@ -208,13 +221,13 @@ function TaskRow({
 
   return (
     <DisclosureRoot open={open} onOpenChange={onToggle}>
-      <div data-drop-task={task.id} className={`transition-opacity duration-150 ease-out ${dimmed}`}>
-        <div className="flex">{opensDrawer}</div>
-        {/* Under the name rather than beside it, so a long name gets the column's full width.
+      <div data-drop-task={task.id} className={`transition-opacity duration-150 ease-out ${ONE_LINE_ROW} ${dimmed}`}>
+        <div className={`flex min-w-0 grow ${ONE_LINE_NAME}`}>{opensDrawer}</div>
+        {/* In a narrow column it sits under the name, so a long name gets the full width.
             It starts 6 px before the name's text, so its fill lines up with the row's. */}
         <DisclosureTrigger
           aria-label={`${subtaskCount(task.subtasks.length)} of ${task.name}`}
-          className={`group ms-4.5 flex h-10 cursor-pointer items-center gap-2 rounded-sm ps-1.5 pe-1 text-[13px] text-muted tabular-nums transition-[color,background-color,scale] duration-150 ease-out hover:text-ink active:scale-[0.96] max-lg:h-11 ${draggingId === null ? 'hover:bg-sunken' : ''}`}
+          className={`group ms-4.5 flex h-10 shrink-0 cursor-pointer items-center gap-2 rounded-sm ps-1.5 pe-1 text-[13px] text-muted tabular-nums transition-[color,background-color,scale] duration-150 ease-out hover:text-ink active:scale-[0.96] max-lg:h-11 ${ONE_LINE_COUNT} ${draggingId === null ? 'hover:bg-sunken' : ''}`}
         >
           <MixBar mix={task.mix} className="h-1 w-8 rounded-full" />
           <span aria-hidden="true">{subtaskCount(task.subtasks.length)}</span>
@@ -265,6 +278,19 @@ const CUE_STYLE: Record<ChapterState, string> = {
 };
 
 // The width animates because task text sits in a fixed-width box, so nothing reflows on the way.
+// While focusing, the box snaps to its final width as the column starts to move, so text rewraps once.
+// `--focus-width` comes from the story, which shares out the width the rails leave.
+const COLUMN_WIDTH: Record<ChapterState, string> = {
+  rest: 'lg:w-68 lg:px-5',
+  focused: 'lg:w-(--focus-width) lg:px-5',
+  background: 'lg:w-14 lg:px-3',
+};
+const TEXT_WIDTH: Record<ChapterState, string> = {
+  rest: 'lg:w-58 lg:group-first/chapter:w-63',
+  focused: 'lg:w-[calc(var(--focus-width)-2.5rem)] lg:group-first/chapter:w-[calc(var(--focus-width)-1.25rem)]',
+  background: 'lg:w-[calc(var(--focus-width)-2.5rem)] lg:group-first/chapter:w-[calc(var(--focus-width)-1.25rem)]',
+};
+
 const COLUMN_MOTION = 'lg:[transition:width_var(--motion-focus),padding_var(--motion-focus)]';
 const NAME_MOTION = '[transition:opacity_var(--motion-focus),color_150ms_ease-out]';
 // Tasks stay visible while they fade out, and become visible at once when they fade back in.
@@ -315,9 +341,9 @@ export function Chapter({
     <section
       aria-labelledby={`${activity.id}-name`}
       data-drop-chapter={activity.id}
-      className={`group/chapter relative shrink-0 lg:overflow-x-clip lg:border-l-(length:--hairline) lg:border-line lg:[overflow-clip-margin:6px] lg:first:border-l-0 lg:first:pl-0 ${inBackground ? 'lg:w-29 lg:px-3.5' : 'lg:w-68 lg:px-5'} ${animate ? COLUMN_MOTION : ''}`}
+      className={`group/chapter relative shrink-0 lg:overflow-x-clip lg:border-l-(length:--hairline) lg:border-line lg:[overflow-clip-margin:6px] lg:first:border-l-0 lg:first:pl-0 ${COLUMN_WIDTH[state]} ${animate ? COLUMN_MOTION : ''}`}
     >
-      <div className="lg:w-58 lg:group-first/chapter:w-63">
+      <div className={`@container/tasks ${TEXT_WIDTH[state]}`}>
         <h2 id={`${activity.id}-name`} className="relative">
           <button
             type="button"
@@ -325,7 +351,9 @@ export function Chapter({
             onClick={onToggleFocus}
             className={`group/head block w-full cursor-pointer text-left ${inBackground ? 'after:absolute after:inset-0 after:z-1' : ''}`}
           >
-            <span className="block text-[13px] text-muted tabular-nums">
+            <span
+              className={`block text-[13px] text-muted tabular-nums ${inBackground ? 'lg:w-8 lg:text-center' : ''}`}
+            >
               <span className="sr-only">Chapter </span>
               {position}
               <span
@@ -343,7 +371,7 @@ export function Chapter({
               </span>
               <span
                 aria-hidden="true"
-                className={`pointer-events-none font-story text-[17px] leading-[1.2] text-muted group-hover/head:text-ink wrap-anywhere lg:absolute lg:top-0 lg:left-0 lg:w-22 ${inBackground ? 'block' : 'opacity-0 max-lg:hidden'} ${animate ? NAME_MOTION : ''}`}
+                className={`pointer-events-none font-story text-[17px] leading-[1.2] text-muted group-hover/head:text-ink max-lg:wrap-anywhere lg:absolute lg:top-0 lg:left-1.5 lg:whitespace-nowrap lg:[writing-mode:vertical-rl] ${inBackground ? 'block' : 'opacity-0 max-lg:hidden'} ${animate ? NAME_MOTION : ''}`}
               >
                 {activity.name}
               </span>
