@@ -22,8 +22,13 @@ const DIMMED = 'opacity-30';
 
 const subtaskCount = (count: number) => `${String(count)} ${count === 1 ? 'subtask' : 'subtasks'}`;
 
-const NAME_STYLE =
-  'underline decoration-transparent decoration-from-font underline-offset-2 transition-[text-decoration-color] duration-150 ease-out group-hover/row:decoration-current group-aria-current/row:decoration-current';
+// A row goes a shade darker on hover, like every other control, and keeps that fill with a ring while its drawer is open.
+// The fill reaches 6 px past the text so nothing moves. No hover fill while dragging, so only the drop indicator shows where a row lands.
+const rowFill = (dragging: boolean) =>
+  `-mx-1.5 rounded-sm px-1.5 transition-colors duration-150 ease-out aria-current:bg-sunken aria-current:shadow-current ${dragging ? '' : 'hover:bg-sunken'}`;
+
+// The expand control is its own target beside the row, so it fills on its own.
+const expandFill = (dragging: boolean) => `-me-1.5 rounded-sm pe-1.5 ${dragging ? '' : 'hover:bg-sunken'}`;
 
 const stepCount = (count: number) => `${String(count)} ${count === 1 ? 'step' : 'steps'}`;
 
@@ -81,19 +86,13 @@ function SubtaskRow({
       onClick={() => {
         onOpenDrawer(sub.id);
       }}
-      className="group/row flex min-h-9 min-w-0 grow cursor-pointer items-start gap-2 py-2 text-left text-[14px] leading-[1.35] text-pretty text-muted max-lg:min-h-11"
+      className={`flex min-h-9 min-w-0 grow cursor-pointer items-start gap-2 py-2 text-left text-[14px] leading-[1.35] text-pretty text-muted max-lg:min-h-11 ${rowFill(draggingId !== null)}`}
     >
       <span className={`pt-1 ${MARK_COLOUR[sub.light]}`}>
         <LightMark light={sub.light} className="size-3" />
         <span className="sr-only">{LIGHT_COPY[sub.light].label}: </span>
       </span>
-      <PersonaName
-        name={sub.name}
-        className={NAME_STYLE}
-        personas={personas}
-        ids={sub.personaIds}
-        picked={pickedPersonas}
-      />
+      <PersonaName name={sub.name} personas={personas} ids={sub.personaIds} picked={pickedPersonas} />
     </button>
   );
 
@@ -105,7 +104,7 @@ function SubtaskRow({
         {opensDrawer}
         <DisclosureTrigger
           aria-label={`${stepCount(sub.steps.length)} of ${sub.name}`}
-          className="group flex min-h-9 shrink-0 cursor-pointer items-start justify-end gap-1 self-stretch ps-1 pt-2.5 text-[12px] text-muted tabular-nums transition-colors duration-150 ease-out hover:text-ink max-lg:min-h-11 max-lg:min-w-11"
+          className={`group flex min-h-9 shrink-0 cursor-pointer items-start justify-end gap-1 self-stretch ps-1.5 pt-2.5 text-[12px] text-muted tabular-nums transition-colors duration-150 ease-out hover:text-ink max-lg:min-h-11 max-lg:min-w-11 ${expandFill(draggingId !== null)}`}
         >
           <span aria-hidden="true">{sub.steps.length}</span>
           <Chevron />
@@ -129,16 +128,10 @@ function SubtaskRow({
                 onClick={() => {
                   onOpenDrawer(step.id);
                 }}
-                className="group/row flex min-h-8 w-full cursor-pointer items-start gap-2 py-1.5 text-left text-[13px] leading-[1.35] text-pretty text-muted max-lg:min-h-11"
+                className={`flex min-h-8 w-[calc(100%+--spacing(3))] cursor-pointer items-start gap-2 py-1.5 text-left text-[13px] leading-[1.35] text-pretty text-muted max-lg:min-h-11 ${rowFill(draggingId !== null)}`}
               >
                 <StepMark />
-                <PersonaName
-                  name={step.name}
-                  className={NAME_STYLE}
-                  personas={personas}
-                  ids={step.personaIds}
-                  picked={pickedPersonas}
-                />
+                <PersonaName name={step.name} personas={personas} ids={step.personaIds} picked={pickedPersonas} />
               </button>
             </li>
           ))}
@@ -192,19 +185,13 @@ function TaskRow({
       onClick={() => {
         onOpenDrawer(task.id);
       }}
-      className="group/row flex min-h-10 min-w-0 grow cursor-pointer items-start gap-2.5 py-2 text-left text-[15px] leading-[1.35] text-pretty max-lg:min-h-11"
+      className={`flex min-h-10 min-w-0 grow cursor-pointer items-start gap-2.5 py-2 text-left text-[15px] leading-[1.35] text-pretty max-lg:min-h-11 ${rowFill(draggingId !== null)}`}
     >
       <span className={`pt-1 ${MARK_COLOUR[task.light]}`}>
         <LightMark light={task.light} />
         <span className="sr-only">{LIGHT_COPY[task.light].label}: </span>
       </span>
-      <PersonaName
-        name={task.name}
-        className={NAME_STYLE}
-        personas={personas}
-        ids={task.personaIds}
-        picked={pickedPersonas}
-      />
+      <PersonaName name={task.name} personas={personas} ids={task.personaIds} picked={pickedPersonas} />
     </button>
   );
 
@@ -225,7 +212,7 @@ function TaskRow({
         {opensDrawer}
         <DisclosureTrigger
           aria-label={`${subtaskCount(task.subtasks.length)} of ${task.name}`}
-          className="group flex min-h-10 shrink-0 cursor-pointer items-start gap-1.5 self-stretch ps-1 pt-3 text-[12px] text-muted tabular-nums transition-colors duration-150 ease-out hover:text-ink max-lg:min-h-11"
+          className={`group flex min-h-10 shrink-0 cursor-pointer items-start gap-1.5 self-stretch ps-1.5 pt-3 text-[12px] text-muted tabular-nums transition-colors duration-150 ease-out hover:text-ink max-lg:min-h-11 ${expandFill(draggingId !== null)}`}
         >
           <MixBar mix={task.mix} className="mt-1 h-1 w-8 rounded-full" />
           <span aria-hidden="true">{task.subtasks.length}</span>

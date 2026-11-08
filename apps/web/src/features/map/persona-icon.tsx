@@ -79,7 +79,7 @@ export function PersonaName({
   picked,
 }: {
   name: string;
-  className: string;
+  className?: string;
   personas: PersonaView[];
   ids: string[];
   /** Drawn in ink while picked, so they stand out from the rest. */
