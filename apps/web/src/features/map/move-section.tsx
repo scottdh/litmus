@@ -54,7 +54,7 @@ export function MoveTo({ map, id, onMove }: { map: MapView; id: string; onMove: 
       onChange={(event) => {
         if (event.target.value !== '') onMove(JSON.parse(event.target.value) as Destination);
       }}
-      className="h-8 w-full cursor-pointer rounded-sm bg-surface px-1 text-base shadow-raised max-lg:h-11 lg:text-[13px]"
+      className={`${RAISED} h-8 w-full cursor-pointer rounded-sm px-1 text-base transition-colors duration-150 ease-out max-lg:h-11 lg:text-[13px]`}
     >
       <option value="">Move to…</option>
       {moveChoices(map, id).map((group) => (

@@ -1,6 +1,7 @@
 'use client';
 import { PERSONA_ICONS, type PersonaIcon } from '@litmus/core';
 import { useState } from 'react';
+import { RAISED } from './button-style';
 import { PersonaGlyph } from './persona-icon';
 
 /** A persona's icon, picked from the fixed set. A change shows at once and saves at once. */
@@ -36,7 +37,7 @@ export function PersonaIconField({
         {PERSONA_ICONS.map((option) => (
           <label
             key={option}
-            className="relative grid size-8 cursor-pointer place-items-center rounded-sm bg-surface text-muted shadow-raised transition-[background-color,color,scale] duration-150 ease-out hover:text-ink active:scale-[0.96] has-checked:bg-ink has-checked:text-canvas has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ink max-lg:size-11"
+            className={`${RAISED} relative grid size-8 cursor-pointer place-items-center rounded-sm text-muted transition-[background-color,color,scale] duration-150 ease-out hover:text-ink active:scale-[0.96] has-checked:bg-ink has-checked:text-canvas has-checked:hover:bg-ink has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ink max-lg:size-11`}
           >
             <input
               type="radio"

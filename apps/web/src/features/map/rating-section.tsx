@@ -146,7 +146,7 @@ export function RatingSection({
             >
               {draft.light === light ? 'Save review' : `Set to ${LIGHT_COPY[draft.light].label.toLowerCase()}`}
             </button>
-            <button type="button" onClick={finish} className={`${BUTTON} text-muted transition-colors hover:text-ink`}>
+            <button type="button" onClick={finish} className={`${BUTTON} text-muted hover:text-ink`}>
               Cancel
             </button>
           </div>
