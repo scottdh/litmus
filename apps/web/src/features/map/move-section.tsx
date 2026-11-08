@@ -50,14 +50,14 @@ export function MoveArrows({ map, id, onMove }: { map: MapView; id: string; onMo
 /** With the arrows, reaches everything dragging can. */
 export function MoveTo({ map, id, onMove }: { map: MapView; id: string; onMove: (to: Destination) => void }) {
   return (
-    <span className="relative w-full">
+    <span className="relative max-lg:w-full">
       <select
         aria-label="Move to"
         value=""
         onChange={(event) => {
           if (event.target.value !== '') onMove(JSON.parse(event.target.value) as Destination);
         }}
-        className={`${SELECT} w-full`}
+        className={`${SELECT} max-lg:w-full lg:[field-sizing:content]`}
       >
         <option value="">Move to…</option>
         {moveChoices(map, id).map((group) => (
