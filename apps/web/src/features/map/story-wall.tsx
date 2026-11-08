@@ -1,8 +1,8 @@
 'use client';
+import { Button } from '../../ui/button';
 import type { Light, MapView } from '@litmus/core';
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AddField } from './add-field';
-import { BUTTON, RAISED } from './button-style';
 import { Chapter } from './chapter';
 import { Drawer } from './drawer';
 import { describeDestination, type Destination } from './drop';
@@ -444,43 +444,42 @@ export function StoryWall({
         </p>
         <div className="ms-auto flex shrink-0 flex-wrap justify-end gap-2">
           {dim !== null && (
-            <button
-              type="button"
+            <Button
               onClick={() => {
                 setDim(null);
                 // This chip is about to disappear, so keyboard users need somewhere to land.
                 keyButton.current?.focus();
               }}
               aria-label={`Stop dimming to ${LIGHT_COPY[dim].label.toLowerCase()}`}
-              className={`${BUTTON} flex shrink-0 items-center gap-1.5 ${FILL_COLOUR[dim]}`}
+              variant="fill"
+              className={`flex shrink-0 items-center gap-1.5 ${FILL_COLOUR[dim]}`}
             >
               <LightMark light={dim} className="size-3" />
               {LIGHT_COPY[dim].label} only
               <span aria-hidden="true" className="opacity-70">
                 ×
               </span>
-            </button>
+            </Button>
           )}
           {teamNames.length > 0 && (
-            <button
-              type="button"
+            <Button
               onClick={() => {
                 refold(new Set(), personas);
                 // This chip is about to disappear, so keyboard users need somewhere to land.
                 teamsButton.current?.focus();
               }}
               aria-label={allTeams ? 'Stop filtering by team' : `Stop showing only ${TEAM_NAMES.format(teamNames)}`}
-              className={`${BUTTON} flex shrink-0 items-center gap-1.5 bg-ink text-canvas`}
+              variant="fill"
+              className="flex shrink-0 items-center gap-1.5 bg-ink text-canvas"
             >
               {teamLabel}
               <span aria-hidden="true" className="opacity-70">
                 ×
               </span>
-            </button>
+            </Button>
           )}
           {pickedPersonas.length > 0 && (
-            <button
-              type="button"
+            <Button
               onClick={() => {
                 refold(teams, new Set());
                 // This chip is about to disappear, so keyboard users need somewhere to land.
@@ -491,7 +490,8 @@ export function StoryWall({
                   ? 'Stop filtering by persona'
                   : `Stop showing only ${TEAM_NAMES.format(personaNames)}`
               }
-              className={`${BUTTON} flex shrink-0 items-center gap-1.5 bg-ink text-canvas`}
+              variant="fill"
+              className="flex shrink-0 items-center gap-1.5 bg-ink text-canvas"
             >
               <span aria-hidden="true" className="flex gap-0.5">
                 {pickedPersonas.map((persona) => (
@@ -502,7 +502,7 @@ export function StoryWall({
               <span aria-hidden="true" className="opacity-70">
                 ×
               </span>
-            </button>
+            </Button>
           )}
           <TeamPopover
             teams={map.teams}
@@ -532,13 +532,12 @@ export function StoryWall({
           />
           <KeyPopover dim={dim} onDim={setDim} isSample={isSample} triggerRef={keyButton} />
           {lastChange && (
-            <button type="button" onClick={undoLastChange} className={`${BUTTON} ${RAISED} shrink-0`}>
+            <Button onClick={undoLastChange} variant="raised" className="shrink-0">
               Undo
-            </button>
+            </Button>
           )}
           {(focusing || picking) && (
-            <button
-              type="button"
+            <Button
               onClick={() => {
                 clear();
                 setTeams(new Set());
@@ -546,14 +545,15 @@ export function StoryWall({
                 // This button is about to disappear, so keyboard users need somewhere to land.
                 expandAll.current?.focus();
               }}
-              className={`${BUTTON} ${RAISED} shrink-0`}
+              variant="raised"
+              className="shrink-0"
             >
               Show the whole story
-            </button>
+            </Button>
           )}
-          <button ref={expandAll} type="button" onClick={toggleAll} className={`${BUTTON} ${RAISED} shrink-0`}>
+          <Button ref={expandAll} onClick={toggleAll} variant="raised" className="shrink-0">
             {allOpen ? 'Collapse all' : 'Expand all'}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -604,16 +604,15 @@ export function StoryWall({
           ))}
           {newChapterIndex === map.activities.length && newChapterField}
           <div className={CHAPTER_END}>
-            <button
+            <Button
               ref={addChapterButton}
-              type="button"
               onClick={() => {
                 setNewChapterBefore(null);
               }}
-              className={`${BUTTON} ${RAISED}`}
+              variant="raised"
             >
               Add chapter
-            </button>
+            </Button>
           </div>
         </div>
         {subject && (

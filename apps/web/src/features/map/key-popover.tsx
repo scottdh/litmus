@@ -2,7 +2,7 @@
 import { LIGHTS, type Light } from '@litmus/core';
 import type { Ref } from 'react';
 import { PopoverPanel, PopoverRoot, PopoverTitle, PopoverTrigger } from '../../ui/popover';
-import { BUTTON, RAISED } from './button-style';
+import { button } from '../../ui/control';
 import { LightMark } from './light-mark';
 import { FILL_COLOUR, LIGHT_COPY } from './lights';
 
@@ -23,7 +23,10 @@ export function KeyPopover({
 }) {
   return (
     <PopoverRoot>
-      <PopoverTrigger ref={triggerRef} className={`${BUTTON} ${RAISED} flex shrink-0 items-center gap-1.5`}>
+      <PopoverTrigger
+        ref={triggerRef}
+        className={`${button({ variant: 'raised' })} flex shrink-0 items-center gap-1.5`}
+      >
         <span aria-hidden="true" className="flex -space-x-1">
           <LightMark light="green" className="size-3 text-mark-green" />
           <LightMark light="yellow" className="size-3 text-mark-yellow" />

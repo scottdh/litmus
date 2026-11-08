@@ -47,6 +47,21 @@ Hover goes a shade darker: a raised control or a popover row dips from `surface`
 
 Shared components live in `apps/web/src/ui` and are the only place that imports Base UI. Product components live in `apps/web/src/features/map`.
 
+### Buttons and fields
+
+`apps/web/src/ui/button.tsx` and `apps/web/src/ui/control.ts`. A button is `<Button variant shape>`, which defaults to `type="button"` and passes every other prop and the ref through. A Base UI trigger (`PopoverTrigger`, `PopoverClose`) takes the same classes from `button({ variant, shape })` on its `className`. `variant` is required, and every variant but `fill` carries its own hover, so a button can't ship without one. `className` takes only layout (`shrink-0`, `flex gap-1.5`, a margin) or a text colour such as `text-danger`. Never hand-roll a button's surface, ring or hover. A new variant goes in `control.ts`, and its test checks it has a hover.
+
+| Variant  | For                                                                            | Hover                      |
+| -------- | ------------------------------------------------------------------------------ | -------------------------- |
+| `raised` | Any button with a job: Save, Add step, Key, the move arrows, an unpicked light | `surface` dips to `canvas` |
+| `quiet`  | A secondary action with no surface: Cancel, Add task under a chapter           | `muted` text goes to `ink` |
+| `fill`   | A control filled with its meaning: the picked light, a header chip, Remove     | None; press still scales   |
+| `on-ink` | Text on the `ink` toast                                                        | The underline goes solid   |
+
+A `fill` stays put on hover because a darker light reads as a different light. A `raised` button with `aria-disabled` goes `muted` and stops reacting to hover and press, so don't add disabled styles at the call site. `shape="icon"` is the 32 px square, 44 px tall on a phone.
+
+Fields: `SELECT` for a dropdown (with `SelectChevron`), `TEXT_BOX` for a boxed note or review, and `LINE_FIELD` for a name written where it lives on the page. A tile that's really a radio, like the persona icons, uses `RAISED` on its label. Rows (a task, a pick row in a popover) aren't buttons in this sense; they fill as `Motion` describes.
+
 ### Header
 
 `apps/web/src/features/map/story-wall.tsx`. One hairline-ruled row: the map name, a Sample tag when the data is invented, the live status line, then the buttons. The lights aren't explained on the page, because people learn them quickly. When the map is dimmed to one light, a chip filled with that light says so and clears it. Picked teams and picked personas each get a chip in the same way. `docs/designs/header-direction.md` has the reasoning.

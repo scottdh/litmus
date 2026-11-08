@@ -1,7 +1,7 @@
 'use client';
 import { PERSONA_ICONS, type PersonaIcon } from '@litmus/core';
 import { useState } from 'react';
-import { RAISED } from './button-style';
+import { RAISED } from '../../ui/control';
 import { PersonaGlyph } from './persona-icon';
 
 /** A persona's icon, picked from the fixed set. A change shows at once and saves at once. */
