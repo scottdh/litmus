@@ -1,6 +1,7 @@
 'use client';
 import type { MapView } from '@litmus/core';
 import { ICON_BUTTON, RAISED } from './button-style';
+import { SELECT, SelectChevron } from './select-chevron';
 import { moveChoices, stepDestination, type Destination } from './drop';
 
 const STEPS = [
@@ -48,24 +49,27 @@ export function MoveArrows({ map, id, onMove }: { map: MapView; id: string; onMo
 /** With the arrows, reaches everything dragging can. */
 export function MoveTo({ map, id, onMove }: { map: MapView; id: string; onMove: (to: Destination) => void }) {
   return (
-    <select
-      aria-label="Move to"
-      value=""
-      onChange={(event) => {
-        if (event.target.value !== '') onMove(JSON.parse(event.target.value) as Destination);
-      }}
-      className={`${RAISED} h-8 w-full cursor-pointer rounded-sm px-1 text-base transition-colors duration-150 ease-out max-lg:h-11 lg:text-[13px]`}
-    >
-      <option value="">Move to…</option>
-      {moveChoices(map, id).map((group) => (
-        <optgroup key={group.chapter} label={group.chapter}>
-          {group.choices.map((choice) => (
-            <option key={choice.label} value={JSON.stringify(choice.to)}>
-              {choice.label}
-            </option>
-          ))}
-        </optgroup>
-      ))}
-    </select>
+    <span className="relative w-full">
+      <select
+        aria-label="Move to"
+        value=""
+        onChange={(event) => {
+          if (event.target.value !== '') onMove(JSON.parse(event.target.value) as Destination);
+        }}
+        className={`${SELECT} w-full`}
+      >
+        <option value="">Move to…</option>
+        {moveChoices(map, id).map((group) => (
+          <optgroup key={group.chapter} label={group.chapter}>
+            {group.choices.map((choice) => (
+              <option key={choice.label} value={JSON.stringify(choice.to)}>
+                {choice.label}
+              </option>
+            ))}
+          </optgroup>
+        ))}
+      </select>
+      <SelectChevron />
+    </span>
   );
 }
