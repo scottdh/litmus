@@ -157,7 +157,7 @@ export function PersonaByline({
         </PopoverPanel>
       </PopoverRoot>
       {failed && (
-        <p role="alert" className="text-[13px] text-pretty text-muted">
+        <p role="alert" className="text-[13px] leading-snug text-pretty">
           That persona couldn’t be saved, so it hasn’t changed.
         </p>
       )}

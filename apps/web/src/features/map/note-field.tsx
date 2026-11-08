@@ -31,7 +31,7 @@ export function NoteField({
 
   return (
     <div className="flex w-full flex-col gap-1">
-      <label className="text-[13px]" htmlFor={`note-${id}`}>
+      <label className="text-[13px] text-muted" htmlFor={`note-${id}`}>
         Notes
       </label>
       <textarea

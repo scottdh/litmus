@@ -35,7 +35,8 @@ export function NameField({
 
   useLayoutEffect(() => {
     const element = field.current;
-    if (!element) return;
+    // On a touch screen focus would raise the keyboard over the drawer, so the name waits for a tap.
+    if (!element || window.matchMedia('(pointer: coarse)').matches) return;
     element.focus({ preventScroll: true });
     if (selectOnFocus) element.select();
     else element.setSelectionRange(element.value.length, element.value.length);

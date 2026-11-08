@@ -100,7 +100,7 @@ export function RatingSection({
         review !== null && <p className="text-[14px] leading-snug text-pretty whitespace-pre-wrap">{review}</p>
       ) : (
         <>
-          <label className="flex w-full flex-col gap-1 text-[13px]" htmlFor={`review-${id}`}>
+          <label className="text-[13px] text-muted" htmlFor={`review-${id}`}>
             Review
           </label>
           <textarea
