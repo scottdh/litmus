@@ -38,6 +38,6 @@ export const SELECT = `${RAISED} h-8 cursor-pointer appearance-none rounded-sm p
 export const TEXT_BOX =
   'block min-h-[4.5em] w-full resize-y rounded-sm bg-canvas p-2 text-base leading-snug shadow-[inset_0_0_0_1px_var(--line)] [field-sizing:content] placeholder:text-muted aria-invalid:outline-2 aria-invalid:outline-offset-2 aria-invalid:outline-mark-red lg:text-[14px]';
 
-/** A field written straight onto the page, ruled underneath: a name, or a new item where it'll appear. */
+/** A field written straight onto the page, ruled underneath: a name, or a new item where it'll appear. Focus turns the rule `ink` rather than boxing it, because opening a drawer focuses the name. */
 export const LINE_FIELD =
-  'block w-full resize-none overflow-hidden rounded-[2px] bg-transparent shadow-[0_1px_0_0_var(--line)] placeholder:text-muted aria-invalid:outline-2 aria-invalid:outline-offset-2 aria-invalid:outline-mark-red';
+  'block w-full resize-none overflow-hidden rounded-[2px] bg-transparent shadow-[0_1px_0_0_var(--line)] transition-shadow duration-150 ease-out placeholder:text-muted focus-visible:shadow-[0_2px_0_0_var(--ink)] focus-visible:not-aria-invalid:outline-none aria-invalid:outline-2 aria-invalid:outline-offset-2 aria-invalid:outline-mark-red';

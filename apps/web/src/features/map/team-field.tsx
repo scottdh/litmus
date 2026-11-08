@@ -66,7 +66,7 @@ export function TeamField({
         </span>
       </div>
       {failed && (
-        <p role="alert" className="text-[13px] text-pretty text-muted">
+        <p role="alert" className="text-[13px] leading-snug text-pretty">
           That team couldn’t be saved, so it hasn’t changed.
         </p>
       )}
