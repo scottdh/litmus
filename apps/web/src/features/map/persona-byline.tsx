@@ -1,16 +1,25 @@
 'use client';
 import type { PersonaView } from '@litmus/core';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { PopoverPanel, PopoverRoot, PopoverTitle, PopoverTrigger } from '../../ui/popover';
 import { PersonaGlyph } from './persona-icon';
 import { personaByline, personaSourceLine, personaSources } from './personas';
+import { Chevron } from './select-chevron';
 
-function Names({ list }: { list: PersonaView[] }) {
+/**
+ * Says the line opens a list, where there's no hover to show it. It's glued to the last word so it never wraps alone,
+ * and goes `ink` with the line's hover.
+ */
+const OPENS = (
+  <Chevron className="ms-1 inline size-3 -translate-y-px text-muted transition-colors duration-150 ease-out group-hover/byline:text-ink" />
+);
+
+function Names({ list, after }: { list: PersonaView[]; after?: ReactNode }) {
   return list.map((persona, index) => (
     <span key={persona.id} className="whitespace-nowrap">
       <PersonaGlyph icon={persona.icon} className="me-1 inline size-3.5 -translate-y-px" />
       {persona.name}
-      {index === list.length - 1 ? '' : index === list.length - 2 ? (list.length > 2 ? ', and ' : ' and ') : ', '}
+      {index === list.length - 1 ? after : index === list.length - 2 ? (list.length > 2 ? ', and ' : ' and ') : ', '}
     </span>
   ));
 }
@@ -41,6 +50,7 @@ export function PersonaByline({
   const line = personaByline(personas, [...shown], sources);
   const empty = line.own.length === 0 && line.below.length === 0;
   const from = `its ${noun}`;
+  const endsBelow = line.below.length > 0;
 
   const toggle = (id: string) => {
     const on = !shown.has(id);
@@ -69,7 +79,7 @@ export function PersonaByline({
   return (
     <div className="-mt-2 flex w-full flex-col items-start gap-1">
       <PopoverRoot>
-        <PopoverTrigger className="-mx-1.5 min-w-0 self-stretch cursor-pointer rounded-sm px-1.5 py-1 text-start text-[13px] leading-relaxed text-pretty text-muted transition-colors duration-150 ease-out hover:bg-canvas max-lg:min-h-11">
+        <PopoverTrigger className="group/byline -mx-1.5 min-w-0 self-stretch cursor-pointer rounded-sm px-1.5 py-1 text-start text-[13px] leading-relaxed text-pretty text-muted transition-colors duration-150 ease-out hover:bg-canvas max-lg:min-h-11">
           {empty ? (
             <span className="inline-flex items-center gap-1.5">
               <svg
@@ -90,12 +100,16 @@ export function PersonaByline({
               <span className="sr-only">Personas: </span>
               {line.own.length > 0 && (
                 <span className="block text-ink">
-                  <Names list={line.own} />
+                  <Names list={line.own} after={endsBelow ? undefined : OPENS} />
                 </span>
               )}
               {line.below.length > 0 && (
                 <span className="block">
-                  <Names list={line.below} /> from {from}
+                  <Names list={line.below} /> from its{' '}
+                  <span className="whitespace-nowrap">
+                    {noun}
+                    {OPENS}
+                  </span>
                 </span>
               )}
             </>
