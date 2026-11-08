@@ -36,7 +36,7 @@ export function PersonaIconField({
         {PERSONA_ICONS.map((option) => (
           <label
             key={option}
-            className="relative grid size-8 cursor-pointer place-items-center rounded-sm text-muted shadow-raised transition-[background-color,color,scale] duration-150 ease-out hover:text-ink active:scale-[0.96] has-checked:bg-ink has-checked:text-canvas has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ink max-lg:size-11"
+            className="relative grid size-8 cursor-pointer place-items-center rounded-sm bg-surface text-muted shadow-raised transition-[background-color,color,scale] duration-150 ease-out hover:text-ink active:scale-[0.96] has-checked:bg-ink has-checked:text-canvas has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ink max-lg:size-11"
           >
             <input
               type="radio"

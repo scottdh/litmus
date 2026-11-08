@@ -1,6 +1,6 @@
 'use client';
 import type { MapView } from '@litmus/core';
-import { ICON_BUTTON } from './button-style';
+import { ICON_BUTTON, RAISED } from './button-style';
 import { moveChoices, stepDestination, type Destination } from './drop';
 
 const STEPS = [
@@ -24,7 +24,7 @@ export function MoveArrows({ map, id, onMove }: { map: MapView; id: string; onMo
             onClick={() => {
               if (to) onMove(to);
             }}
-            className={`${ICON_BUTTON} shadow-raised aria-disabled:cursor-not-allowed aria-disabled:text-muted`}
+            className={`${ICON_BUTTON} ${RAISED} aria-disabled:cursor-not-allowed aria-disabled:text-muted`}
           >
             <svg
               aria-hidden="true"
@@ -54,7 +54,7 @@ export function MoveTo({ map, id, onMove }: { map: MapView; id: string; onMove: 
       onChange={(event) => {
         if (event.target.value !== '') onMove(JSON.parse(event.target.value) as Destination);
       }}
-      className="h-8 w-full cursor-pointer rounded-sm bg-surface px-1 text-base shadow-raised lg:text-[13px]"
+      className="h-8 w-full cursor-pointer rounded-sm bg-surface px-1 text-base shadow-raised max-lg:h-11 lg:text-[13px]"
     >
       <option value="">Move to…</option>
       {moveChoices(map, id).map((group) => (

@@ -1,7 +1,7 @@
 'use client';
 import type { MapView, PersonaIcon } from '@litmus/core';
 import { AddControl } from './add-field';
-import { BUTTON } from './button-style';
+import { BUTTON, RAISED } from './button-style';
 import { LightMark } from './light-mark';
 import { LIGHT_COPY, MARK_COLOUR } from './lights';
 import type { Destination } from './drop';
@@ -213,7 +213,7 @@ export function Drawer({
           action="Add subtask"
           label={`New subtask of ${subject.name}`}
           placeholder="Subtask name"
-          buttonClassName="shadow-raised"
+          buttonClassName={RAISED}
           fieldClassName="py-1 text-base leading-[1.35] lg:text-[14px]"
           onAdd={onAddSubtask}
         />
@@ -248,7 +248,7 @@ export function Drawer({
             action="Add step"
             label={`New step of ${subject.name}`}
             placeholder="Step name"
-            buttonClassName="shadow-raised"
+            buttonClassName={RAISED}
             fieldClassName="py-1 text-base leading-[1.35] lg:text-[14px]"
             onAdd={onAddStep}
           />
@@ -321,7 +321,7 @@ export function Drawer({
             onClick={() => {
               onAddChapter('before');
             }}
-            className={`${BUTTON} shadow-raised`}
+            className={`${BUTTON} ${RAISED}`}
           >
             Add chapter before
           </button>
@@ -330,7 +330,7 @@ export function Drawer({
             onClick={() => {
               onAddChapter('after');
             }}
-            className={`${BUTTON} shadow-raised`}
+            className={`${BUTTON} ${RAISED}`}
           >
             Add chapter after
           </button>

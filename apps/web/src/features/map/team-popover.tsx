@@ -3,7 +3,7 @@ import type { ActivityView, TeamView } from '@litmus/core';
 import { useState, type Ref } from 'react';
 import { PopoverPanel, PopoverRoot, PopoverTitle, PopoverTrigger } from '../../ui/popover';
 import { AddControl } from './add-field';
-import { BUTTON } from './button-style';
+import { BUTTON, RAISED } from './button-style';
 import { PickRow, OPEN_BUTTON } from './pick-row';
 import { NO_TEAM, teamTaskCount } from './teams';
 
@@ -41,7 +41,7 @@ export function TeamPopover({
         setOpen(next);
       }}
     >
-      <PopoverTrigger ref={triggerRef} className={`${BUTTON} shrink-0 shadow-raised`}>
+      <PopoverTrigger ref={triggerRef} className={`${BUTTON} ${RAISED} shrink-0`}>
         Teams
       </PopoverTrigger>
       <PopoverPanel align="end" className="w-[min(18rem,calc(100vw-2rem))] p-3">
@@ -98,7 +98,7 @@ export function TeamPopover({
             action="Add team"
             label="New team name"
             placeholder="Team name"
-            buttonClassName="-ms-2 text-muted hover:text-ink max-lg:h-11"
+            buttonClassName="-ms-2 text-muted hover:text-ink"
             fieldClassName="py-2 text-base leading-[1.35] lg:text-[14px]"
             onAdd={onAdd}
           />
