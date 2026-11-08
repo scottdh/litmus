@@ -170,6 +170,7 @@ export function Drawer({
             own={subject.ownTeamId}
             following={subject.kind === 'subtask' ? { teamId: subject.taskTeamId } : null}
             onChange={onAssignTeam}
+            className={map.personas.length > 0 ? '-mt-3' : '-mt-2'}
           />
         )}
         {subject.kind === 'persona' && (
