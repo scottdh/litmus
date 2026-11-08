@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { TEXT_BOX } from '../../ui/control';
 import type { RenameResult } from './rename-result';
 
 /** Leaving saves, and Cmd+Enter does too. Esc puts back what's saved, or lets the drawer close if nothing changed. */
@@ -53,7 +54,7 @@ export function NoteField({
             setDraft(value);
           }
         }}
-        className="block min-h-[4.5em] w-full resize-y rounded-sm bg-canvas p-2 text-base leading-snug shadow-[inset_0_0_0_1px_var(--line)] [field-sizing:content] placeholder:text-muted lg:text-[14px]"
+        className={TEXT_BOX}
       />
       {failed && (
         <p role="alert" className="text-[13px] leading-snug">

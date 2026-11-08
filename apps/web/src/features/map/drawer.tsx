@@ -1,7 +1,7 @@
 'use client';
+import { Button } from '../../ui/button';
 import type { MapView, PersonaIcon } from '@litmus/core';
 import { AddControl } from './add-field';
-import { BUTTON, RAISED } from './button-style';
 import { LightMark } from './light-mark';
 import { LIGHT_COPY, MARK_COLOUR } from './lights';
 import type { Destination } from './drop';
@@ -213,7 +213,7 @@ export function Drawer({
           action="Add subtask"
           label={`New subtask of ${subject.name}`}
           placeholder="Subtask name"
-          buttonClassName={RAISED}
+          variant="raised"
           fieldClassName="py-1 text-base leading-[1.35] lg:text-[14px]"
           onAdd={onAddSubtask}
         />
@@ -248,7 +248,7 @@ export function Drawer({
             action="Add step"
             label={`New step of ${subject.name}`}
             placeholder="Step name"
-            buttonClassName={RAISED}
+            variant="raised"
             fieldClassName="py-1 text-base leading-[1.35] lg:text-[14px]"
             onAdd={onAddStep}
           />
@@ -316,24 +316,22 @@ export function Drawer({
       )}
       {subject.kind === 'chapter' && (
         <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
+          <Button
             onClick={() => {
               onAddChapter('before');
             }}
-            className={`${BUTTON} ${RAISED}`}
+            variant="raised"
           >
             Add chapter before
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
             onClick={() => {
               onAddChapter('after');
             }}
-            className={`${BUTTON} ${RAISED}`}
+            variant="raised"
           >
             Add chapter after
-          </button>
+          </Button>
         </div>
       )}
       {subject.kind !== 'chapter' && subject.kind !== 'team' && subject.kind !== 'persona' && (

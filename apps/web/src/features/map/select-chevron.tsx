@@ -1,8 +1,3 @@
-import { RAISED } from './button-style';
-
-/** A raised dropdown. It hides the browser's arrow, so wrap it in a `relative` box with `SelectChevron` after it. */
-export const SELECT = `${RAISED} h-8 cursor-pointer appearance-none rounded-sm ps-2 pe-7 text-base font-medium transition-colors duration-150 ease-out max-lg:h-11 lg:text-[13px]`;
-
 /** The dropdown's own arrow, 8 px in from the end, in place of the browser's. */
 export function SelectChevron() {
   return (

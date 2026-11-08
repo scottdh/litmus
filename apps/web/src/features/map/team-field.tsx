@@ -1,7 +1,8 @@
 'use client';
 import type { TeamView } from '@litmus/core';
 import { useState } from 'react';
-import { SELECT, SelectChevron } from './select-chevron';
+import { SELECT } from '../../ui/control';
+import { SelectChevron } from './select-chevron';
 
 /** "No team" on a task, and "Same as its task" on a subtask, which has no other way to have no team. */
 const NONE = '';

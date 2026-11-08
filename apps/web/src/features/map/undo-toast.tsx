@@ -1,6 +1,6 @@
 'use client';
+import { Button } from '../../ui/button';
 import { useEffect, useState } from 'react';
-import { BUTTON } from './button-style';
 
 const SHOW_FOR = 8000;
 
@@ -78,16 +78,16 @@ export function UndoToast({
         </svg>
         <span className="text-[14px] leading-snug text-pretty">{text}</span>
       </span>
-      <button
-        type="button"
+      <Button
         onClick={() => {
           dismiss();
           onUndo();
         }}
-        className={`${BUTTON} shrink-0 font-semibold text-surface underline decoration-surface/40 underline-offset-2 transition-[text-decoration-color,scale] hover:decoration-surface`}
+        variant="on-ink"
+        className="shrink-0"
       >
         Undo
-      </button>
+      </Button>
       <button
         type="button"
         aria-label="Dismiss"
