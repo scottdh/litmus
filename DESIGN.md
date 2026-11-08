@@ -76,9 +76,9 @@ Esc inside any popover only closes it: page-wide Esc handlers skip events from i
 
 `apps/web/src/features/map/persona-icon.tsx`. Eight one-colour line glyphs drawn for Litmus on a 16 px grid, 1.4 stroke, `currentColor`: `person`, `wrench`, `bell`, `box`, `key`, `house`, `phone`, `star`. Never use emoji or initials instead: emoji bring their own colour, and colour means a light. Each glyph carries its persona's name as its accessible name and tooltip, unless the name sits beside it. `PersonaName` puts them after a row's name, 14 px, `muted`, 6 px after the last word and 4 px apart, and keeps the last word and the glyphs on one line so the glyphs never sit alone. Task rows show their own personas and their subtasks' and steps'; subtask rows their own and their steps'; step rows their own. `docs/designs/personas-direction.md` has the reasoning.
 
-### PersonaField
+### PersonaByline
 
-`apps/web/src/features/map/persona-field.tsx`. Who carries out a task, subtask or step, in the drawer under Team (under the name for a step). One toggle button per persona, filled with `ink` when it's on, and any number can be on. A change shows at once and saves at once, and if it can't be saved the button goes back with "That persona couldn't be saved, so it hasn't changed." Personas set further down aren't buttons here; they're listed under them after "Also from its subtasks:" or "Also from its steps:", because that's where they're set. With no personas on the map, the field doesn't show.
+`apps/web/src/features/map/persona-byline.tsx`. Who carries out a task, subtask or step, as a `muted` 13 px line under its name, because personas are set once and rarely changed. Its own personas come first in `ink`, then those set further down "from its subtasks" or "from its steps". With none it reads "Add personas". The line opens a checklist popover where any number can be ticked; a change shows at once and saves at once, and if it can't be saved the tick goes back with "That persona couldn't be saved, so it hasn't changed." Personas set further down are ticked, greyed and locked there, saying which subtask or step they come from, because that's where they're changed. Show a locked choice like this rather than listing it a second time. With no personas on the map, the line doesn't show.
 
 ### Popover
 
