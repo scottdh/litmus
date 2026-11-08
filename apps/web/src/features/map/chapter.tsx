@@ -176,6 +176,7 @@ function TaskRow({
   onToggleItem: (id: string, open: boolean) => void;
 }) {
   const dimmed = isTaskDimmed(task, dim) || draggingId === task.id ? DIMMED : '';
+  const hasSubtasks = task.subtasks.length > 0;
   const opensDrawer = (
     <button
       type="button"
@@ -187,7 +188,7 @@ function TaskRow({
       onClick={() => {
         onOpenDrawer(task.id);
       }}
-      className={`flex min-h-10 min-w-0 grow cursor-pointer items-start gap-2.5 py-2 text-left text-[15px] leading-[1.35] text-pretty max-lg:min-h-11 ${rowFill(draggingId !== null)}`}
+      className={`flex min-w-0 grow cursor-pointer items-start gap-2.5 py-2 text-left text-[15px] leading-[1.35] text-pretty ${hasSubtasks ? '' : 'min-h-10 max-lg:min-h-11'} ${rowFill(draggingId !== null)}`}
     >
       <span className={`pt-1 ${MARK_COLOUR[task.light]}`}>
         <LightMark light={task.light} />
@@ -197,7 +198,7 @@ function TaskRow({
     </button>
   );
 
-  if (task.subtasks.length === 0) {
+  if (!hasSubtasks) {
     return (
       <div data-drop-task={task.id} className={`flex transition-opacity duration-150 ease-out ${dimmed}`}>
         {opensDrawer}
@@ -207,19 +208,16 @@ function TaskRow({
 
   return (
     <DisclosureRoot open={open} onOpenChange={onToggle}>
-      <div
-        data-drop-task={task.id}
-        className={`flex items-start gap-2 transition-opacity duration-150 ease-out ${dimmed}`}
-      >
-        {opensDrawer}
+      <div data-drop-task={task.id} className={`transition-opacity duration-150 ease-out ${dimmed}`}>
+        <div className="flex">{opensDrawer}</div>
+        {/* Under the name rather than beside it, so a long name gets the column's full width.
+            It starts 6 px before the name's text, so its fill lines up with the row's. */}
         <DisclosureTrigger
           aria-label={`${subtaskCount(task.subtasks.length)} of ${task.name}`}
-          className={`group flex min-h-10 shrink-0 cursor-pointer items-start gap-1.5 self-stretch ps-1.5 pt-3 text-[12px] text-muted tabular-nums transition-colors duration-150 ease-out hover:text-ink max-lg:min-h-11 ${expandFill(draggingId !== null)}`}
+          className={`group ms-4.5 flex h-10 cursor-pointer items-center gap-2 rounded-sm ps-1.5 pe-1 text-[13px] text-muted tabular-nums transition-[color,background-color,scale] duration-150 ease-out hover:text-ink active:scale-[0.96] max-lg:h-11 ${draggingId === null ? 'hover:bg-sunken' : ''}`}
         >
-          <MixBar mix={task.mix} className="mt-1 h-1 w-8 rounded-full" />
-          <span aria-hidden="true" className="leading-3">
-            {task.subtasks.length}
-          </span>
+          <MixBar mix={task.mix} className="h-1 w-8 rounded-full" />
+          <span aria-hidden="true">{subtaskCount(task.subtasks.length)}</span>
           <Chevron />
         </DisclosureTrigger>
       </div>
