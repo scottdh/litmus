@@ -21,16 +21,12 @@ function isTaskDimmed(task: TaskView, dim: Light | null) {
 const DIMMED = 'opacity-30';
 
 // Where a chapter's task column has room, a task's mix bar and count sit at the end of its name's line, so it's one row.
-// The count is drawn one line tall, so it centres on the name's first line, and its target reaches down to the foot
-// of the row: 40 px, or 44 px on touch.
-const ONE_LINE_ROW = '@min-[24rem]/tasks:flex @min-[24rem]/tasks:items-start @min-[24rem]/tasks:gap-4';
+// The count fills the row's full height, like the name beside it, and keeps its contents one line tall at the top,
+// so they centre on the name's first line.
+const ONE_LINE_ROW = '@min-[24rem]/tasks:flex @min-[24rem]/tasks:items-stretch @min-[24rem]/tasks:gap-4';
 const ONE_LINE_NAME = '@min-[24rem]/tasks:[&>button]:min-h-10 @min-[24rem]/tasks:max-lg:[&>button]:min-h-11';
-const ONE_LINE_COUNT = [
-  'relative @min-[24rem]/tasks:ms-0 @min-[24rem]/tasks:-me-1.5 @min-[24rem]/tasks:px-1.5',
-  '@min-[24rem]/tasks:h-9 @min-[24rem]/tasks:max-lg:h-9',
-  '@min-[24rem]/tasks:before:absolute @min-[24rem]/tasks:before:inset-x-0 @min-[24rem]/tasks:before:top-0',
-  '@min-[24rem]/tasks:before:-bottom-1 @min-[24rem]/tasks:max-lg:before:-bottom-2',
-].join(' ');
+const ONE_LINE_COUNT =
+  '@min-[24rem]/tasks:ms-0 @min-[24rem]/tasks:-me-1.5 @min-[24rem]/tasks:px-1.5 @min-[24rem]/tasks:h-auto @min-[24rem]/tasks:max-lg:h-auto @min-[24rem]/tasks:items-start';
 
 const subtaskCount = (count: number) => `${String(count)} ${count === 1 ? 'subtask' : 'subtasks'}`;
 
@@ -229,9 +225,11 @@ function TaskRow({
           aria-label={`${subtaskCount(task.subtasks.length)} of ${task.name}`}
           className={`group ms-4.5 flex h-10 shrink-0 cursor-pointer items-center gap-2 rounded-sm ps-1.5 pe-1 text-[13px] text-muted tabular-nums transition-[color,background-color,scale] duration-150 ease-out hover:text-ink active:scale-[0.96] max-lg:h-11 ${ONE_LINE_COUNT} ${draggingId === null ? 'hover:bg-sunken' : ''}`}
         >
-          <MixBar mix={task.mix} className="h-1 w-8 rounded-full" />
-          <span aria-hidden="true">{subtaskCount(task.subtasks.length)}</span>
-          <Chevron />
+          <span className="flex h-9 items-center gap-2">
+            <MixBar mix={task.mix} className="h-1 w-8 rounded-full" />
+            <span aria-hidden="true">{subtaskCount(task.subtasks.length)}</span>
+            <Chevron />
+          </span>
         </DisclosureTrigger>
       </div>
       <DisclosurePanel>
