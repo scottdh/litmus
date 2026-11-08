@@ -2,6 +2,7 @@
 import type { TeamView } from '@litmus/core';
 import { useState, type KeyboardEvent } from 'react';
 import { PopoverPanel, PopoverRoot, PopoverTitle, PopoverTrigger } from '../../ui/popover';
+import { EndsWithOpens, LINE_TRIGGER } from './line-trigger';
 import { teamChoices, teamLine, type Following } from './teams';
 
 /** Two heads, drawn like the persona glyphs, so the team line doesn't read as one more persona. */
@@ -86,7 +87,7 @@ export function TeamLine({
   return (
     <div className={`${className} flex w-full flex-col items-start gap-1`}>
       <PopoverRoot open={open} onOpenChange={setOpen}>
-        <PopoverTrigger className="-mx-1.5 min-w-0 self-stretch cursor-pointer rounded-sm px-1.5 py-1 text-start text-[13px] leading-relaxed text-pretty text-muted transition-colors duration-150 ease-out hover:bg-canvas max-lg:min-h-11">
+        <PopoverTrigger className={LINE_TRIGGER}>
           {line.name === null && !line.followed ? (
             <span className="inline-flex items-center gap-1.5">
               <svg
@@ -107,8 +108,9 @@ export function TeamLine({
               <span className="sr-only">Team: </span>
               <TeamMark />
               <span className={line.followed ? undefined : 'text-ink'}>
-                {line.name ?? 'No team'}
-                {line.followed && ', same as its task'}
+                <EndsWithOpens
+                  text={line.followed ? `${line.name ?? 'No team'}, same as its task` : (line.name ?? 'No team')}
+                />
               </span>
             </span>
           )}
