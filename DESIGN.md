@@ -26,22 +26,22 @@ Every `on-light-*` is at least 4.5:1 on its fill. Every `mark-*` is at least 3:1
 
 Two faces, set in `apps/web/src/app/layout.tsx`. Use nothing else.
 
-| Role                | Style                                                |
-| ------------------- | ---------------------------------------------------- |
-| Chapter heading     | `font-story`, 28 px, line height 1.1, slightly tight |
-| Chapter on a rail   | `font-story`, 17 px, line height 1.2, `muted`        |
-| Page title          | Sans, 15 px, semibold                                |
-| Task                | Sans, 15 px, line height 1.35                        |
-| Subtask             | Sans, 14 px, `muted`                                 |
-| Step                | Sans, 13 px, `muted`                                 |
-| Labels and captions | Sans, 13 px                                          |
-| Counts              | 12 px or 13 px, always `tabular-nums`                |
+| Role                | Style                                                                 |
+| ------------------- | --------------------------------------------------------------------- |
+| Chapter heading     | `font-story`, 28 px, line height 1.1, slightly tight                  |
+| Chapter on a rail   | `font-story`, 17 px, line height 1.2, `muted`, on its side on desktop |
+| Page title          | Sans, 15 px, semibold                                                 |
+| Task                | Sans, 15 px, line height 1.35                                         |
+| Subtask             | Sans, 14 px, `muted`                                                  |
+| Step                | Sans, 13 px, `muted`                                                  |
+| Labels and captions | Sans, 13 px                                                           |
+| Counts              | 12 px or 13 px, always `tabular-nums`                                 |
 
 Names are never truncated in the Story view.
 
 ## Motion
 
-Hover goes a shade darker: a raised control or a popover row dips from `surface` to `canvas`, and a row on the page, which is already `canvas`, dips to `sunken`. Hover and press take 150 ms `ease-out`; list the properties, because lint bans `transition-all`. Press scales to 0.96. Panels fade in with opacity and never animate height. The drawer is the exception: it slides in from the right with `--motion-focus`. Chapter focus uses `--motion-focus`, 240 ms. It's the one place a width animates, which is allowed because task text sits in a fixed-width box and nothing reflows. `globals.css` handles reduced motion.
+Hover goes a shade darker: a raised control or a popover row dips from `surface` to `canvas`, and a row on the page, which is already `canvas`, dips to `sunken`. Hover and press take 150 ms `ease-out`; list the properties, because lint bans `transition-all`. Press scales to 0.96. Panels fade in with opacity and never animate height. The drawer is the exception: it slides in from the right with `--motion-focus`. Chapter focus uses `--motion-focus`, 240 ms. It's the one place a width animates, which is allowed because task text sits in a fixed-width box: the box snaps to the column's final width as it starts to move, so text rewraps once and never reflows on the way. `globals.css` handles reduced motion.
 
 ## Components
 
@@ -106,7 +106,7 @@ Esc inside any popover only closes it: page-wide Esc handlers skip events from i
 
 ### Chapter
 
-`apps/web/src/features/map/chapter.tsx`. One activity in the story, in one of three states: at rest, focused, or in the background. In the background it shows only its number and name, because that's all a squad needs to add it to the focus. Don't show tasks or health there. A row opens the drawer, and only the line under a task's name (its mix bar, "4 subtasks" and chevron) expands subtasks; it sits under the name so a long name gets the full width. A row fills with `sunken` on hover, reaching 6 px past its text so nothing moves, and keeps the fill with the `shadow-current` ring while its drawer is open. The expand control fills on its own, as a separate target. Nothing fills while a row is dragged. Names aren't underlined: a fill shows the whole target, and goes darker like every other control. Surface (lighter) and an `ink` tint (darker in light, lighter in dark) were tried and rejected. A subtask's chevron and count expand its steps in the same way. `docs/designs/focus-direction.md` has the reasoning.
+`apps/web/src/features/map/chapter.tsx`. One activity in the story, in one of three states: at rest, focused, or in the background. In the background it's a 56 px rail showing only its number and its name on its side, because that's all a squad needs to add it to the focus. Don't show tasks or health there. Focused chapters share the width the rails leave, between 272 and 600 px, through `--focus-width`, which the story sets as a size container. A row opens the drawer, and only a task's mix bar, "4 subtasks" and chevron expand subtasks. Where the task column is at least 384 px (a container query on `tasks`) they sit at the end of the name's line, so each task is one row; in a narrower column they sit under the name so a long name gets the full width. A row fills with `sunken` on hover, reaching 6 px past its text so nothing moves, and keeps the fill with the `shadow-current` ring while its drawer is open. It fills while pressed too, because touch has no hover. The expand control fills on its own, as a separate target. Nothing fills while a row is dragged. Names aren't underlined: a fill shows the whole target, and goes darker like every other control. Surface (lighter) and an `ink` tint (darker in light, lighter in dark) were tried and rejected. A subtask's chevron and count expand its steps in the same way. `docs/designs/focus-direction.md` has the reasoning.
 
 ### Drawer
 
