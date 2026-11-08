@@ -84,9 +84,9 @@ Fields: `SELECT` for a dropdown (with `SelectChevron`), `TEXT_BOX` for a boxed n
 
 Esc inside any popover only closes it: page-wide Esc handlers skip events from inside one (`isInPopover` in `apps/web/src/ui/popover.tsx`), so picks, the chapter focus and the drawer stay.
 
-### TeamField
+### TeamLine
 
-`apps/web/src/features/map/team-field.tsx`. A task's or subtask's team, in the drawer under the name. A task offers "No team"; a subtask offers "Same as its task (Bench)" instead, which follows its task. A change shows at once and puts the old team back if it can't be saved.
+`apps/web/src/features/map/team-line.tsx`. Who turns a task or subtask from grey to green, as a `muted` 13 px line under its personas, because a team changes about once a year. A small two-heads mark comes first, drawn like the persona glyphs and spaced like one, so the two lines start together. A team set on the item is in `ink`; a subtask with none of its own reads "Bench, same as its task", all `muted`, like personas set further down. With no team it reads "Add a team". The line opens a pick-one list: "No team" on a task, "Same as its task" with the task's team under it on a subtask, then each team. A pick shows at once, saves at once and closes the list; if it can't be saved the old team comes back with "That team couldn't be saved, so it hasn't changed." The list is a radio group, so Tab stops once and the arrows move.
 
 ### Persona icons
 

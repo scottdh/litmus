@@ -14,9 +14,9 @@ This settles part of open conflict 2: an earlier version of the idea assigned wo
 
 ## 2. In the drawer
 
-A task's drawer has a **Team** row under the name: the label "Team" in `muted` 13 px, and a select on the right with "No team" and each team. A change saves at once and shows at once. If it fails, the old team comes back with "That team couldn't be saved, so it hasn't changed."
+A task's or subtask's team is a quiet line under its personas, opened to change it. Section 14 has the current design; this section first described a Team row with a select.
 
-A subtask's drawer shows the same row read-only: the team's name, and "Set on its task" under it in `muted` 13 px. Steps and chapters show no team.
+Steps and chapters show no team.
 
 ## 3. Showing a team's tasks
 
@@ -48,7 +48,7 @@ Built in #37, as proposed.
 
 ## 7. Build split
 
-1. **#36, teams on tasks and the Teams popover.** `packages/core/src/domain/map/team.ts`, `packages/core/src/application/assign-team.ts`, the `teams` and `teamId` fields, `apps/web/src/features/map/team-field.tsx`, `team-popover.tsx`, `teams.ts`, `story-wall.tsx`, `chapter.tsx`, `drawer.tsx`. Tests: `team.unit.test.ts`, `assign-team.app.test.ts`, `teams.unit.test.ts`.
+1. **#36, teams on tasks and the Teams popover.** `packages/core/src/domain/map/team.ts`, `packages/core/src/application/assign-team.ts`, the `teams` and `teamId` fields, the team field (since replaced by `apps/web/src/features/map/team-line.tsx`, section 14), `team-popover.tsx`, `teams.ts`, `story-wall.tsx`, `chapter.tsx`, `drawer.tsx`. Tests: `team.unit.test.ts`, `assign-team.app.test.ts`, `teams.unit.test.ts`.
 2. **#37, adding and renaming teams.** Depends on 1.
 
 ## 8. Questions for Scott
@@ -100,3 +100,12 @@ Decided by Scott on 2026-11-07, from a prototype of five options (#63).
 - Rejected: **Undo only**, because the Undo is too easy to miss; **inline** (the button turns into the question), easy to miss on a phone and it moves the layout; a **dialog**, too heavy for a change Undo can reverse, and it covers the map; and an **Undo toast**, which protects only if you react within about 8 seconds.
 - Then, the same day (#65), it became the rule for every change: anything that loses data asks first in a popover, then gets Undo, and every other undoable change shows a toast with Undo. A confirm on adds and moves would be friction on the map's most frequent actions, and a toast alone isn't enough when data is lost, because 8 s is easy to miss. The toast is neutral, never green, because green is a light. Removing a persona follows the confirm when it's built (#53 leaves it for later).
 - Still open: whether renames, team assignment and personas get Undo, and whether tasks and chapters can be archived rather than deleted. "Parking lot" is already the brief's word for gaps AI spots, so archiving shouldn't be called parking.
+
+## 14. The team is a line under the personas
+
+Decided by Scott on 2026-11-08, from a prototype of four directions (#85), after the persona byline (#78).
+
+- **Why:** a team is set about once a year, and the Team row's raised select was the heaviest control at the top of the drawer.
+- **Chosen, Line:** a `muted` 13 px line under the persona byline, after a small two-heads mark so it doesn't read as one more persona. A team set on the item is in `ink`; a subtask following its task reads "Bench, same as its task", all `muted`; a task with none reads "Add a team". It opens a pick-one list titled "Team" that saves and closes on a pick. `DESIGN.md` (TeamLine) has the detail.
+- **Rejected:** the **Team row** as it was, too heavy for its use; **Who**, one byline and one popover for team and personas together, which made a long popover on a phone and put personas a click further away; and **Footer**, a sentence at the foot of the drawer with Change, the quietest but the hardest to find, with "Pick a team" at the very bottom for a new task.
+- **Known cost:** on desktop the line is 29 px tall, under the 40 px target, like the persona byline. It can't grow without its tap area overlapping the persona line 4 px above. On a phone both are 44 px.
