@@ -48,17 +48,17 @@ export function MoveArrows({ map, id, onMove }: { map: MapView; id: string; onMo
   );
 }
 
-/** With the arrows, reaches everything dragging can. */
+/** With the arrows, reaches everything dragging can. Fills the More popover, so its chevron sits inside the field. */
 export function MoveTo({ map, id, onMove }: { map: MapView; id: string; onMove: (to: Destination) => void }) {
   return (
-    <span className="relative max-lg:w-full">
+    <span className="relative w-full">
       <select
         aria-label="Move to"
         value=""
         onChange={(event) => {
           if (event.target.value !== '') onMove(JSON.parse(event.target.value) as Destination);
         }}
-        className={`${SELECT} max-lg:w-full lg:[field-sizing:content]`}
+        className={`${SELECT} w-full`}
       >
         <option value="">Move to…</option>
         {moveChoices(map, id).map((group) => (
