@@ -31,6 +31,12 @@ const map: MapView = {
           light: 'red',
           review: 'Broken.',
           earlierReview: null,
+          research: {
+            summary: 'People give up.',
+            hearing: [{ text: 'I gave up.', personaId: 'ps_rider', participant: 'P1, rider' }],
+            pains: [],
+            ideas: [],
+          },
           subtasks: [],
           mix: [],
         },
@@ -43,6 +49,7 @@ const map: MapView = {
           light: 'yellow',
           review: null,
           earlierReview: null,
+          research: null,
           subtasks: [
             {
               id: 'tsk_child',
@@ -53,7 +60,8 @@ const map: MapView = {
               ownTeamId: null,
               ownPersonaIds: [],
               personaIds: ['ps_desk'],
-              steps: [{ id: 'stp_1', name: 'A step', note: 'A note', personaIds: ['ps_desk'] }],
+              research: null,
+              steps: [{ id: 'stp_1', name: 'A step', note: 'A note', personaIds: ['ps_desk'], research: null }],
             },
           ],
           mix: [],
@@ -67,6 +75,7 @@ const map: MapView = {
           light: 'grey',
           review: null,
           earlierReview: null,
+          research: null,
           subtasks: [
             {
               id: 'tsk_bench_part',
@@ -77,6 +86,7 @@ const map: MapView = {
               ownTeamId: null,
               ownPersonaIds: [],
               personaIds: [],
+              research: null,
               steps: [],
             },
             {
@@ -88,6 +98,7 @@ const map: MapView = {
               ownTeamId: 'tm_till',
               ownPersonaIds: [],
               personaIds: [],
+              research: null,
               steps: [],
             },
           ],
@@ -99,6 +110,12 @@ const map: MapView = {
 };
 
 describe('findSubject', () => {
+  it('gives a task, subtask or step its research, or null', () => {
+    expect(findSubject(map, 'tsk_leaf')).toMatchObject({ research: { summary: 'People give up.' } });
+    expect(findSubject(map, 'tsk_child')).toMatchObject({ research: null });
+    expect(findSubject(map, 'stp_1')).toMatchObject({ research: null });
+  });
+
   it('finds a team, with its tasks under their chapters', () => {
     expect(findSubject(map, 'tm_bench')).toEqual({
       kind: 'team',

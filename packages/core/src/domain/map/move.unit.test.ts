@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { DomainError } from '../../kernel/errors.ts';
 import { moveTaskInMap } from './move.ts';
+import type { Research } from './research.ts';
 import type { MapId, StepId, StoryMap, TaskId } from './story-map.ts';
 
 const id = (value: string) => value as TaskId;
@@ -193,5 +194,29 @@ describe('moves that are refused', () => {
     expect(codeOf(() => moveTaskInMap(map, id('a'), { chapterId: 'act_2', before: id('c') }))).toBe(
       'DESTINATION_NOT_FOUND',
     );
+  });
+});
+
+describe('research', () => {
+  const notes: Research = { summary: 'What we know.', hearing: [], pains: ['A pain.'], ideas: [] };
+  const withResearch = (ids: string[]): StoryMap => ({
+    ...map,
+    activities: map.activities.map((activity) => ({
+      ...activity,
+      tasks: activity.tasks.map((task) => ({
+        ...(ids.includes(task.id) ? { ...task, research: notes } : task),
+        subtasks: task.subtasks.map((sub) => (ids.includes(sub.id) ? { ...sub, research: notes } : sub)),
+      })),
+    })),
+  });
+
+  it('goes with a task that becomes a subtask', () => {
+    const { map: moved } = moveTaskInMap(withResearch(['a']), id('a'), { parentId: id('c'), before: null });
+    expect(moved.activities[0]?.tasks[1]?.subtasks[0]?.research).toEqual(notes);
+  });
+
+  it('goes with a subtask that becomes a task', () => {
+    const { map: moved } = moveTaskInMap(withResearch(['b1']), id('b1'), { chapterId: 'act_1', before: null });
+    expect(moved.activities[0]?.tasks[3]?.research).toEqual(notes);
   });
 });
