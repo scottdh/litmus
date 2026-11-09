@@ -25,7 +25,7 @@ Rules:
 - **A quote from research isn't rating evidence.** It doesn't back the light (`docs/product/rating-model.md`).
 - **The drawer shows at most five items per section.** The task view will hold the rest.
 
-The move arrows and Move to are now in a More menu, opened by the dots beside the X. Dragging is how people actually reorder. The arrows and Move to stay reachable there for keyboard and touch. Reordering with the keyboard on the map itself would be better, and has its own ticket.
+The move arrows and Move to are now in a More menu, opened by the dots beside the X. Dragging is how people actually reorder. The arrows and Move to stay reachable there for keyboard and touch. Reordering with the keyboard on the map itself would be better, and has its own ticket (#91).
 
 **Rejected:**
 
