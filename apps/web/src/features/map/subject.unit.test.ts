@@ -179,6 +179,12 @@ describe('findSubject', () => {
       light: 'red',
       review: 'Broken.',
       earlierReview: null,
+      research: {
+        summary: 'People give up.',
+        hearing: [{ text: 'I gave up.', personaId: 'ps_rider', participant: 'P1, rider' }],
+        pains: [],
+        ideas: [],
+      },
       subtasks: [],
       steps: [],
     });
@@ -208,8 +214,9 @@ describe('findSubject', () => {
       light: 'green',
       review: 'Fine.',
       earlierReview: null,
+      research: null,
       subtasks: [],
-      steps: [{ id: 'stp_1', name: 'A step', note: 'A note', personaIds: ['ps_desk'] }],
+      steps: [{ id: 'stp_1', name: 'A step', note: 'A note', personaIds: ['ps_desk'], research: null }],
     });
   });
 
@@ -229,6 +236,7 @@ describe('findSubject', () => {
       name: 'A step',
       note: 'A note',
       personaIds: ['ps_desk'],
+      research: null,
       chapterId: 'act_2',
       path: 'Chapter 2 · Second · With children · A child',
     });

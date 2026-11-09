@@ -24,6 +24,24 @@ export interface Persona {
   icon: PersonaIcon;
 }
 
+/** Something a user said about a task, in their words. It isn't evidence for a light. */
+export interface Quote {
+  text: string;
+  /** Who said it, when they match a persona on the map. */
+  personaId?: PersonaId;
+  /** How the research names them, such as "P3, mechanic". Invented in samples, never real. */
+  participant: string;
+}
+
+/** What research says about a task, subtask or step. Each has its own; nothing rolls up. */
+export interface Research {
+  /** One to four sentences on what the task is and why it's hard. */
+  summary: string;
+  hearing: Quote[];
+  pains: string[];
+  ideas: string[];
+}
+
 export interface Product {
   id: ProductId;
   name: string;
@@ -35,6 +53,7 @@ export interface Step {
   name: string;
   note: string;
   personaIds?: PersonaId[];
+  research?: Research;
 }
 
 export interface Subtask {
@@ -43,6 +62,7 @@ export interface Subtask {
   /** Only when a different team has it. Without one, it follows its task's team. */
   teamId?: TeamId;
   personaIds?: PersonaId[];
+  research?: Research;
   steps: Step[];
 }
 
@@ -53,6 +73,7 @@ export interface Task {
   teamId?: TeamId;
   /** Only the ones set on this task. Its subtasks' and steps' personas roll up to it in the view. */
   personaIds?: PersonaId[];
+  research?: Research;
   subtasks: Subtask[];
 }
 

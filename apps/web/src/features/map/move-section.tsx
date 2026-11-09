@@ -1,7 +1,8 @@
 'use client';
 import type { MapView } from '@litmus/core';
 import { Button } from '../../ui/button';
-import { SELECT } from '../../ui/control';
+import { button, SELECT } from '../../ui/control';
+import { PopoverPanel, PopoverRoot, PopoverTitle, PopoverTrigger } from '../../ui/popover';
 import { SelectChevron } from './select-chevron';
 import { moveChoices, stepDestination, type Destination } from './drop';
 
@@ -72,5 +73,32 @@ export function MoveTo({ map, id, onMove }: { map: MapView; id: string; onMove: 
       </select>
       <SelectChevron />
     </span>
+  );
+}
+
+/**
+ * The drawer's More menu. Dragging is how most people reorder, so the keyboard and touch way in waits behind a
+ * button by the close X rather than sitting beside the light.
+ */
+export function MoveMenu({ map, id, onMove }: { map: MapView; id: string; onMove: (to: Destination) => void }) {
+  return (
+    <PopoverRoot>
+      <PopoverTrigger
+        aria-label="More"
+        title="More"
+        className={`${button({ variant: 'quiet', shape: 'icon' })} -mt-1.5 shrink-0 max-lg:-mt-3.5 max-lg:w-11 max-lg:flex-none`}
+      >
+        <svg aria-hidden="true" viewBox="0 0 16 16" className="size-4" fill="currentColor">
+          <circle cx="3.5" cy="8" r="1.25" />
+          <circle cx="8" cy="8" r="1.25" />
+          <circle cx="12.5" cy="8" r="1.25" />
+        </svg>
+      </PopoverTrigger>
+      <PopoverPanel align="end" className="flex w-[min(18rem,calc(100vw-2rem))] flex-col gap-3 p-3">
+        <PopoverTitle className="px-0.5 pt-1 text-[13px] font-semibold">Move</PopoverTitle>
+        <MoveArrows map={map} id={id} onMove={onMove} />
+        <MoveTo map={map} id={id} onMove={onMove} />
+      </PopoverPanel>
+    </PopoverRoot>
   );
 }

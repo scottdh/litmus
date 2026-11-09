@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { DomainError } from '../../kernel/errors.ts';
 import { moveTaskInMap } from './move.ts';
-import type { Research } from './research.ts';
-import type { MapId, StepId, StoryMap, TaskId } from './story-map.ts';
+import type { MapId, Research, StepId, StoryMap, TaskId } from './story-map.ts';
 
 const id = (value: string) => value as TaskId;
 

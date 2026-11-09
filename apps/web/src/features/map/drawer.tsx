@@ -6,7 +6,7 @@ import { AddControl } from './add-field';
 import { LightMark } from './light-mark';
 import { LIGHT_COPY, MARK_COLOUR } from './lights';
 import type { Destination } from './drop';
-import { MoveArrows, MoveTo } from './move-section';
+import { MoveMenu } from './move-section';
 import { NameField } from './name-field';
 import { NoteField } from './note-field';
 import { PersonaByline } from './persona-byline';
@@ -16,6 +16,7 @@ import { RemoveConfirm } from './remove-confirm';
 import { removePersonaWarning } from './personas';
 import { removeTeamWarning } from './teams';
 import { RatingSection, type ReviewDraft } from './rating-section';
+import { ResearchSection } from './research-section';
 import type { Rate, RenameResult } from './rename-result';
 import { StepMark } from './step-mark';
 import { TeamLine } from './team-line';
@@ -111,13 +112,14 @@ export function Drawer({
     >
       {/* Stays in view, because a long review can push the rest of the drawer off screen. */}
       <div className="sticky -top-6 z-1 -mx-6 -mt-6 -mb-4 flex w-[calc(100%+3rem)] items-start justify-between gap-2 bg-surface px-6 pt-6 pb-2">
-        <p className="text-[13px] leading-snug text-pretty text-muted">{subject.path}</p>
+        <p className="me-auto text-[13px] leading-snug text-pretty text-muted">{subject.path}</p>
+        {(isTask || subject.kind === 'step') && <MoveMenu map={map} id={subject.id} onMove={onMove} />}
         <Button
           aria-label="Close"
           onClick={onClose}
           variant="quiet"
           shape="icon"
-          className="-me-2 -mt-1.5 shrink-0 max-lg:-me-3.5 max-lg:-mt-3.5 max-lg:w-11 max-lg:flex-none"
+          className="-ms-1 -me-2 -mt-1.5 shrink-0 max-lg:-me-3.5 max-lg:-mt-3.5 max-lg:w-11 max-lg:flex-none"
         >
           <svg
             aria-hidden="true"
@@ -178,16 +180,11 @@ export function Drawer({
         )}
       </div>
 
-      {/* Its light or note, and where it sits. */}
+      {/* Its light or note. A light reads with the name, personas and team, so it sits closer than the 24 px between groups. */}
       {(isTask || subject.kind === 'step') && (
-        <div className="flex w-full flex-col items-start gap-4">
+        <div className={`flex w-full flex-col items-start gap-4 ${isTask ? '-mt-2' : ''}`}>
           {subject.kind === 'step' && (
-            <>
-              <NoteField key={`note-${subject.id}`} id={subject.id} value={subject.note} onSave={onNote} />
-              <div className="flex max-lg:w-24">
-                <MoveArrows map={map} id={subject.id} onMove={onMove} />
-              </div>
-            </>
+            <NoteField key={`note-${subject.id}`} id={subject.id} value={subject.note} onSave={onNote} />
           )}
           {isTask && subject.subtasks.length === 0 && (
             <RatingSection
@@ -199,22 +196,16 @@ export function Drawer({
               draft={reviewDraft}
               rate={rate}
               onDraft={onReviewDraft}
-              beside={<MoveArrows map={map} id={subject.id} onMove={onMove} />}
             />
           )}
           {isTask && subject.subtasks.length > 0 && (
             <div className="flex w-full flex-col gap-2 text-[14px] leading-snug">
-              <div className="flex items-center justify-between gap-3">
-                <p className="flex items-center gap-2">
-                  <span className={MARK_COLOUR[subject.light]}>
-                    <LightMark light={subject.light} />
-                  </span>
-                  {LIGHT_COPY[subject.light].label}
-                </p>
-                <div className="flex max-lg:w-24">
-                  <MoveArrows map={map} id={subject.id} onMove={onMove} />
-                </div>
-              </div>
+              <p className="flex items-center gap-2">
+                <span className={MARK_COLOUR[subject.light]}>
+                  <LightMark light={subject.light} />
+                </span>
+                {LIGHT_COPY[subject.light].label}
+              </p>
               <p className="text-[13px] text-pretty text-muted">Set by its subtasks.</p>
               {subject.earlierReview !== null && (
                 <div className="mt-2 flex flex-col gap-1">
@@ -226,53 +217,68 @@ export function Drawer({
               )}
             </div>
           )}
-          <MoveTo map={map} id={subject.id} onMove={onMove} />
         </div>
       )}
 
-      {/* What's under it. */}
-      {isTask && (
-        <div className="flex w-full flex-col items-start gap-2 border-t-(length:--hairline) border-line pt-4">
-          {subject.kind === 'task' && subject.subtasks.length > 0 && (
-            <ul aria-label="Subtasks" className="w-full">
-              {subject.subtasks.map((sub) => (
-                <DrawerRow
-                  key={sub.id}
-                  mark={<LightRowMark light={sub.light} />}
-                  onOpen={() => {
-                    onOpenChild(sub.id);
-                  }}
-                >
-                  <PersonaName name={sub.name} personas={map.personas} ids={sub.personaIds} />
-                </DrawerRow>
-              ))}
-            </ul>
-          )}
-          {subject.kind === 'subtask' && subject.steps.length > 0 && (
-            <ol aria-label="Steps" className="w-full">
-              {subject.steps.map((step) => (
-                <DrawerRow
-                  key={step.id}
-                  mark={<StepMark className="" />}
-                  onOpen={() => {
-                    onOpenChild(step.id);
-                  }}
-                >
-                  <PersonaName name={step.name} personas={map.personas} ids={step.personaIds} />
-                </DrawerRow>
-              ))}
-            </ol>
-          )}
-          <AddControl
-            key={`add-${subject.id}`}
-            action={subject.kind === 'task' ? 'Add subtask' : 'Add step'}
-            label={`New ${subject.kind === 'task' ? 'subtask' : 'step'} of ${subject.name}`}
-            placeholder={subject.kind === 'task' ? 'Subtask name' : 'Step name'}
-            variant="raised"
-            fieldClassName="py-1 text-base leading-[1.35] lg:text-[14px]"
-            onAdd={subject.kind === 'task' ? onAddSubtask : onAddStep}
-          />
-        </div>
+      {/* What research says, then what's under it. */}
+      {(isTask || subject.kind === 'step') && (
+        <ResearchSection
+          key={`research-${subject.id}`}
+          research={subject.research}
+          kind={subject.kind}
+          personas={map.personas}
+          under={
+            isTask
+              ? {
+                  label: subject.kind === 'task' ? 'Subtasks' : 'Steps',
+                  count: subject.kind === 'task' ? subject.subtasks.length : subject.steps.length,
+                  content: (
+                    <>
+                      {subject.kind === 'task' && subject.subtasks.length > 0 && (
+                        <ul aria-label="Subtasks" className="w-full">
+                          {subject.subtasks.map((sub) => (
+                            <DrawerRow
+                              key={sub.id}
+                              mark={<LightRowMark light={sub.light} />}
+                              onOpen={() => {
+                                onOpenChild(sub.id);
+                              }}
+                            >
+                              <PersonaName name={sub.name} personas={map.personas} ids={sub.personaIds} />
+                            </DrawerRow>
+                          ))}
+                        </ul>
+                      )}
+                      {subject.kind === 'subtask' && subject.steps.length > 0 && (
+                        <ol aria-label="Steps" className="w-full">
+                          {subject.steps.map((step) => (
+                            <DrawerRow
+                              key={step.id}
+                              mark={<StepMark className="" />}
+                              onOpen={() => {
+                                onOpenChild(step.id);
+                              }}
+                            >
+                              <PersonaName name={step.name} personas={map.personas} ids={step.personaIds} />
+                            </DrawerRow>
+                          ))}
+                        </ol>
+                      )}
+                      <AddControl
+                        key={`add-${subject.id}`}
+                        action={subject.kind === 'task' ? 'Add subtask' : 'Add step'}
+                        label={`New ${subject.kind === 'task' ? 'subtask' : 'step'} of ${subject.name}`}
+                        placeholder={subject.kind === 'task' ? 'Subtask name' : 'Step name'}
+                        variant="raised"
+                        fieldClassName="py-1 text-base leading-[1.35] lg:text-[14px]"
+                        onAdd={subject.kind === 'task' ? onAddSubtask : onAddStep}
+                      />
+                    </>
+                  ),
+                }
+              : null
+          }
+        />
       )}
 
       {(subject.kind === 'team' || subject.kind === 'persona') &&

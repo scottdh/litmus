@@ -1,6 +1,6 @@
 'use client';
 import { LIGHTS, needsEvidence, type Light } from '@litmus/core';
-import { useRef, useState, type ReactNode } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '../../ui/button';
 import { TEXT_BOX } from '../../ui/control';
 import { LightMark } from './light-mark';
@@ -21,7 +21,6 @@ export function RatingSection({
   draft,
   rate,
   onDraft,
-  beside,
 }: {
   mapId: string;
   id: string;
@@ -30,7 +29,6 @@ export function RatingSection({
   draft: ReviewDraft | null;
   rate: Rate;
   onDraft: (draft: ReviewDraft | null) => void;
-  beside: ReactNode;
 }) {
   const section = useRef<HTMLDivElement>(null);
   const field = useRef<HTMLTextAreaElement>(null);
@@ -92,7 +90,6 @@ export function RatingSection({
             );
           })}
         </div>
-        {beside}
       </div>
       <p className="text-[13px] leading-snug text-pretty text-muted">{LIGHT_COPY[shown].meaning}</p>
 

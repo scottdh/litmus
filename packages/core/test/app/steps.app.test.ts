@@ -52,7 +52,7 @@ describe('steps', () => {
       subtaskId: CHILD,
     });
     expect(id).toBe('stp_new');
-    expect(await stepsOf(maps)).toEqual([{ id: 'stp_new', name: 'Fresh', note: '', personaIds: [] }]);
+    expect(await stepsOf(maps)).toEqual([{ id: 'stp_new', name: 'Fresh', note: '', personaIds: [], research: null }]);
     expect(before).not.toEqual(after);
   });
 

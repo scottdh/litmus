@@ -1,7 +1,7 @@
 import { notFound } from '../kernel/errors.ts';
 import { LIGHTS, type Light } from '../domain/map/light.ts';
 import { deriveParentLight } from '../domain/map/parent-light.ts';
-import type { MapId, PersonaIcon, TaskId } from '../domain/map/story-map.ts';
+import type { MapId, PersonaIcon, Research, TaskId } from '../domain/map/story-map.ts';
 import type { MapRepository } from './ports.ts';
 
 export interface LightCount {
@@ -9,11 +9,26 @@ export interface LightCount {
   count: number;
 }
 
+export interface QuoteView {
+  text: string;
+  /** Null when nobody on the map matches who said it. */
+  personaId: string | null;
+  participant: string;
+}
+
+export interface ResearchView {
+  summary: string;
+  hearing: QuoteView[];
+  pains: string[];
+  ideas: string[];
+}
+
 export interface StepView {
   id: string;
   name: string;
   note: string;
   personaIds: string[];
+  research: ResearchView | null;
 }
 
 export interface SubtaskView {
@@ -29,6 +44,7 @@ export interface SubtaskView {
   ownPersonaIds: string[];
   /** Its own and its steps', in the map's persona order. */
   personaIds: string[];
+  research: ResearchView | null;
   steps: StepView[];
 }
 
@@ -57,6 +73,8 @@ export interface TaskView {
   review: string | null;
   /** A review from before this task had subtasks. It no longer sets the colour. */
   earlierReview: string | null;
+  /** Its own only. A parent never shows its subtasks' research. */
+  research: ResearchView | null;
   subtasks: SubtaskView[];
   mix: LightCount[];
 }
@@ -100,6 +118,20 @@ export const getMapView =
       const all = new Set(lists.flatMap((list) => list ?? []));
       return personaOrder.filter((id) => all.has(id));
     };
+    const researchOf = (research: Research | undefined): ResearchView | null =>
+      research === undefined
+        ? null
+        : {
+            summary: research.summary,
+            hearing: research.hearing.map((quote) => ({
+              text: quote.text,
+              personaId:
+                quote.personaId !== undefined && personaOrder.includes(quote.personaId) ? quote.personaId : null,
+              participant: quote.participant,
+            })),
+            pains: [...research.pains],
+            ideas: [...research.ideas],
+          };
 
     return {
       id: record.map.id,
@@ -118,11 +150,13 @@ export const getMapView =
             ownTeamId: sub.teamId ?? null,
             ownPersonaIds: rollUp(sub.personaIds),
             personaIds: rollUp(sub.personaIds, ...sub.steps.map((step) => step.personaIds)),
+            research: researchOf(sub.research),
             steps: sub.steps.map((step) => ({
               id: step.id,
               name: step.name,
               note: step.note,
               personaIds: rollUp(step.personaIds),
+              research: researchOf(step.research),
             })),
           }));
           const subLights = subtasks.map((sub) => sub.light);
@@ -135,6 +169,7 @@ export const getMapView =
             light: subtasks.length > 0 ? deriveParentLight(subLights) : lightOf(task.id),
             review: subtasks.length > 0 ? null : reviewOf(task.id),
             earlierReview: subtasks.length > 0 ? reviewOf(task.id) : null,
+            research: researchOf(task.research),
             subtasks,
             mix: countLights(subLights),
           };
