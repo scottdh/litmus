@@ -16,6 +16,7 @@ import type {
   TeamId,
 } from '../../domain/map/story-map.ts';
 import { createInMemoryMapRepository } from './map-repository.ts';
+import { researchFor } from './sample-research.ts';
 
 // Invented: a repair app for a neighbourhood bike workshop. Worst-case content on purpose. Never put real data here.
 export const SAMPLE_MAP_ID = 'map_sample' as MapId;
@@ -350,6 +351,7 @@ const stepsFor = (subtaskId: string, name: string): Step[] =>
     name: stepName,
     note,
     ...(STEP_PERSONAS[stepName] ? { personaIds: STEP_PERSONAS[stepName] } : {}),
+    ...researchFor(stepName),
   }));
 
 // One is long on purpose, to find out what breaks.
@@ -395,6 +397,7 @@ function build() {
           name: taskName,
           ...teamFor(a, taskName),
           ...personasFor(a, taskName, true),
+          ...researchFor(taskName),
           subtasks: [],
         };
       return {
@@ -402,11 +405,13 @@ function build() {
         name: taskName,
         ...teamFor(a, taskName),
         ...personasFor(a, taskName, false),
+        ...researchFor(taskName),
         subtasks: detail.map(([subName, light], s) => ({
           id: rate(`${id}_${String(s)}`, light),
           name: subName,
           ...subtaskTeamFor(subName),
           ...personasFor(a, subName, true),
+          ...researchFor(subName),
           steps: stepsFor(`${id}_${String(s)}`, subName),
         })),
       };

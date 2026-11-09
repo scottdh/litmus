@@ -99,7 +99,9 @@ describe('getMapView', () => {
   it('shows a subtask’s steps, and leaves its light and every mix to the ratings', async () => {
     const view = await getMapView({ maps })(MAP_ID);
     const parent = view.activities[0]?.tasks[1];
-    expect(parent?.subtasks[1]?.steps).toEqual([{ id: 'stp_1', name: 'A step', note: 'A note', personaIds: [] }]);
+    expect(parent?.subtasks[1]?.steps).toEqual([
+      { id: 'stp_1', name: 'A step', note: 'A note', personaIds: [], research: null },
+    ]);
     expect(parent?.subtasks[1]?.light).toBe('red');
     expect(parent?.mix).toEqual([
       { light: 'green', count: 1 },

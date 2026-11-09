@@ -24,6 +24,7 @@ const task = (id: string, teamId: string | null): TaskView => ({
   light: 'grey',
   review: null,
   earlierReview: null,
+  research: null,
   subtasks: [],
   mix: [],
 });
@@ -39,6 +40,7 @@ const withSubtasks = (parent: TaskView, subTeamIds: (string | null)[]): TaskView
     ownTeamId: own,
     ownPersonaIds: [],
     personaIds: [],
+    research: null,
     steps: [],
   })),
 });

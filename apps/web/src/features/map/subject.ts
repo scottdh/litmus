@@ -1,4 +1,4 @@
-import type { Light, MapView, PersonaIcon, TaskView } from '@litmus/core';
+import type { Light, MapView, PersonaIcon, ResearchView, TaskView } from '@litmus/core';
 
 interface TaskGroup {
   id: string;
@@ -29,7 +29,16 @@ export type Subject =
       chapters: TaskGroup[];
     }
   | { kind: 'chapter'; id: string; name: string; chapterId: string; path: string }
-  | { kind: 'step'; id: string; name: string; note: string; chapterId: string; path: string; personaIds: string[] }
+  | {
+      kind: 'step';
+      id: string;
+      name: string;
+      note: string;
+      chapterId: string;
+      path: string;
+      personaIds: string[];
+      research: ResearchView | null;
+    }
   | {
       kind: 'task' | 'subtask';
       id: string;
@@ -49,6 +58,8 @@ export type Subject =
       light: Light;
       review: string | null;
       earlierReview: string | null;
+      /** Its own only; nothing rolls up from its subtasks or steps. */
+      research: ResearchView | null;
       /** Empty unless this task's light follows from its subtasks. */
       subtasks: { id: string; name: string; light: Light; personaIds: string[] }[];
       /** Only a subtask has these. */
@@ -114,6 +125,7 @@ export function findSubject(map: MapView, id: string): Subject | null {
           light: task.light,
           review: task.review,
           earlierReview: task.earlierReview,
+          research: task.research,
           subtasks: task.subtasks,
           steps: [],
         };
@@ -134,6 +146,7 @@ export function findSubject(map: MapView, id: string): Subject | null {
             light: sub.light,
             review: sub.review,
             earlierReview: null,
+            research: sub.research,
             subtasks: [],
             steps: sub.steps,
           };
@@ -146,6 +159,7 @@ export function findSubject(map: MapView, id: string): Subject | null {
             name: step.name,
             note: step.note,
             personaIds: step.personaIds,
+            research: step.research,
             chapterId: chapter.id,
             path: `${place} · ${chapter.name} · ${task.name} · ${sub.name}`,
           };

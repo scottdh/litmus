@@ -14,7 +14,13 @@ function locate(map: StoryMap, id: TaskId) {
       if (sub) {
         // A subtask that becomes a task keeps the team it was working under, its own or its task's.
         const asTask = withTeam<Task>(
-          { id: sub.id, name: sub.name, ...(sub.personaIds ? { personaIds: sub.personaIds } : {}), subtasks: [] },
+          {
+            id: sub.id,
+            name: sub.name,
+            ...(sub.personaIds ? { personaIds: sub.personaIds } : {}),
+            ...(sub.research ? { research: sub.research } : {}),
+            subtasks: [],
+          },
           sub.teamId ?? task.teamId ?? null,
         );
         return { task: asTask, steps: sub.steps, parentId: task.id };
@@ -75,6 +81,7 @@ export function moveTaskInMap(
                     id,
                     name: found.task.name,
                     ...(found.task.personaIds ? { personaIds: found.task.personaIds } : {}),
+                    ...(found.task.research ? { research: found.task.research } : {}),
                     steps: found.steps,
                   },
                   found.task.teamId ?? null,
