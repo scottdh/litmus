@@ -197,7 +197,12 @@ describe('moves that are refused', () => {
 });
 
 describe('research', () => {
-  const notes: Research = { summary: 'What we know.', hearing: [], pains: ['A pain.'], ideas: [] };
+  const notes: Research = {
+    summary: 'What we know.',
+    hearing: [],
+    pains: [{ text: 'A pain.', quotes: [] }],
+    ideas: [],
+  };
   const withResearch = (ids: string[]): StoryMap => ({
     ...map,
     activities: map.activities.map((activity) => ({

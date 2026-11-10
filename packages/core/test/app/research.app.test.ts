@@ -9,7 +9,11 @@ import {
   type StoryMap,
   type TaskId,
 } from '../../src/index.ts';
-import { createInMemoryMapRepository } from '../../src/adapters/in-memory/index.ts';
+import {
+  SAMPLE_MAP_ID,
+  createInMemoryMapRepository,
+  createSampleMapRepository,
+} from '../../src/adapters/in-memory/index.ts';
 
 const MAP_ID = 'map_1' as MapId;
 const id = (value: string) => value as TaskId;
@@ -17,12 +21,17 @@ const MECHANIC = 'ps_mechanic' as PersonaId;
 
 const research = (summary: string): Research => ({
   summary,
-  hearing: [
-    { text: 'I just walk over and look.', personaId: MECHANIC, participant: 'P3, mechanic' },
-    { text: 'Nobody tells me.', personaId: 'ps_gone' as PersonaId, participant: 'P5, mechanic' },
-    { text: 'No idea who said this.', participant: 'P9' },
+  pains: [
+    {
+      text: 'Counts drift.',
+      quotes: [
+        { text: 'I just walk over and look.', personaId: MECHANIC, participant: 'P3, mechanic' },
+        { text: 'The screen said four.', personaId: 'ps_gone' as PersonaId, participant: 'P5, mechanic' },
+      ],
+    },
+    { text: 'Nobody hears when a part arrives.', quotes: [] },
   ],
-  pains: ['Counts drift.'],
+  hearing: [{ text: 'No idea who said this.', participant: 'P9' }],
   ideas: ['Show how fresh a count is.'],
 });
 
@@ -75,20 +84,37 @@ describe('research in the map view', () => {
     expect(tasks?.[0]?.subtasks[1]?.steps[0]?.research).toBeNull();
   });
 
-  it('keeps pain points and ideas in the order they were written', async () => {
+  it('holds each quote under the pain point it illustrates, in the order they were written', async () => {
     const view = await getMapView({ maps })(MAP_ID);
-    expect(view.activities[0]?.tasks[0]?.research).toMatchObject({
-      pains: ['Counts drift.'],
-      ideas: ['Show how fresh a count is.'],
-    });
+    const research = view.activities[0]?.tasks[0]?.research;
+    expect(research?.pains.map((pain) => [pain.text, pain.quotes.map((quote) => quote.text)])).toEqual([
+      ['Counts drift.', ['I just walk over and look.', 'The screen said four.']],
+      ['Nobody hears when a part arrives.', []],
+    ]);
+    expect(research?.ideas).toEqual(['Show how fresh a count is.']);
   });
 
-  it('names a quote’s persona only while that persona is on the map', async () => {
+  it('keeps only the quotes not yet placed under a pain point in what we’re hearing', async () => {
     const view = await getMapView({ maps })(MAP_ID);
     expect(view.activities[0]?.tasks[0]?.research?.hearing).toEqual([
-      { text: 'I just walk over and look.', personaId: MECHANIC, participant: 'P3, mechanic' },
-      { text: 'Nobody tells me.', personaId: null, participant: 'P5, mechanic' },
       { text: 'No idea who said this.', personaId: null, participant: 'P9' },
     ]);
+  });
+
+  it('names a quote’s persona only while that persona is on the map, wherever the quote sits', async () => {
+    const view = await getMapView({ maps })(MAP_ID);
+    expect(view.activities[0]?.tasks[0]?.research?.pains[0]?.quotes).toEqual([
+      { text: 'I just walk over and look.', personaId: MECHANIC, participant: 'P3, mechanic' },
+      { text: 'The screen said four.', personaId: null, participant: 'P5, mechanic' },
+    ]);
+  });
+
+  it('gives the sample research both quotes under pain points and quotes not yet placed', async () => {
+    const view = await getMapView({ maps: createSampleMapRepository() })(SAMPLE_MAP_ID);
+    const all = view.activities.flatMap((activity) =>
+      activity.tasks.flatMap((task) => [task.research, ...task.subtasks.map((sub) => sub.research)]),
+    );
+    expect(all.some((research) => research?.pains.some((pain) => pain.quotes.length > 0))).toBe(true);
+    expect(all.some((research) => (research?.hearing.length ?? 0) > 0)).toBe(true);
   });
 });

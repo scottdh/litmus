@@ -3,10 +3,11 @@ import { describe, expect, it } from 'vitest';
 import { researchSections } from './research';
 
 const quote = (n: number) => ({ text: `Quote ${String(n)}`, personaId: null, participant: `P${String(n)}` });
+const pain = (text: string, quotes: number[] = []) => ({ text, quotes: quotes.map(quote) });
 const full: ResearchView = {
   summary: 'What the task is.',
-  hearing: [1, 2, 3, 4, 5, 6].map(quote),
-  pains: ['One', 'Two', 'Three', 'Four', 'Five', 'Six'],
+  hearing: [7, 8].map(quote),
+  pains: [pain('One', [1, 2]), pain('Two'), pain('Three', [3, 4, 5, 6]), pain('Four'), pain('Five'), pain('Six')],
   ideas: ['An idea'],
 };
 
@@ -18,6 +19,18 @@ describe('researchSections', () => {
       'What we’re hearing',
       'Pain points',
       'How might we better support this task?',
+    ]);
+  });
+
+  it('hears the pain points’ quotes first, then the ones not yet placed', () => {
+    const { folds } = researchSections(
+      { summary: '', hearing: [quote(9)], pains: [pain('One', [1]), pain('Two', [2])], ideas: [] },
+      'task',
+    );
+    expect(folds[0]?.key === 'hearing' && folds[0].quotes.map((q) => q.text)).toEqual([
+      'Quote 1',
+      'Quote 2',
+      'Quote 9',
     ]);
   });
 
@@ -35,7 +48,10 @@ describe('researchSections', () => {
   });
 
   it('hides a section with nothing in it', () => {
-    const { summary, folds } = researchSections({ summary: '', hearing: [], pains: ['Only this'], ideas: [] }, 'task');
+    const { summary, folds } = researchSections(
+      { summary: '', hearing: [], pains: [pain('Only this')], ideas: [] },
+      'task',
+    );
     expect(summary).toBeNull();
     expect(folds.map((fold) => fold.key)).toEqual(['pains']);
   });
