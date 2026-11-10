@@ -56,3 +56,13 @@ How it works:
 - A rail takes a drop at the end of its chapter, because its tasks aren't visible to aim between.
 - The drawer has up and down arrows beside the light, and Move to on its own line, for keyboard and touch. There's no touch dragging, because it fights with scrolling.
 - A visible Undo reverses the last move. It refuses if the map has changed since, rather than lose that change.
+
+## Follow-up: reordering with the keyboard on the map
+
+Built in #91, after the move controls went into the drawer's More menu (#90).
+
+- **Space picks up, the arrows carry, Enter drops, Esc puts back.** It's the pattern screen reader users already know from other reorderable lists. Space no longer opens a row's drawer; Enter still does.
+- **The arrows walk the drop places, not the rows.** Every place dragging could drop the row, in reading order, so moving into a task, out to a chapter and across chapters follow dragging's rules, including the two-level limit, without a second set of rules. Left and right jump a chapter, because on a wide map up and down alone would take a long time to cross one.
+- **Only what's on show.** A folded-up task takes a row only at its end, and folded chapters are skipped, because a line can't point at a row you can't see.
+- **A hint in the toast's place** says where the row would land and which keys do what. Sighted keyboard users have no other way to learn Enter and Esc. The toast hides while a row is carried, because they'd sit in the same place.
+- Rejected: **Alt and the arrows to move one place at a time**, with no pick-up. Quicker for one step, but it can't show where a row is going before it goes, and it can't go into a task.
