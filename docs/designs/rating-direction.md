@@ -25,3 +25,19 @@ The review is stored as a new kind of evidence, a note, so the gate stays in pla
 **Known cost:** one step more than Instant, and each new review replaces the last.
 
 **Still working under interim assumptions** in `docs/agents/open-conflicts.md`: a mixed parent is fixed at yellow with no override (entry 9), and anything unrated shows as grey (entry 11).
+
+# Decision: tying the review to its light
+
+Decided by Scott on 2026-11-10, from a live prototype on the invented sample map, with a task's research under the light.
+
+**The problem:** the light's meaning and its review sat under the picker at the same spacing as everything else, and the review was set like the research summary under it. It didn't read as the reason for that light.
+
+**Chosen: Bubble.** The meaning and the review (or the review form) sit in one `sunken` panel, 12 px inside, with a small notch on its top edge pointing at the picked light. The notch slides to a newly picked light in 150 ms. The task view gets the same panel, because it uses the same `RatingSection`.
+
+**Rejected:**
+
+- **Labelled.** "Light" and "Review" as rows of the Who and Team list. Tidy, but the review gets the narrowest column in the drawer, and a long one runs tall.
+- **Thread.** A rule in the light's colour down the side of the meaning and review. Quiet, but colour is the only tie, and grey and out of scope barely differ.
+- **Statement.** At rest, the light's name with its reasons under it, and the picker behind Change. Reads best, but setting a light takes one more click and the picker is hidden.
+
+**Known cost:** the panel is the heaviest block in the drawer, and the only filled one.
