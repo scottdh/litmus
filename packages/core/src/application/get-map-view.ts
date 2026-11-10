@@ -2,7 +2,7 @@ import { notFound } from '../kernel/errors.ts';
 import { LIGHTS, type Light } from '../domain/map/light.ts';
 import { deriveParentLight } from '../domain/map/parent-light.ts';
 import { latestRatings, noteOf } from '../domain/map/rating.ts';
-import type { MapId, PersonaIcon, Research, TaskId } from '../domain/map/story-map.ts';
+import type { MapId, PersonaIcon, Quote, Research, TaskId } from '../domain/map/story-map.ts';
 import type { MapRepository } from './ports.ts';
 
 export interface LightCount {
@@ -17,10 +17,16 @@ export interface QuoteView {
   participant: string;
 }
 
+export interface PainPointView {
+  text: string;
+  quotes: QuoteView[];
+}
+
 export interface ResearchView {
   summary: string;
+  pains: PainPointView[];
+  /** Only quotes not yet placed under a pain point. */
   hearing: QuoteView[];
-  pains: string[];
   ideas: string[];
 }
 
@@ -116,18 +122,18 @@ export const getMapView =
       const all = new Set(lists.flatMap((list) => list ?? []));
       return personaOrder.filter((id) => all.has(id));
     };
+    const quoteOf = (quote: Quote): QuoteView => ({
+      text: quote.text,
+      personaId: quote.personaId !== undefined && personaOrder.includes(quote.personaId) ? quote.personaId : null,
+      participant: quote.participant,
+    });
     const researchOf = (research: Research | undefined): ResearchView | null =>
       research === undefined
         ? null
         : {
             summary: research.summary,
-            hearing: research.hearing.map((quote) => ({
-              text: quote.text,
-              personaId:
-                quote.personaId !== undefined && personaOrder.includes(quote.personaId) ? quote.personaId : null,
-              participant: quote.participant,
-            })),
-            pains: [...research.pains],
+            pains: research.pains.map((pain) => ({ text: pain.text, quotes: pain.quotes.map(quoteOf) })),
+            hearing: research.hearing.map(quoteOf),
             ideas: [...research.ideas],
           };
 

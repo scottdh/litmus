@@ -33,12 +33,19 @@ export interface Quote {
   participant: string;
 }
 
+/** Something that hurts, with the quotes that illustrate it. Several voices saying it is still one pain point. */
+export interface PainPoint {
+  text: string;
+  quotes: Quote[];
+}
+
 /** What research says about a task, subtask or step. Each has its own; nothing rolls up. */
 export interface Research {
   /** One to four sentences on what the task is and why it's hard. */
   summary: string;
+  pains: PainPoint[];
+  /** Only quotes not yet placed under a pain point. */
   hearing: Quote[];
-  pains: string[];
   ideas: string[];
 }
 
