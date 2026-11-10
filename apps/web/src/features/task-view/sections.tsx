@@ -43,11 +43,14 @@ function RowMark({ light }: { light: TaskViewModel['children'][number]['light'] 
 
 export function Heading({ model }: { model: TaskViewModel }) {
   const { page, personas, team } = model;
-  const path = [`Chapter ${String(page.chapter.number)} · ${page.chapter.name}`, ...page.path.map((p) => p.name)];
   return (
     <div className="flex flex-col gap-3">
-      {/* The story column says where it sits on a wide screen. */}
-      <p className="text-[13px] leading-snug text-pretty text-muted lg:hidden">{path.join(' · ')}</p>
+      {/* What it sits under. The story column says this on a wide screen, and the fold row names the chapter. */}
+      {page.path.length > 0 && (
+        <p className="text-[13px] leading-snug text-pretty text-muted lg:hidden">
+          {page.path.map((place) => place.name).join(' · ')}
+        </p>
+      )}
       <h1 className="font-story text-[34px] leading-[1.1] tracking-[-0.015em] text-balance">{page.name}</h1>
       {/* The map and drawer leave these unlabelled to save room. This page has the room, so it's where the glyphs
           are learned. */}

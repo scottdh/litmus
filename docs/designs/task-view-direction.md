@@ -17,7 +17,7 @@ At `/task/[id]`, for a task, a subtask or a step. Each has its own page, because
 - **The story, on the left.** Sticky, full height, scrolling on its own. A back link, "Spoke, the workshop app", returns to the map with this task's drawer open (`/?task=<id>`). Below it, every chapter by number and name, 17 px in the story face. The chapter holding this page is open, and inside it only the branch holding this page opens down to subtasks and steps. Any other chapter opens in place. Each task shows its light mark, with the light named for screen readers. The current row has the map's selected fill, `aria-current="page"`, and scrolls into view when the page opens.
 - **The page, on the right.** Centred, at most `44rem`, so lines stay readable.
 
-**Phone (under 1024 px):** one column. The story folds behind a row at the top, "Chapter 4 · Diagnose", 44 px tall. The path above the name, and the list of subtasks or steps, show only here, because the story column says them on desktop.
+**Phone (under 1024 px):** one column. The story folds behind a row at the top, "Chapter 4 · Diagnose", 44 px tall. The path above the name, and the list of subtasks or steps, show only here, because the story column says them on desktop. The path leaves out the chapter, which the row above already names, so a task has none and a subtask's reads "Check parts in stock" (Scott, 2026-11-10).
 
 **In order, down the page:**
 
