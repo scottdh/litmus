@@ -34,5 +34,11 @@ export const SEGMENT_COLOUR: Record<Light, string> = {
   'out-of-scope': 'hatch shadow-[inset_0_0_0_1px_var(--line)]',
 };
 
+/** What the Undo toast and the status line say after a light is set. */
+export function describeRating(name: string, from: Light, to: Light): string {
+  if (from === to) return `Updated the review of ${name}.`;
+  return `Set ${name} to ${LIGHT_COPY[to].label.toLowerCase()}.`;
+}
+
 export const describeMix = (mix: LightCount[]) =>
   mix.map(({ light, count }) => `${String(count)} ${LIGHT_COPY[light].label.toLowerCase()}`).join(', ');

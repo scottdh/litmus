@@ -3,8 +3,6 @@ import type { Destination } from './drop';
 
 export type RenameResult = { ok: true } | { ok: false; code: string };
 
-export type Rate = (input: { mapId: string; id: string; light: Light; note: string }) => Promise<RenameResult>;
-
 export type Rename = (input: {
   mapId: string;
   kind: 'chapter' | 'task' | 'step' | 'team' | 'persona';
@@ -13,6 +11,8 @@ export type Rename = (input: {
 }) => Promise<RenameResult>;
 
 export type MoveResult = { ok: true; undoToken: string } | { ok: false; code: string };
+
+export type Rate = (input: { mapId: string; id: string; light: Light; note: string }) => Promise<MoveResult>;
 
 export type Move = (input: { mapId: string; id: string; to: Destination }) => Promise<MoveResult>;
 

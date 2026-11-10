@@ -21,6 +21,7 @@ export function RatingSection({
   draft,
   rate,
   onDraft,
+  reviewClassName = 'text-[14px] leading-snug',
 }: {
   mapId: string;
   id: string;
@@ -29,6 +30,8 @@ export function RatingSection({
   draft: ReviewDraft | null;
   rate: Rate;
   onDraft: (draft: ReviewDraft | null) => void;
+  /** The task view sets the review in its body size. */
+  reviewClassName?: string;
 }) {
   const section = useRef<HTMLDivElement>(null);
   const field = useRef<HTMLTextAreaElement>(null);
@@ -94,7 +97,7 @@ export function RatingSection({
       <p className="text-[13px] leading-snug text-pretty text-muted">{LIGHT_COPY[shown].meaning}</p>
 
       {draft === null ? (
-        review !== null && <p className="text-[14px] leading-snug text-pretty whitespace-pre-wrap">{review}</p>
+        review !== null && <p className={`${reviewClassName} text-pretty whitespace-pre-wrap`}>{review}</p>
       ) : (
         <>
           <label className="text-[13px] text-muted" htmlFor={`review-${id}`}>
