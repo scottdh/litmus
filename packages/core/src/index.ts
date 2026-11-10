@@ -15,6 +15,7 @@ export * from './domain/map/team.ts';
 export * from './application/add.ts';
 export * from './application/assign-team.ts';
 export * from './application/get-map-view.ts';
+export * from './application/get-task-view.ts';
 export * from './application/move-task.ts';
 export * from './application/ports.ts';
 export * from './application/rate-task.ts';
