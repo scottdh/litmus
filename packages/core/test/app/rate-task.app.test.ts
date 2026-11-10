@@ -3,6 +3,7 @@ import {
   DomainError,
   getMapView,
   rateTask,
+  undoChange,
   type Clock,
   type Instant,
   type Light,
@@ -20,6 +21,10 @@ const PARENT = 'tsk_parent' as TaskId;
 const CHILD_A = 'tsk_a' as TaskId;
 const CHILD_B = 'tsk_b' as TaskId;
 const clock: Clock = { now: () => '2026-11-05T10:00:00.000Z' as Instant };
+const ticking = (): Clock => {
+  let day = 0;
+  return { now: () => `2026-11-0${String(++day)}T10:00:00.000Z` as Instant };
+};
 
 function repository(): MapRepository {
   return createInMemoryMapRepository([
@@ -94,13 +99,30 @@ describe('rating a task', () => {
     expect(task?.review).toBeNull();
   });
 
-  it('keeps only the latest review', async () => {
+  it('keeps every rating as a log, and the map shows the latest', async () => {
     const maps = repository();
-    await set(maps, LEAF, 'red', 'Broken.');
-    await set(maps, LEAF, 'yellow', 'Better now.');
+    const rate = rateTask({ maps, clock: ticking() });
+    await rate({ mapId: MAP_ID, taskId: LEAF, light: 'red', note: 'Broken.' });
+    await rate({ mapId: MAP_ID, taskId: LEAF, light: 'yellow', note: 'Better now.' });
     const record = await maps.find(MAP_ID);
-    expect(record?.ratings.filter((rating) => rating.subjectId === LEAF)).toHaveLength(1);
-    expect((await getMapView({ maps })(MAP_ID)).activities[0]?.tasks[0]?.review).toBe('Better now.');
+    expect(record?.ratings.filter((rating) => rating.subjectId === LEAF).map((rating) => rating.light)).toEqual([
+      'red',
+      'yellow',
+    ]);
+    const task = (await getMapView({ maps })(MAP_ID)).activities[0]?.tasks[0];
+    expect(task?.light).toBe('yellow');
+    expect(task?.review).toBe('Better now.');
+  });
+
+  it('undoes a rating by removing the entry it added', async () => {
+    const maps = repository();
+    const rate = rateTask({ maps, clock: ticking() });
+    await rate({ mapId: MAP_ID, taskId: LEAF, light: 'red', note: 'Broken.' });
+    const { before, after } = await rate({ mapId: MAP_ID, taskId: LEAF, light: 'yellow', note: 'Better now.' });
+    await undoChange({ maps })({ mapId: MAP_ID, before, after });
+    const record = await maps.find(MAP_ID);
+    expect(record?.ratings.map((rating) => rating.light)).toEqual(['red']);
+    expect((await getMapView({ maps })(MAP_ID)).activities[0]?.tasks[0]?.review).toBe('Broken.');
   });
 
   it('dates the rating from the clock', async () => {
