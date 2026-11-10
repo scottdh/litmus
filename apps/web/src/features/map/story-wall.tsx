@@ -344,7 +344,8 @@ export function StoryWall({
     const id = url.searchParams.get('task');
     if (id === null) return;
     url.searchParams.delete('task');
-    window.history.replaceState(window.history.state, '', url);
+    // Null state, so Next's router takes up the new address and a later refresh doesn't restore the old one.
+    window.history.replaceState(null, '', url);
     for (const chapter of map.activities) {
       for (const task of chapter.tasks) {
         const sub = task.subtasks.find((other) => other.id === id || other.steps.some((step) => step.id === id));
@@ -353,6 +354,10 @@ export function StoryWall({
         if (sub !== undefined) toggleTask(task.id, true);
         if (sub !== undefined && sub.id !== id) toggleTask(sub.id, true);
         openDrawer(id);
+        // Again once the drawer has slid in (--motion-focus), as the story narrowing can hide the row behind it.
+        window.setTimeout(() => {
+          document.getElementById(`open-${id}`)?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+        }, 300);
         return;
       }
     }
