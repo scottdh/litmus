@@ -156,7 +156,11 @@ describe('chapterSlot', () => {
 });
 
 describe('describeSlot', () => {
-  const say = (id: string, index: number) => describeSlot(map, id, keyboardSlots(map, id, everything)[index]!);
+  const say = (id: string, index: number) => {
+    const slot = keyboardSlots(map, id, everything)[index];
+    if (slot === undefined) throw new Error(`No place ${String(index)} for ${id}`);
+    return describeSlot(map, id, slot);
+  };
 
   it('says where it would land, in words', () => {
     expect(say('c', 0)).toBe('Before A, in First');
