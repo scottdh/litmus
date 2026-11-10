@@ -1,6 +1,6 @@
 'use client';
 import type { ActivityView, Light, PersonaView, SubtaskView, TaskView } from '@litmus/core';
-import type { PointerEvent } from 'react';
+import type { KeyboardEvent, PointerEvent } from 'react';
 import { DisclosurePanel, DisclosureRoot, DisclosureTrigger } from '../../ui/disclosure';
 import { AddControl } from './add-field';
 import type { ChapterState } from './focus';
@@ -69,6 +69,7 @@ function SubtaskRow({
   selectedId,
   draggingId,
   onStartDrag,
+  onPickUp,
   onOpenDrawer,
   onToggle,
 }: {
@@ -81,6 +82,7 @@ function SubtaskRow({
   selectedId: string | null;
   draggingId: string | null;
   onStartDrag: (id: string, name: string, event: PointerEvent) => void;
+  onPickUp: (id: string, name: string, event: KeyboardEvent) => void;
   onOpenDrawer: (id: string) => void;
   onToggle: (open: boolean) => void;
 }) {
@@ -89,8 +91,12 @@ function SubtaskRow({
       type="button"
       id={`open-${sub.id}`}
       aria-current={selectedId === sub.id ? 'true' : undefined}
+      aria-describedby="move-hint"
       onPointerDown={(event) => {
         onStartDrag(sub.id, sub.name, event);
+      }}
+      onKeyDown={(event) => {
+        onPickUp(sub.id, sub.name, event);
       }}
       onClick={() => {
         onOpenDrawer(sub.id);
@@ -133,8 +139,12 @@ function SubtaskRow({
                 type="button"
                 id={`open-${step.id}`}
                 aria-current={selectedId === step.id ? 'true' : undefined}
+                aria-describedby="move-hint"
                 onPointerDown={(event) => {
                   onStartDrag(step.id, step.name, event);
+                }}
+                onKeyDown={(event) => {
+                  onPickUp(step.id, step.name, event);
                 }}
                 onClick={() => {
                   onOpenDrawer(step.id);
@@ -164,6 +174,7 @@ function TaskRow({
   selectedId,
   draggingId,
   onStartDrag,
+  onPickUp,
   onOpenDrawer,
   onToggle,
   onToggleItem,
@@ -180,6 +191,7 @@ function TaskRow({
   selectedId: string | null;
   draggingId: string | null;
   onStartDrag: (id: string, name: string, event: PointerEvent) => void;
+  onPickUp: (id: string, name: string, event: KeyboardEvent) => void;
   onOpenDrawer: (id: string) => void;
   onToggle: (open: boolean) => void;
   onToggleItem: (id: string, open: boolean) => void;
@@ -191,8 +203,12 @@ function TaskRow({
       type="button"
       id={`open-${task.id}`}
       aria-current={selectedId === task.id ? 'true' : undefined}
+      aria-describedby="move-hint"
       onPointerDown={(event) => {
         onStartDrag(task.id, task.name, event);
+      }}
+      onKeyDown={(event) => {
+        onPickUp(task.id, task.name, event);
       }}
       onClick={() => {
         onOpenDrawer(task.id);
@@ -253,6 +269,7 @@ function TaskRow({
                   selectedId={selectedId}
                   draggingId={draggingId}
                   onStartDrag={onStartDrag}
+                  onPickUp={onPickUp}
                   onOpenDrawer={onOpenDrawer}
                   onToggle={(next) => {
                     onToggleItem(sub.id, next);
@@ -308,6 +325,7 @@ export function Chapter({
   selectedId,
   draggingId,
   onStartDrag,
+  onPickUp,
   onOpenDrawer,
   onToggleFocus,
   onToggleTask,
@@ -326,6 +344,7 @@ export function Chapter({
   selectedId: string | null;
   draggingId: string | null;
   onStartDrag: (id: string, name: string, event: PointerEvent) => void;
+  onPickUp: (id: string, name: string, event: KeyboardEvent) => void;
   onOpenDrawer: (id: string) => void;
   onToggleFocus: () => void;
   onToggleTask: (id: string, open: boolean) => void;
@@ -419,6 +438,7 @@ export function Chapter({
                       selectedId={selectedId}
                       draggingId={draggingId}
                       onStartDrag={onStartDrag}
+                      onPickUp={onPickUp}
                       onOpenDrawer={onOpenDrawer}
                       onToggle={(next) => {
                         onToggleTask(task.id, next);

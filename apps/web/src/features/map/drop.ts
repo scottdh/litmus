@@ -114,6 +114,14 @@ export function destinationFor(map: MapView, draggedId: string, hover: Hover): D
   return beside(over.siblings, draggedId, overId, zone);
 }
 
+/** Where a row sits now, named the way a move would name it. */
+export function currentDestination(map: MapView, id: string): Destination | null {
+  const found = locate(map, id);
+  if (found === null) return null;
+  const { list, place } = found.siblings;
+  return place(list[list.findIndex((other) => other.id === id) + 1]?.id ?? null);
+}
+
 /** One place up or down among siblings, or null at either end. */
 export function stepDestination(map: MapView, id: string, step: -1 | 1): Destination | null {
   const found = locate(map, id);

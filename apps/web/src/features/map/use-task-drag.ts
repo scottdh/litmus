@@ -39,7 +39,7 @@ function readHover(map: MapView, draggedId: string, x: number, y: number) {
   return null;
 }
 
-function indicatorFor(hover: Hover, rect: DOMRect): DropIndicator {
+export function indicatorFor(hover: Hover, rect: DOMRect): DropIndicator {
   if (hover.zone === 'inside' || hover.zone === 'end') {
     return { kind: 'box', left: rect.left, top: rect.top, width: rect.width, height: rect.height };
   }
@@ -48,7 +48,7 @@ function indicatorFor(hover: Hover, rect: DOMRect): DropIndicator {
 }
 
 /** Mouse and pen only. Touch uses the drawer's Move to, because dragging would fight with scrolling. */
-export function useTaskDrag(map: MapView, onDrop: (id: string, to: Destination) => void) {
+export function useTaskDrag(map: MapView, onDrop: (id: string, to: Destination) => unknown) {
   const [dragging, setDragging] = useState<Dragging | null>(null);
   const [indicator, setIndicator] = useState<DropIndicator | null>(null);
   const ghost = useRef<HTMLDivElement>(null);

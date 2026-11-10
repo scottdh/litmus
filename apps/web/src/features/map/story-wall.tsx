@@ -52,6 +52,7 @@ import { isInPopover } from '../../ui/popover';
 import { UndoToast } from './undo-toast';
 import { findSubject } from './subject';
 import { useChapterFocus } from './use-chapter-focus';
+import { useKeyboardMove } from './use-keyboard-move';
 import { useTaskDrag } from './use-task-drag';
 
 const TEAM_NAMES = new Intl.ListFormat('en', { style: 'long', type: 'conjunction' });
@@ -249,7 +250,7 @@ export function StoryWall({
   const moveTask = (id: string, to: Destination) => {
     const name = findSubject(map, id)?.name ?? '';
     setChangeProblem(null);
-    void move({ mapId: savedMap.id, id, to }).then(
+    return move({ mapId: savedMap.id, id, to }).then(
       (result) => {
         if (!result.ok) {
           setChangeProblem('That move didn’t work, so nothing changed.');
@@ -311,7 +312,10 @@ export function StoryWall({
     );
   };
 
-  const { start: startDrag, dragging, indicator, ghost } = useTaskDrag(map, moveTask);
+  const { start: startDrag, dragging, indicator: dragIndicator, ghost } = useTaskDrag(map, moveTask);
+  const shown = useMemo(() => ({ chapters: focusing ? new Set(focus) : null, open }), [focusing, focus, open]);
+  const { pickUp, carrying, indicator: keyIndicator, announcement } = useKeyboardMove(map, shown, moveTask);
+  const indicator = dragIndicator ?? keyIndicator;
 
   const closeDrawer = useCallback(() => {
     setSelectedId((id) => {
@@ -586,8 +590,11 @@ export function StoryWall({
                 pickedPersonas={personas}
                 openTasks={open}
                 selectedId={subject?.id ?? null}
-                draggingId={dragging?.id ?? null}
-                onStartDrag={startDrag}
+                draggingId={dragging?.id ?? carrying?.id ?? null}
+                onStartDrag={(id, name, event) => {
+                  if (carrying === null) startDrag(id, name, event);
+                }}
+                onPickUp={pickUp}
                 onOpenDrawer={openDrawer}
                 onToggleFocus={() => {
                   toggleChapter(activity.id);
@@ -627,7 +634,7 @@ export function StoryWall({
           <Drawer
             map={map}
             onMove={(to) => {
-              moveTask(subject.id, to);
+              void moveTask(subject.id, to);
             }}
             mapId={savedMap.id}
             rate={rate}
@@ -711,8 +718,28 @@ export function StoryWall({
           className={`pointer-events-none fixed z-20 rounded-sm ${indicator.kind === 'line' ? 'bg-ink' : 'outline-2 outline-ink'}`}
         />
       )}
+      <p id="move-hint" hidden>
+        Press Space to move it.
+      </p>
+      <p role="status" className="sr-only">
+        {announcement}
+      </p>
+      {carrying && (
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none fixed inset-x-4 bottom-6 z-20 mx-auto flex w-fit max-w-xl flex-col gap-0.5 rounded-md bg-ink px-3.5 py-2 text-surface shadow-raised [transition:opacity_200ms_var(--ease-out-strong),translate_200ms_var(--ease-out-strong)] starting:translate-y-2 starting:opacity-0 motion-reduce:starting:translate-y-0 ${subject ? 'lg:right-100' : ''}`}
+        >
+          <span className="text-[14px] leading-snug text-pretty">
+            Moving {carrying.name}: {carrying.line}
+          </span>
+          <span className="text-[12px] leading-snug text-surface/60">
+            Arrow keys to move · Enter to drop · Esc to cancel
+          </span>
+        </div>
+      )}
       <UndoToast
-        token={lastChange?.token ?? null}
+        // The carry hint sits where the toast does, and says more about what's happening now.
+        token={carrying ? null : (lastChange?.token ?? null)}
         text={lastChange?.message ?? ''}
         onUndo={undoLastChange}
         besideDrawer={Boolean(subject)}
