@@ -180,6 +180,13 @@ export function TaskView({ model }: { model: TaskViewModel }) {
 
   return (
     <div className="lg:grid lg:min-h-dvh lg:grid-cols-[20rem_minmax(0,1fr)]">
+      {/* The story comes first, so keyboard users can jump past it. */}
+      <a
+        href="#page"
+        className="sr-only rounded-sm bg-surface text-[13px] shadow-raised focus-visible:not-sr-only focus-visible:px-3 focus-visible:py-2 focus-visible:fixed focus-visible:top-3 focus-visible:left-3 focus-visible:z-10"
+      >
+        Skip to the page
+      </a>
       <aside className="border-line max-lg:border-b-(length:--hairline) lg:sticky lg:top-0 lg:h-dvh lg:overflow-y-auto lg:overscroll-contain lg:border-e-(length:--hairline)">
         <div className="flex flex-col gap-4 p-3 lg:pb-24">
           <BackLink model={model} />
@@ -210,7 +217,7 @@ export function TaskView({ model }: { model: TaskViewModel }) {
           </DisclosureRoot>
         </div>
       </aside>
-      <main className="mx-auto flex w-full max-w-[44rem] flex-col gap-10 px-4 pt-10 pb-32 lg:px-12 lg:pt-14">
+      <main id="page" className="mx-auto flex w-full max-w-[44rem] flex-col gap-10 px-4 pt-10 pb-32 lg:px-12 lg:pt-14">
         <div className="flex flex-col gap-6">
           <Heading model={model} />
           <LightNow model={model} />

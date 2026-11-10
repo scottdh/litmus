@@ -285,7 +285,7 @@ export function Drawer({
       {(isTask || subject.kind === 'step') && (
         <Link
           href={`/task/${subject.id}`}
-          className="flex items-center gap-1.5 self-start text-[14px] underline decoration-line underline-offset-4 transition-colors duration-150 ease-out hover:decoration-ink"
+          className="flex items-center gap-1.5 self-start text-[14px] underline decoration-line underline-offset-4 transition-colors duration-150 ease-out hover:decoration-ink max-lg:min-h-11"
         >
           Open {subject.kind} view
           <svg
