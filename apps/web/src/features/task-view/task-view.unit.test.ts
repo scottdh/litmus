@@ -1,6 +1,6 @@
-import type { HistoryEntry, Instant, MapView, TaskView } from '@litmus/core';
+import type { HistoryEntry, Instant, Light, MapView, TaskPageView, TaskView } from '@litmus/core';
 import { describe, expect, it } from 'vitest';
-import { formatDay, historyLines, outlineFor } from './model';
+import { formatDay, historyLines, outlineFor, taskViewModel } from './model';
 
 const task = (id: string, subtasks: TaskView['subtasks'] = []): TaskView => ({
   id,
@@ -171,5 +171,36 @@ describe('historyLines', () => {
 describe('formatDay', () => {
   it('writes the day and the short month', () => {
     expect(formatDay('2026-11-04T23:30:00.000Z' as Instant)).toBe('4 Nov');
+  });
+});
+
+const page = (id: string, kind: TaskPageView['kind'], light: Light | null): TaskPageView => ({
+  id,
+  name: id,
+  kind,
+  chapter: { id: 'act_1', name: 'Arrive', number: 1 },
+  path: [],
+  before: null,
+  after: null,
+  light,
+  history: [],
+});
+
+describe('taskViewModel', () => {
+  it('carries the map it belongs to, so the page can set a light on it', () => {
+    expect(taskViewModel(map, page('book', 'task', 'grey'))?.mapId).toBe('map_1');
+  });
+
+  it('lets a task or a subtask without subtasks take a light here', () => {
+    expect(taskViewModel(map, page('book', 'task', 'grey'))?.rateable).toBe(true);
+    expect(taskViewModel(map, page('look', 'subtask', 'red'))?.rateable).toBe(true);
+  });
+
+  it('never lets a parent take a light here, as its subtasks set it', () => {
+    expect(taskViewModel(map, page('diagnose', 'task', 'red'))?.rateable).toBe(false);
+  });
+
+  it('never lets a step take a light, as steps have none', () => {
+    expect(taskViewModel(map, page('pump', 'step', null))?.rateable).toBe(false);
   });
 });
