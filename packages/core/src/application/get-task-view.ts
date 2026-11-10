@@ -91,6 +91,7 @@ function find(map: StoryMap, id: string): (Found & { number: number }) | null {
   return null;
 }
 
+/** Oldest first. A task or subtask's own log. */
 function ownHistory(log: Rating[]): HistoryEntry[] {
   let from: Light = 'grey';
   return log.map((rating) => {
@@ -98,6 +99,36 @@ function ownHistory(log: Rating[]): HistoryEntry[] {
     from = rating.light;
     return entry;
   });
+}
+
+/** Oldest first. Replayed from its subtasks, each entry naming the one that moved it. */
+function parentHistory(subtasks: StoryPlace[], ratings: Rating[]): HistoryEntry[] {
+  const byId = new Map(subtasks.map((sub) => [sub.id, sub]));
+  return replayParentLight(
+    subtasks.map((sub) => sub.id as TaskId),
+    ratings,
+  ).map(({ rating, from, to }) => ({
+    ratedAt: rating.ratedAt,
+    from,
+    to,
+    note: noteOf(rating),
+    cause: byId.get(rating.subjectId) ?? null,
+  }));
+}
+
+function lightAndHistory(found: Found, ratings: Rating[]): Pick<TaskPageView, 'light' | 'history'> {
+  if (found.kind === 'step') return { light: null, history: [] };
+  const latest = latestRatings(ratings);
+  const lightOf = (id: string): Light => latest.get(id as TaskId)?.light ?? 'grey';
+  if (found.subtasks.length > 0)
+    return {
+      light: deriveParentLight(found.subtasks.map((sub) => lightOf(sub.id))),
+      history: parentHistory(found.subtasks, ratings).reverse(),
+    };
+  return {
+    light: lightOf(found.self.id),
+    history: ownHistory(byRatedAt(ratings.filter((rating) => rating.subjectId === found.self.id))).reverse(),
+  };
 }
 
 /** What the task view needs from core, for a task, a subtask or a step. */
@@ -108,29 +139,6 @@ export const getTaskView =
     if (record === null) throw notFound('MAP_NOT_FOUND', `No map with id ${mapId}.`);
     const found = find(record.map, id);
     if (found === null) throw notFound('TASK_NOT_FOUND', `No task, subtask or step with id ${id}.`);
-    const latest = latestRatings(record.ratings);
-    const lightOf = (taskId: string): Light => latest.get(taskId as TaskId)?.light ?? 'grey';
-
-    let light: Light | null = null;
-    let history: HistoryEntry[] = [];
-    if (found.subtasks.length > 0) {
-      light = deriveParentLight(found.subtasks.map((sub) => lightOf(sub.id)));
-      const names = new Map(found.subtasks.map((sub) => [sub.id, sub]));
-      history = replayParentLight(
-        found.subtasks.map((sub) => sub.id as TaskId),
-        record.ratings,
-      ).map(({ rating, from, to }) => ({
-        ratedAt: rating.ratedAt,
-        from,
-        to,
-        note: noteOf(rating),
-        cause: names.get(rating.subjectId) ?? null,
-      }));
-    } else if (found.kind !== 'step') {
-      light = lightOf(id);
-      history = ownHistory(byRatedAt(record.ratings.filter((rating) => rating.subjectId === id)));
-    }
-
     return {
       ...found.self,
       kind: found.kind,
@@ -138,7 +146,6 @@ export const getTaskView =
       path: found.path,
       before: found.siblings[found.index - 1] ?? null,
       after: found.siblings[found.index + 1] ?? null,
-      light,
-      history: history.reverse(),
+      ...lightAndHistory(found, record.ratings),
     };
   };
