@@ -118,7 +118,7 @@ Esc inside any popover only closes it: page-wide Esc handlers skip events from i
 
 ### RatingSection
 
-`apps/web/src/features/map/rating-section.tsx`. How a light gets set: pick a light, write a review, then set it. The map waits until then. Never let a light change on the map from a single click. The lights are icon-only, because `LightMark` already reads without colour; each has an accessible name and a tooltip. `docs/designs/rating-direction.md` has the reasoning.
+`apps/web/src/features/map/rating-section.tsx`. How a light gets set: pick a light, write a review, then set it. The map waits until then. Never let a light change on the map from a single click. The lights are icon-only, because `LightMark` already reads without colour; each has an accessible name and a tooltip. Under them, what the light means and its review (or the review form) sit in one `sunken` panel whose notch points at the picked light, so the review reads as that light's reason and not as the research under it. `docs/designs/rating-direction.md` has the reasoning.
 
 ### Moving tasks
 
