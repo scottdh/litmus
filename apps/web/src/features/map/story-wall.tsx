@@ -729,10 +729,18 @@ export function StoryWall({
           aria-hidden="true"
           className={`pointer-events-none fixed inset-x-4 bottom-6 z-20 mx-auto flex w-fit max-w-xl flex-col gap-0.5 rounded-md bg-ink px-3.5 py-2 text-surface shadow-raised [transition:opacity_200ms_var(--ease-out-strong),translate_200ms_var(--ease-out-strong)] starting:translate-y-2 starting:opacity-0 motion-reduce:starting:translate-y-0 ${subject ? 'lg:right-100' : ''}`}
         >
+          {/* Each name on its own line and in semibold, so long names don't run into each other. */}
           <span className="text-[14px] leading-snug text-pretty">
-            Moving {carrying.name}: {carrying.line}
+            Moving <span className="font-semibold">{carrying.name}</span>
           </span>
-          <span className="text-[12px] leading-snug text-surface/60">
+          {carrying.place && (
+            <span className="text-[14px] leading-snug text-pretty">
+              {carrying.place.before}
+              {carrying.place.name !== null && <span className="font-semibold">{carrying.place.name}</span>}
+              {carrying.place.after}
+            </span>
+          )}
+          <span className="mt-0.5 text-[12px] leading-snug text-surface/60">
             Arrow keys to move · Enter to drop · Esc to cancel
           </span>
         </div>

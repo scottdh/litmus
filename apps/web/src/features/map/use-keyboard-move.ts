@@ -2,7 +2,16 @@
 import type { MapView } from '@litmus/core';
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import type { Destination } from './drop';
-import { chapterSlot, describeSlot, keyboardSlots, nextSlot, startSlot, type Shown, type Slot } from './keyboard-move';
+import {
+  chapterSlot,
+  describeSlot,
+  keyboardSlots,
+  nextSlot,
+  slotParts,
+  startSlot,
+  type Shown,
+  type Slot,
+} from './keyboard-move';
 import { indicatorFor, type DropIndicator } from './use-task-drag';
 
 interface Carrying {
@@ -125,12 +134,12 @@ export function useKeyboardMove(map: MapView, shown: Shown, onDrop: (id: string,
   }, [carrying]);
 
   const where = carrying?.slots[carrying.index];
-  const line =
+  const place =
     carrying === null || where === undefined
       ? null
       : carrying.index === carrying.start
-        ? 'Where it is now'
-        : describeSlot(map, carrying.id, where);
+        ? { before: 'Where it is now', name: null, after: '' }
+        : slotParts(map, carrying.id, where);
 
-  return { pickUp, carrying: carrying && { id: carrying.id, name: carrying.name, line }, indicator, announcement };
+  return { pickUp, carrying: carrying && { id: carrying.id, name: carrying.name, place }, indicator, announcement };
 }

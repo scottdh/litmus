@@ -95,21 +95,36 @@ function childCount(map: MapView, id: string): number {
   return 0;
 }
 
-/** Says where the row would land, for the line shown and read out while it's carried. */
-export function describeSlot(map: MapView, id: string, slot: Slot): string {
+export interface SlotParts {
+  before: string;
+  /** The row it lands beside or inside, or the chapter it ends. Set apart in the hint, so names don't run together. */
+  name: string | null;
+  after: string;
+}
+
+/** Where the row would land, split so the hint can set the name apart. */
+export function slotParts(map: MapView, id: string, slot: Slot): SlotParts {
   const here = currentDestination(map, id);
-  if (here && same(here, slot.to)) return 'Back where it was';
+  if (here && same(here, slot.to)) return { before: 'Back where it was', name: null, after: '' };
   const { to, hover } = slot;
   if ('chapterId' in to) {
     const chapter = nameOf(map, to.chapterId);
-    return to.before === null ? `At the end of ${chapter}` : `Before ${nameOf(map, to.before)}, in ${chapter}`;
+    return to.before === null
+      ? { before: 'At the end of ', name: chapter, after: '' }
+      : { before: 'Before ', name: nameOf(map, to.before), after: `, in ${chapter}` };
   }
   const parentId = 'parentId' in to ? to.parentId : to.subtaskId;
   const parent = nameOf(map, parentId);
-  if (to.before !== null) return `Before ${nameOf(map, to.before)}, inside ${parent}`;
+  if (to.before !== null) return { before: 'Before ', name: nameOf(map, to.before), after: `, inside ${parent}` };
   // Its own row doesn't count as a child already there.
   const others = childCount(map, parentId) - (hover.overId === parentId && currentParent(map, id) === parentId ? 1 : 0);
-  return others > 0 ? `Inside ${parent}, at the end` : `Inside ${parent}`;
+  return { before: 'Inside ', name: parent, after: others > 0 ? ', at the end' : '' };
+}
+
+/** Says where the row would land, for a screen reader. */
+export function describeSlot(map: MapView, id: string, slot: Slot): string {
+  const { before, name, after } = slotParts(map, id, slot);
+  return `${before}${name ?? ''}${after}`;
 }
 
 function currentParent(map: MapView, id: string): string | null {
