@@ -10,7 +10,7 @@ Decided by Scott on 2026-11-05, from a live prototype on the invented sample map
 - "Set to yellow" commits it. Cmd or Ctrl+Enter does the same. Cancel or Esc abandons it.
 - Clicking the current light opens the same form with "Save review", to update the reasoning alone.
 - Green, yellow and red need a review. Grey and out of scope don't.
-- Only the latest review is kept.
+- Only the latest review is kept. Superseded on 2026-11-10: every change is kept as a log (`docs/designs/task-view-direction.md`).
 - An unfinished review stays with its task if you switch rows, until you set or cancel it.
 - A task with subtasks has no picker. Its light follows from its subtasks, so the drawer lists them, and each one opens its own drawer.
 
