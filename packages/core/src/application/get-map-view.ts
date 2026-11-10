@@ -1,6 +1,7 @@
 import { notFound } from '../kernel/errors.ts';
 import { LIGHTS, type Light } from '../domain/map/light.ts';
 import { deriveParentLight } from '../domain/map/parent-light.ts';
+import { latestRatings, noteOf } from '../domain/map/rating.ts';
 import type { MapId, PersonaIcon, Research, TaskId } from '../domain/map/story-map.ts';
 import type { MapRepository } from './ports.ts';
 
@@ -106,12 +107,9 @@ export const getMapView =
     const record = await deps.maps.find(id);
     if (record === null) throw notFound('MAP_NOT_FOUND', `No map with id ${id}.`);
 
-    const ratings = new Map(record.ratings.map((rating) => [rating.subjectId, rating]));
+    const ratings = latestRatings(record.ratings);
     const lightOf = (taskId: TaskId): Light => ratings.get(taskId)?.light ?? 'grey';
-    const reviewOf = (taskId: TaskId): string | null => {
-      const note = ratings.get(taskId)?.evidence.find((item) => item.kind === 'note');
-      return note?.text ?? null;
-    };
+    const reviewOf = (taskId: TaskId): string | null => noteOf(ratings.get(taskId));
 
     const personaOrder = record.map.personas.map((persona) => persona.id);
     const rollUp = (...lists: (readonly string[] | undefined)[]): string[] => {

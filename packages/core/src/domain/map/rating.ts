@@ -4,7 +4,7 @@ import type { Evidence } from './evidence.ts';
 import type { Light } from './light.ts';
 import type { ProductId, TaskId } from './story-map.ts';
 
-/** One light for one task on one product. */
+/** One light for one task on one product, at one moment. Ratings form an append-only log; the latest sets the light. */
 export interface Rating {
   subjectId: TaskId;
   productId: ProductId;
@@ -30,3 +30,15 @@ export function createRating(rating: Rating): Rating {
   }
   return rating;
 }
+
+/** Oldest first. Ratings made at the same moment keep their order in the log. */
+export const byRatedAt = (ratings: readonly Rating[]): Rating[] =>
+  [...ratings].sort((a, b) => (a.ratedAt < b.ratedAt ? -1 : a.ratedAt > b.ratedAt ? 1 : 0));
+
+/** The rating that sets each task's light now. */
+export const latestRatings = (ratings: readonly Rating[]): Map<TaskId, Rating> =>
+  new Map(byRatedAt(ratings).map((rating) => [rating.subjectId, rating]));
+
+/** The review written with a rating, if any. */
+export const noteOf = (rating: Rating | undefined): string | null =>
+  rating?.evidence.find((item) => item.kind === 'note')?.text ?? null;
