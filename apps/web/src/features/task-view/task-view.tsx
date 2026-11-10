@@ -1,12 +1,15 @@
 'use client';
 import Link from 'next/link';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { DisclosurePanel, DisclosureRoot, DisclosureTrigger } from '../../ui/disclosure';
 import { LightMark } from '../map/light-mark';
 import { LIGHT_COPY, MARK_COLOUR } from '../map/lights';
 import { StepMark } from '../map/step-mark';
+import { UndoToast } from '../map/undo-toast';
 import type { Light } from '@litmus/core';
 import type { ReactNode } from 'react';
+import type { Rate, UndoChange } from '../map/rename-result';
+import { LightControl } from './light-control';
 import type { OutlineChapter, TaskViewModel } from './model';
 import { Children, Heading, History, LightNow, Neighbours, Research, taskViewHref } from './sections';
 
@@ -169,9 +172,23 @@ function BackLink({ model }: { model: TaskViewModel }) {
   );
 }
 
-/** A page of its own for a task, subtask or step, with the whole story beside it. Read-only. */
-export function TaskView({ model }: { model: TaskViewModel }) {
+/** A page of its own for a task, subtask or step, with the whole story beside it. Only the light is set here. */
+export function TaskView({ model, rate, undoChange }: { model: TaskViewModel; rate: Rate; undoChange: UndoChange }) {
   const { page } = model;
+  const [lastChange, setLastChange] = useState<{ token: string; message: string } | null>(null);
+  const [changeProblem, setChangeProblem] = useState<string | null>(null);
+  const undoLastChange = () => {
+    if (lastChange === null) return;
+    const { token } = lastChange;
+    setLastChange(null);
+    const failed = () => {
+      setChangeProblem('That can’t be undone, because the map has changed since.');
+    };
+    void undoChange(token).then((result) => {
+      if (result.ok) setChangeProblem(null);
+      else failed();
+    }, failed);
+  };
   const wide = useRef<HTMLElement>(null);
   const narrow = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -220,7 +237,33 @@ export function TaskView({ model }: { model: TaskViewModel }) {
       <main id="page" className="mx-auto flex w-full max-w-[44rem] flex-col gap-10 px-4 pt-10 pb-32 lg:px-12 lg:pt-14">
         <div className="flex flex-col gap-6">
           <Heading model={model} />
-          <LightNow model={model} />
+          <LightNow
+            model={model}
+            control={
+              model.rateable &&
+              page.light !== null && (
+                <LightControl
+                  // A fresh draft for each page.
+                  key={page.id}
+                  mapId={model.mapId}
+                  id={page.id}
+                  name={page.name}
+                  light={page.light}
+                  review={model.review}
+                  rate={rate}
+                  onRated={(change) => {
+                    setChangeProblem(null);
+                    setLastChange(change);
+                  }}
+                />
+              )
+            }
+          />
+          {changeProblem !== null && (
+            <p role="alert" className="text-[13px] leading-snug text-pretty">
+              {changeProblem}
+            </p>
+          )}
         </div>
         <Research model={model} />
         <History model={model} />
@@ -231,6 +274,16 @@ export function TaskView({ model }: { model: TaskViewModel }) {
         )}
         <Neighbours model={model} />
       </main>
+      {/* The toast isn't a live region, so this says what changed. */}
+      <p role="status" className="sr-only">
+        {lastChange?.message ?? ''}
+      </p>
+      <UndoToast
+        token={lastChange?.token ?? null}
+        text={lastChange?.message ?? ''}
+        onUndo={undoLastChange}
+        besideDrawer={false}
+      />
     </div>
   );
 }

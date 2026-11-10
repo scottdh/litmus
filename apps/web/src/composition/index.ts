@@ -87,7 +87,13 @@ export async function renameOnMap({
 }
 
 export async function rateOnMap({ mapId, id, light, note }: { mapId: string; id: string; light: Light; note: string }) {
-  await rateTask({ maps, clock })({ mapId: mapId as MapId, taskId: id as TaskId, light, note });
+  const { before, after } = await rateTask({ maps, clock })({
+    mapId: mapId as MapId,
+    taskId: id as TaskId,
+    light,
+    note,
+  });
+  return remember(mapId as MapId, before, after);
 }
 
 export async function moveOnMap({

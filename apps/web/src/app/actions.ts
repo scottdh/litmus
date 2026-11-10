@@ -30,6 +30,11 @@ import {
 } from '../composition';
 import type { AddResult, MoveResult, RenameResult } from '../features/map/rename-result';
 
+/** Every page shows the map, the task view included, so a change refreshes them all. */
+const refresh = () => {
+  revalidatePath('/', 'layout');
+};
+
 /** Domain failures go back as stable codes, so a raw message never reaches the page. */
 async function run(change: () => Promise<void>): Promise<RenameResult> {
   try {
@@ -38,7 +43,7 @@ async function run(change: () => Promise<void>): Promise<RenameResult> {
     if (error instanceof DomainError) return { ok: false, code: error.code };
     throw error;
   }
-  revalidatePath('/');
+  refresh();
   return { ok: true };
 }
 
@@ -68,12 +73,19 @@ export async function rateAction(input: {
   id: unknown;
   light: unknown;
   note: unknown;
-}): Promise<RenameResult> {
+}): Promise<MoveResult> {
   const { mapId, id, light, note } = input;
   if (typeof mapId !== 'string' || typeof id !== 'string' || typeof note !== 'string' || !isLight(light)) {
     return { ok: false, code: 'INVALID_INPUT' };
   }
-  return run(() => rateOnMap({ mapId, id, light, note }));
+  try {
+    const undoToken = await rateOnMap({ mapId, id, light, note });
+    refresh();
+    return { ok: true, undoToken };
+  } catch (error) {
+    if (error instanceof DomainError) return { ok: false, code: error.code };
+    throw error;
+  }
 }
 
 function readDestination(to: unknown): MoveDestination | StepDestination | null {
@@ -98,7 +110,7 @@ export async function moveAction(input: { mapId: unknown; id: unknown; to: unkno
   if (typeof mapId !== 'string' || typeof id !== 'string' || to === null) return { ok: false, code: 'INVALID_INPUT' };
   try {
     const undoToken = await moveOnMap({ mapId, id, to });
-    revalidatePath('/');
+    refresh();
     return { ok: true, undoToken };
   } catch (error) {
     if (error instanceof DomainError) return { ok: false, code: error.code };
@@ -109,7 +121,7 @@ export async function moveAction(input: { mapId: unknown; id: unknown; to: unkno
 async function runAdd(add: () => Promise<{ id: string; undoToken: string }>): Promise<AddResult> {
   try {
     const added = await add();
-    revalidatePath('/');
+    refresh();
     return { ok: true, ...added };
   } catch (error) {
     if (error instanceof DomainError) return { ok: false, code: error.code };
@@ -223,7 +235,7 @@ export async function removeTeamAction(input: { mapId: unknown; id: unknown }): 
   if (typeof mapId !== 'string' || typeof id !== 'string') return { ok: false, code: 'INVALID_INPUT' };
   try {
     const { undoToken } = await removeTeamOnMap({ mapId, teamId: id });
-    revalidatePath('/');
+    refresh();
     return { ok: true, undoToken };
   } catch (error) {
     if (error instanceof DomainError) return { ok: false, code: error.code };
@@ -241,7 +253,7 @@ export async function removePersonaAction(input: { mapId: unknown; id: unknown }
   if (typeof mapId !== 'string' || typeof id !== 'string') return { ok: false, code: 'INVALID_INPUT' };
   try {
     const { undoToken } = await removePersonaOnMap({ mapId, personaId: id });
-    revalidatePath('/');
+    refresh();
     return { ok: true, undoToken };
   } catch (error) {
     if (error instanceof DomainError) return { ok: false, code: error.code };

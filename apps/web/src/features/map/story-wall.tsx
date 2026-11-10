@@ -28,7 +28,7 @@ import {
   picksStillOnMap,
 } from './teams';
 import { LightMark } from './light-mark';
-import { FILL_COLOUR, LIGHT_COPY } from './lights';
+import { FILL_COLOUR, LIGHT_COPY, describeRating } from './lights';
 import type { ReviewDraft } from './rating-section';
 import type {
   AddChapter,
@@ -272,6 +272,16 @@ export function StoryWall({
         setChangeProblem('That move didn’t work, so nothing changed.');
       },
     );
+  };
+
+  const rateTask: Rate = (input) => {
+    const subject = findSubject(map, input.id);
+    const from = subject?.kind === 'task' || subject?.kind === 'subtask' ? subject.light : input.light;
+    return rate(input).then((result) => {
+      if (result.ok)
+        setLastChange({ token: result.undoToken, message: describeRating(subject?.name ?? '', from, input.light) });
+      return result;
+    });
   };
 
   const [removing, setRemoving] = useState(false);
@@ -666,7 +676,7 @@ export function StoryWall({
               void moveTask(subject.id, to);
             }}
             mapId={savedMap.id}
-            rate={rate}
+            rate={rateTask}
             reviewDraft={reviewDrafts[subject.id] ?? null}
             onReviewDraft={(draft) => {
               setReviewDrafts((current) => {

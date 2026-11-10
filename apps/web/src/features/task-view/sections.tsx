@@ -84,8 +84,11 @@ export function Heading({ model }: { model: TaskViewModel }) {
   );
 }
 
-/** Steps take no light, so they show nothing. The Key explains the lights, not this page. */
-export function LightNow({ model }: { model: TaskViewModel }) {
+/**
+ * Steps take no light, so they show nothing. The Key explains the lights, not this page. A task that can be rated
+ * here passes the control, which shows its review.
+ */
+export function LightNow({ model, control }: { model: TaskViewModel; control?: ReactNode }) {
   const { light } = model.page;
   if (light === null) return null;
   return (
@@ -96,16 +99,18 @@ export function LightNow({ model }: { model: TaskViewModel }) {
         </span>
         {LIGHT_COPY[light].label}
       </p>
-      {model.mix.length > 0 ? (
-        <div className="flex flex-col gap-1.5">
-          <MixBar mix={model.mix} className="h-1.5 w-full max-w-60 rounded-full" />
-          <p className="text-[13px] leading-snug text-muted">
-            Set by its subtasks: <span className="tabular-nums">{describeMix(model.mix)}</span>.
-          </p>
-        </div>
-      ) : (
-        model.review !== null && model.review !== '' && <p className={`${BODY} whitespace-pre-wrap`}>{model.review}</p>
-      )}
+      {control ??
+        (model.mix.length > 0 ? (
+          <div className="flex flex-col gap-1.5">
+            <MixBar mix={model.mix} className="h-1.5 w-full max-w-60 rounded-full" />
+            <p className="text-[13px] leading-snug text-muted">
+              Set by its subtasks: <span className="tabular-nums">{describeMix(model.mix)}</span>.
+            </p>
+          </div>
+        ) : (
+          model.review !== null &&
+          model.review !== '' && <p className={`${BODY} whitespace-pre-wrap`}>{model.review}</p>
+        ))}
     </div>
   );
 }

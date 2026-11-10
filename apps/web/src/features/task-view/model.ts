@@ -135,7 +135,10 @@ export interface ChildRow {
 /** Everything the page shows, from the task view query and the map. */
 export interface TaskViewModel {
   page: TaskPageView;
+  mapId: string;
   mapName: string;
+  /** A task or subtask without subtasks. A parent's light follows its subtasks, and a step has none. */
+  rateable: boolean;
   outline: OutlineChapter[];
   personas: PersonaView[];
   /** Every persona on the map, for the quotes. */
@@ -164,7 +167,9 @@ export function taskViewModel(map: MapView, page: TaskPageView): TaskViewModel |
   const mix = map.activities.flatMap((chapter) => chapter.tasks).find((task) => task.id === page.id)?.mix ?? [];
   return {
     page,
+    mapId: map.id,
     mapName: map.name,
+    rateable: isTask && subject.subtasks.length === 0,
     outline: outlineFor(map, page.id),
     personas: map.personas.filter((persona) => subject.personaIds.includes(persona.id)),
     allPersonas: map.personas,
