@@ -6,7 +6,7 @@ import { LIGHT_COPY, MARK_COLOUR, describeMix } from '../map/lights';
 import { MixBar } from '../map/mix-bar';
 import { PersonaGlyph } from '../map/persona-icon';
 import { StepMark } from '../map/step-mark';
-import { TeamMark } from '../map/team-line';
+import { WhoList } from '../map/who-list';
 import { formatDay, type TaskViewModel } from './model';
 
 export const taskViewHref = (id: string) => `/task/${id}`;
@@ -41,8 +41,14 @@ function RowMark({ light }: { light: TaskViewModel['children'][number]['light'] 
   );
 }
 
-export function Heading({ model }: { model: TaskViewModel }) {
-  const { page, personas, team } = model;
+/** Saves a persona or team change on the map, as the map's own actions do. */
+export interface WhoActions {
+  setPersona: (input: { mapId: string; id: string; personaId: string; on: boolean }) => Promise<{ ok: boolean }>;
+  assignTeam: (input: { mapId: string; id: string; teamId: string | null }) => Promise<{ ok: boolean }>;
+}
+
+export function Heading({ model, actions }: { model: TaskViewModel; actions: WhoActions }) {
+  const { page, mapId } = model;
   return (
     <div className="flex flex-col gap-3">
       {/* What it sits under. The story column says this on a wide screen, and the fold row names the chapter. */}
@@ -52,34 +58,27 @@ export function Heading({ model }: { model: TaskViewModel }) {
         </p>
       )}
       <h1 className="font-story text-[34px] leading-[1.1] tracking-[-0.015em] text-balance">{page.name}</h1>
-      {/* The map and drawer leave these unlabelled to save room. This page has the room, so it's where the glyphs
-          are learned. */}
-      {(personas.length > 0 || team !== null) && (
-        <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1.5 text-[13px] leading-snug">
-          {personas.length > 0 && (
-            <>
-              <dt className="text-muted">Who</dt>
-              <dd className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                {personas.map((persona) => (
-                  <span key={persona.id} className="flex items-center gap-1.5">
-                    <PersonaGlyph icon={persona.icon} />
-                    {persona.name}
-                  </span>
-                ))}
-              </dd>
-            </>
-          )}
-          {team !== null && (
-            <>
-              <dt className="text-muted">Team</dt>
-              <dd>
-                <TeamMark />
-                {team}
-              </dd>
-            </>
-          )}
-        </dl>
-      )}
+      <WhoList
+        id={page.id}
+        personas={
+          model.allPersonas.length > 0
+            ? {
+                personas: model.allPersonas,
+                ...model.who,
+                onChange: (personaId, on) => actions.setPersona({ mapId, id: page.id, personaId, on }),
+              }
+            : null
+        }
+        team={
+          model.team === null
+            ? null
+            : {
+                teams: model.teams,
+                ...model.team,
+                onChange: (teamId) => actions.assignTeam({ mapId, id: page.id, teamId }),
+              }
+        }
+      />
     </div>
   );
 }

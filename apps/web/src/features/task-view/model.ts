@@ -8,9 +8,11 @@ import type {
   QuoteView,
   StoryPlace,
   TaskPageView,
+  TeamView,
 } from '@litmus/core';
 import { LIGHT_COPY } from '../map/lights';
 import { findSubject } from '../map/subject';
+import type { Following } from '../map/teams';
 
 export interface OutlineStep {
   id: string;
@@ -140,10 +142,13 @@ export interface TaskViewModel {
   /** A task or subtask without subtasks. A parent's light follows its subtasks, and a step has none. */
   rateable: boolean;
   outline: OutlineChapter[];
-  personas: PersonaView[];
-  /** Every persona on the map, for the quotes. */
+  /** Every persona on the map, for the quotes and the persona checklist. */
   allPersonas: PersonaView[];
-  team: string | null;
+  /** What the persona checklist starts from: those set here, and those set on its subtasks or steps. */
+  who: { own: string[]; below: { name: string; personaIds: string[] }[]; noun: 'subtasks' | 'steps' };
+  teams: TeamView[];
+  /** What the team list starts from. Null for a step, which takes no team. */
+  team: { own: string | null; following: Following } | null;
   /** A leaf's latest review. */
   review: string | null;
   /** A parent's subtasks by light. Empty for anything else. */
@@ -171,9 +176,18 @@ export function taskViewModel(map: MapView, page: TaskPageView): TaskViewModel |
     mapName: map.name,
     rateable: isTask && subject.subtasks.length === 0,
     outline: outlineFor(map, page.id),
-    personas: map.personas.filter((persona) => subject.personaIds.includes(persona.id)),
     allPersonas: map.personas,
-    team: isTask ? (map.teams.find((team) => team.id === subject.teamId)?.name ?? null) : null,
+    who: {
+      own: subject.kind === 'step' ? subject.personaIds : subject.ownPersonaIds,
+      below: (subject.kind === 'task' ? subject.subtasks : subject.kind === 'subtask' ? subject.steps : []).map(
+        (child) => ({ name: child.name, personaIds: child.personaIds }),
+      ),
+      noun: subject.kind === 'task' ? 'subtasks' : 'steps',
+    },
+    teams: map.teams,
+    team: isTask
+      ? { own: subject.ownTeamId, following: subject.kind === 'subtask' ? { teamId: subject.taskTeamId } : null }
+      : null,
     review: isTask && subject.subtasks.length === 0 ? subject.review : null,
     mix: isTask && subject.subtasks.length > 0 ? mix : [],
     summary: research?.summary.trim() ? research.summary.trim() : null,
