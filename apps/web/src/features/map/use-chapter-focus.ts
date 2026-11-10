@@ -58,6 +58,8 @@ export function useChapterFocus(mapId: string, chapterIds: string[], escapeClear
 
   return {
     focus,
+    /** The remembered focus has been read, so what's folded is settled. */
+    loaded,
     animate,
     toggle: (id: string) => {
       setFocus((current) => toggleFocus(current, id));

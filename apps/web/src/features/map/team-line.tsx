@@ -5,7 +5,7 @@ import { PopoverPanel, PopoverRoot, PopoverTitle, PopoverTrigger } from '../../u
 import { teamChoices, teamLine, type Following } from './teams';
 
 /** Two heads, drawn like the persona glyphs, so the team line doesn't read as one more persona. */
-function TeamMark() {
+export function TeamMark() {
   return (
     <svg
       viewBox="0 0 16 16"
