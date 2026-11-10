@@ -22,7 +22,7 @@ At `/task/[id]`, for a task, a subtask or a step. Each has its own page, because
 **In order, down the page:**
 
 1. **The name**, 34 px in the story face, balanced.
-2. **Who and Team**, as a two-column list at 13 px. Labels "Who" and "Team" are muted, and values are ink with their glyphs. The map and drawer leave these unlabelled to save room. This page has the room, so it's where the glyphs are learned.
+2. **Who and Team**, as a two-column list at 13 px. Labels "Who" and "Team" are muted, and values are ink with their glyphs. It's the drawer's own list, so they can be changed here and read alike in both. The map leaves them unlabelled to save room.
 3. **The light now.** Its mark and name. A leaf shows its latest review. A parent shows the mix bar and "Set by its subtasks: 1 green, 2 yellow, 3 red, 1 grey, 1 out of scope."
 4. **Summary.** One to four sentences.
 5. **Pain points.** Each pain point, with the quotes that illustrate it set under it behind a 2 px rule, each with its persona's glyph and a participant label such as "P3, mechanic". Quotes not yet placed under a pain point go last, under "Heard, but not yet placed under a pain point".

@@ -11,7 +11,7 @@ import type { ReactNode } from 'react';
 import type { Rate, UndoChange } from '../map/rename-result';
 import { LightControl } from './light-control';
 import type { OutlineChapter, TaskViewModel } from './model';
-import { Children, Heading, History, LightNow, Neighbours, Research, taskViewHref } from './sections';
+import { Children, Heading, History, LightNow, Neighbours, Research, taskViewHref, type WhoActions } from './sections';
 
 function Chevron() {
   return (
@@ -172,8 +172,21 @@ function BackLink({ model }: { model: TaskViewModel }) {
   );
 }
 
-/** A page of its own for a task, subtask or step, with the whole story beside it. Only the light is set here. */
-export function TaskView({ model, rate, undoChange }: { model: TaskViewModel; rate: Rate; undoChange: UndoChange }) {
+/**
+ * A page of its own for a task, subtask or step, with the whole story beside it. Its light, personas and team are
+ * set here.
+ */
+export function TaskView({
+  model,
+  rate,
+  undoChange,
+  who,
+}: {
+  model: TaskViewModel;
+  rate: Rate;
+  undoChange: UndoChange;
+  who: WhoActions;
+}) {
   const { page } = model;
   const [lastChange, setLastChange] = useState<{ token: string; message: string } | null>(null);
   const [changeProblem, setChangeProblem] = useState<string | null>(null);
@@ -236,7 +249,7 @@ export function TaskView({ model, rate, undoChange }: { model: TaskViewModel; ra
       </aside>
       <main id="page" className="mx-auto flex w-full max-w-[44rem] flex-col gap-10 px-4 pt-10 pb-32 lg:px-12 lg:pt-14">
         <div className="flex flex-col gap-6">
-          <Heading model={model} />
+          <Heading model={model} actions={who} />
           <LightNow
             model={model}
             control={

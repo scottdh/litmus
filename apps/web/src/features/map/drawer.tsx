@@ -10,7 +10,6 @@ import type { Destination } from './drop';
 import { MoveMenu } from './move-section';
 import { NameField } from './name-field';
 import { NoteField } from './note-field';
-import { PersonaByline } from './persona-byline';
 import { PersonaIconField } from './persona-icon-field';
 import { PersonaName } from './persona-icon';
 import { RemoveConfirm } from './remove-confirm';
@@ -20,7 +19,7 @@ import { RatingSection, type ReviewDraft } from './rating-section';
 import { ResearchSection } from './research-section';
 import type { Rate, RenameResult } from './rename-result';
 import { StepMark } from './step-mark';
-import { TeamLine } from './team-line';
+import { WhoList } from './who-list';
 import type { Subject } from './subject';
 
 const LABEL: Record<Subject['kind'], string> = {
@@ -106,6 +105,7 @@ export function Drawer({
   onSetPersonaIcon: (icon: PersonaIcon) => Promise<RenameResult>;
 }) {
   const isTask = subject.kind === 'task' || subject.kind === 'subtask';
+  const showPersonas = (isTask || subject.kind === 'step') && map.personas.length > 0;
   return (
     <aside
       aria-label={`Details of ${subject.name}`}
@@ -156,26 +156,31 @@ export function Drawer({
             onFinish={onClose}
           />
         </div>
-        {(isTask || subject.kind === 'step') && map.personas.length > 0 && (
-          <PersonaByline
-            key={`personas-${subject.id}`}
-            personas={map.personas}
-            own={subject.kind === 'step' ? subject.personaIds : subject.ownPersonaIds}
-            below={subject.kind === 'task' ? subject.subtasks : subject.kind === 'subtask' ? subject.steps : []}
-            noun={subject.kind === 'task' ? 'subtasks' : 'steps'}
-            onChange={onSetPersona}
-          />
-        )}
-        {isTask && (
-          <TeamLine
-            key={`team-${subject.id}`}
-            teams={map.teams}
-            own={subject.ownTeamId}
-            following={subject.kind === 'subtask' ? { teamId: subject.taskTeamId } : null}
-            onChange={onAssignTeam}
-            className={map.personas.length > 0 ? '-mt-3' : '-mt-2'}
-          />
-        )}
+        <WhoList
+          id={subject.id}
+          className="-mt-1"
+          personas={
+            showPersonas
+              ? {
+                  personas: map.personas,
+                  own: subject.kind === 'step' ? subject.personaIds : subject.ownPersonaIds,
+                  below: subject.kind === 'task' ? subject.subtasks : subject.kind === 'subtask' ? subject.steps : [],
+                  noun: subject.kind === 'task' ? 'subtasks' : 'steps',
+                  onChange: onSetPersona,
+                }
+              : null
+          }
+          team={
+            isTask
+              ? {
+                  teams: map.teams,
+                  own: subject.ownTeamId,
+                  following: subject.kind === 'subtask' ? { teamId: subject.taskTeamId } : null,
+                  onChange: onAssignTeam,
+                }
+              : null
+          }
+        />
         {subject.kind === 'persona' && (
           <PersonaIconField key={`icon-${subject.id}`} icon={subject.icon} onChange={onSetPersonaIcon} />
         )}
