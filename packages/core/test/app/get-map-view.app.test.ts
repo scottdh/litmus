@@ -49,14 +49,14 @@ const map: StoryMap = {
   ],
 };
 
-function rating(subject: string, light: Light) {
+function rating(subject: string, light: Light, ratedAt = '2026-11-04T09:00:00.000Z') {
   const needsEvidence = light === 'green' || light === 'yellow' || light === 'red';
   return createRating({
     subjectId: id(subject),
     productId: PRODUCT_ID,
     light,
     evidence: needsEvidence ? evidence : [],
-    ratedAt: '2026-11-04T09:00:00.000Z' as Instant,
+    ratedAt: ratedAt as Instant,
   });
 }
 
@@ -107,6 +107,24 @@ describe('getMapView', () => {
       { light: 'green', count: 1 },
       { light: 'red', count: 1 },
     ]);
+  });
+
+  it('reads the latest rating for each task by when it was made, not where it sits in the log', async () => {
+    const logged = createInMemoryMapRepository([
+      {
+        map,
+        product: { id: PRODUCT_ID, name: 'Thing' },
+        ratings: [
+          rating('tsk_leaf', 'green', '2026-11-06T09:00:00.000Z'),
+          rating('tsk_leaf', 'red', '2026-11-02T09:00:00.000Z'),
+          rating('tsk_a', 'red', '2026-11-01T09:00:00.000Z'),
+          rating('tsk_a', 'green', '2026-11-03T09:00:00.000Z'),
+        ],
+      },
+    ]);
+    const tasks = (await getMapView({ maps: logged })(MAP_ID)).activities[0]?.tasks;
+    expect(tasks?.[0]?.light).toBe('green');
+    expect(tasks?.[1]?.subtasks[0]?.light).toBe('green');
   });
 
   it('shows anything unrated as grey', async () => {
