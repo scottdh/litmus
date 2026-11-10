@@ -126,6 +126,7 @@ export function StoryWall({
   const chapterIds = useMemo(() => map.activities.map((activity) => activity.id), [map]);
   const {
     focus,
+    loaded: focusLoaded,
     animate,
     toggle: toggleChapter,
     clear,
@@ -333,6 +334,29 @@ export function StoryWall({
       document.getElementById(`open-${id}`)?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     });
   };
+
+  // Back from the task view (`/?task=<id>`): that task's drawer opens, unfolding whatever hides its row.
+  const arrived = useRef(false);
+  useEffect(() => {
+    if (arrived.current || !focusLoaded) return;
+    arrived.current = true;
+    const url = new URL(window.location.href);
+    const id = url.searchParams.get('task');
+    if (id === null) return;
+    url.searchParams.delete('task');
+    window.history.replaceState(window.history.state, '', url);
+    for (const chapter of map.activities) {
+      for (const task of chapter.tasks) {
+        const sub = task.subtasks.find((other) => other.id === id || other.steps.some((step) => step.id === id));
+        if (task.id !== id && sub === undefined) continue;
+        if (focusing && !focus.includes(chapter.id)) toggleChapter(chapter.id);
+        if (sub !== undefined) toggleTask(task.id, true);
+        if (sub !== undefined && sub.id !== id) toggleTask(sub.id, true);
+        openDrawer(id);
+        return;
+      }
+    }
+  });
 
   const drawerOpen = selectedId !== null;
   useEffect(() => {

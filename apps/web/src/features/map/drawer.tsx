@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { Button } from '../../ui/button';
 import type { Light, MapView, PersonaIcon } from '@litmus/core';
 import type { ReactNode } from 'react';
@@ -279,6 +280,25 @@ export function Drawer({
               : null
           }
         />
+      )}
+
+      {(isTask || subject.kind === 'step') && (
+        <Link
+          href={`/task/${subject.id}`}
+          className="flex items-center gap-1.5 self-start text-[14px] underline decoration-line underline-offset-4 transition-colors duration-150 ease-out hover:decoration-ink"
+        >
+          Open {subject.kind} view
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 16 16"
+            className="size-3.5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          >
+            <path d="M3 8h9.5M8.5 4l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </Link>
       )}
 
       {(subject.kind === 'team' || subject.kind === 'persona') &&

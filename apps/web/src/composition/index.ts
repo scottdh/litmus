@@ -4,6 +4,8 @@ import {
   addTaskToMap,
   addPersonaToMap,
   addTeamToMap,
+  DomainError,
+  getTaskView,
   assignTeamInMap,
   getMapView,
   invariantViolation,
@@ -51,6 +53,18 @@ const clock: Clock = { now: () => new Date().toISOString() as Instant };
 export async function loadMap() {
   const map = await getMapView({ maps })(SAMPLE_MAP_ID);
   return { map, isSample: true };
+}
+
+/** Null when nothing on the map has this id, so the page can 404. */
+export async function loadTaskView(id: string) {
+  try {
+    const page = await getTaskView({ maps })({ mapId: SAMPLE_MAP_ID, id });
+    const map = await getMapView({ maps })(SAMPLE_MAP_ID);
+    return { map, page };
+  } catch (error) {
+    if (error instanceof DomainError && error.code === 'TASK_NOT_FOUND') return null;
+    throw error;
+  }
 }
 
 export async function renameOnMap({
