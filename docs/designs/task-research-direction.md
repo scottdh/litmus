@@ -34,5 +34,5 @@ The move arrows and Move to are now in a More menu, opened by the dots beside th
 
 ## Later
 
-- **The task view.** Every quote, pain point and idea, how the task is supported today, and the history of its light, with notes. The drawer gets its "Open task view" link when that page exists. The prototype linked to a placeholder.
+- **The task view.** Every quote, pain point and idea, how the task is supported today, and the history of its light, with notes. The drawer gets its "Open task view" link when that page exists. Decided on 2026-11-10: `docs/designs/task-view-direction.md`.
 - **Research added by AI, marked unread.** Exploration suggests AI sorts research to the right tasks reliably. Scott may loosen "AI suggestions never commit themselves", so that AI writes research straight away and it shows as unread until a team member reads it. This isn't decided. Until it is, `docs/product/rating-model.md` and the invariant in `AGENTS.md` stand.
