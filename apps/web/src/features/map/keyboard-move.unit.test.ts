@@ -1,6 +1,6 @@
 import type { MapView } from '@litmus/core';
 import { describe, expect, it } from 'vitest';
-import { chapterSlot, describeSlot, keyboardSlots, nextSlot, startSlot, type Shown } from './keyboard-move';
+import { chapterSlot, describeSlot, keyboardSlots, nextSlot, slotParts, startSlot, type Shown } from './keyboard-move';
 
 const step = (id: string) => ({ id, name: id.toUpperCase(), note: '', personaIds: [], research: null });
 
@@ -174,5 +174,24 @@ describe('describeSlot', () => {
 
   it('says when it’s back where it started', () => {
     expect(say('a', 0)).toBe('Back where it was');
+  });
+});
+
+describe('slotParts', () => {
+  const parts = (id: string, index: number) => {
+    const slot = keyboardSlots(map, id, everything)[index];
+    if (slot === undefined) throw new Error(`No place ${String(index)} for ${id}`);
+    return slotParts(map, id, slot);
+  };
+
+  it('splits out the name it lands beside or inside, so the hint can set it apart', () => {
+    expect(parts('c', 0)).toEqual({ before: 'Before ', name: 'A', after: ', in First' });
+    expect(parts('a', 3)).toEqual({ before: 'Inside ', name: 'B', after: ', at the end' });
+    expect(parts('a', 5)).toEqual({ before: 'Inside ', name: 'C', after: '' });
+    expect(parts('a', 10)).toEqual({ before: 'At the end of ', name: 'Second', after: '' });
+  });
+
+  it('has no name when it’s back where it started', () => {
+    expect(parts('a', 0)).toEqual({ before: 'Back where it was', name: null, after: '' });
   });
 });
