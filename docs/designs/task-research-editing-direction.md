@@ -90,8 +90,8 @@ The same section in one column. Fields are 16 px, so iOS doesn't zoom. The × is
 
 One PR each, in order, red, green and refactor as separate commits.
 
-1. **Flat research** (new ticket). `Research.pains` becomes a list of pain points with an id and text, `hearing` holds every quote, and pain points, quotes and ideas each get an id, so edits and Undo name what they change. The invented sample research moves to the new shape, keeping every quote. The drawer's quotes become the first five, in order. The task view's read sections show pain points as a bulleted list and every quote under "What we're hearing", without "Heard, but not yet placed under a pain point". Scope: `packages/core/src/domain/map/story-map.ts`, `adapters/in-memory/sample-research.ts`, `application/get-map-view.ts`, `apps/web/src/features/map/research.ts`, `research-section.tsx`, `apps/web/src/features/task-view/model.ts`, `sections.tsx`. Tests: `research.app.test.ts`, `get-map-view.app.test.ts`, `get-task-view.app.test.ts`, `move.unit.test.ts`, `research.unit.test.ts`, `subject.unit.test.ts`, `task-view.unit.test.ts`.
-2. **Research commands** (new ticket). A new `application/edit-research.ts` for a task, subtask or step:
+1. **Flat research** (#117). `Research.pains` becomes a list of pain points with an id and text, `hearing` holds every quote, and pain points, quotes and ideas each get an id, so edits and Undo name what they change. The invented sample research moves to the new shape, keeping every quote. The drawer's quotes become the first five, in order. The task view's read sections show pain points as a bulleted list and every quote under "What we're hearing", without "Heard, but not yet placed under a pain point". Scope: `packages/core/src/domain/map/story-map.ts`, `adapters/in-memory/sample-research.ts`, `application/get-map-view.ts`, `apps/web/src/features/map/research.ts`, `research-section.tsx`, `apps/web/src/features/task-view/model.ts`, `sections.tsx`. Tests: `research.app.test.ts`, `get-map-view.app.test.ts`, `get-task-view.app.test.ts`, `move.unit.test.ts`, `research.unit.test.ts`, `subject.unit.test.ts`, `task-view.unit.test.ts`.
+2. **Research commands** (#118). A new `application/edit-research.ts` for a task, subtask or step:
    - set the summary
    - add, edit and remove a pain point
    - add, edit and remove a quote
@@ -99,7 +99,7 @@ One PR each, in order, red, green and refactor as separate commits.
 
    Text is trimmed, empty text is refused, and a quote needs words and a participant. Each returns the map before and after, for `undoChange`. Scope: `packages/core/src/application/`, `index.ts`. Tests: new `edit-research.app.test.ts`. After 1.
 
-3. **Record research in the task view** (new ticket). The section above replaces the read-only research in `/task/[id]`, with server actions for each command and the existing Undo toast. The repeat check is a pure function in its own file. Scope: `apps/web/src/features/task-view/`, `apps/web/src/app/task/`. Tests: new `repeats.unit.test.ts` (overlap, stopwords, endings, the three-word floor, the threshold). After 2. Design pass (`emil-ui-review`, `emil-unslop-design`) and a check at 375 px before it lands.
+3. **Record research in the task view** (#119). The section above replaces the read-only research in `/task/[id]`, with server actions for each command and the existing Undo toast. The repeat check is a pure function in its own file. Scope: `apps/web/src/features/task-view/`, `apps/web/src/app/task/`. Tests: new `repeats.unit.test.ts` (overlap, stopwords, endings, the three-word floor, the threshold). After 2. Design pass (`emil-ui-review`, `emil-unslop-design`) and a check at 375 px before it lands.
 
 ## Questions for Scott
 
