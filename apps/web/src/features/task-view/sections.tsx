@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { PersonaView, QuoteView } from '@litmus/core';
+import type { PersonaView, QuoteView, ResearchItemView } from '@litmus/core';
 import type { ReactNode } from 'react';
 import { LightMark } from '../map/light-mark';
 import { LIGHT_COPY, MARK_COLOUR, describeMix } from '../map/lights';
@@ -130,9 +130,9 @@ function Quote({ quote, personas }: { quote: QuoteView; personas: PersonaView[] 
 
 function Quotes({ quotes, personas }: { quotes: QuoteView[]; personas: PersonaView[] }) {
   return (
-    <ul className="flex flex-col gap-3 border-s-2 border-line ps-4">
+    <ul className="flex flex-col gap-4">
       {quotes.map((quote) => (
-        <li key={quote.text}>
+        <li key={quote.id}>
           <Quote quote={quote} personas={personas} />
         </li>
       ))}
@@ -140,11 +140,23 @@ function Quotes({ quotes, personas }: { quotes: QuoteView[]; personas: PersonaVi
   );
 }
 
-/** The summary, pain points with the quotes that show them, and ideas. Nothing rolls up from below. */
+function Points({ items }: { items: ResearchItemView[] }) {
+  return (
+    <ul className={`flex list-disc flex-col gap-1 ps-4 marker:text-muted ${BODY}`}>
+      {items.map((item) => (
+        <li key={item.id} className="ps-0.5">
+          {item.text}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** The summary, pain points, what we're hearing and ideas, each its own list. Nothing rolls up from below. */
 export function Research({ model }: { model: TaskViewModel }) {
-  const { summary, pains, loose, ideas, allPersonas } = model;
+  const { summary, pains, hearing, ideas, allPersonas } = model;
   const kind = model.page.kind;
-  if (summary === null && pains.length === 0 && loose.length === 0 && ideas.length === 0)
+  if (summary === null && pains.length === 0 && hearing.length === 0 && ideas.length === 0)
     return <p className={QUIET}>No research on this {kind} yet.</p>;
   return (
     <>
@@ -153,40 +165,19 @@ export function Research({ model }: { model: TaskViewModel }) {
           <p className={BODY}>{summary}</p>
         </Section>
       )}
-      {(pains.length > 0 || loose.length > 0) && (
+      {pains.length > 0 && (
         <Section id="tv-pains" title="Pain points">
-          {pains.length > 0 && (
-            <ul className="flex flex-col">
-              {pains.map((pain) => (
-                <li
-                  key={pain.text}
-                  className="flex flex-col gap-3 border-t-(length:--hairline) border-line py-4 first:border-t-0 first:pt-1"
-                >
-                  <p className={BODY}>{pain.text}</p>
-                  {pain.quotes.length > 0 && <Quotes quotes={pain.quotes} personas={allPersonas} />}
-                </li>
-              ))}
-            </ul>
-          )}
-          {loose.length > 0 && (
-            <div
-              className={`flex flex-col gap-3 ${pains.length > 0 ? 'border-t-(length:--hairline) border-line pt-4' : 'pt-1'}`}
-            >
-              <p className="text-[13px] leading-snug text-muted">Heard, but not yet placed under a pain point</p>
-              <Quotes quotes={loose} personas={allPersonas} />
-            </div>
-          )}
+          <Points items={pains} />
+        </Section>
+      )}
+      {hearing.length > 0 && (
+        <Section id="tv-hearing" title="What we’re hearing">
+          <Quotes quotes={hearing} personas={allPersonas} />
         </Section>
       )}
       {ideas.length > 0 && (
         <Section id="tv-ideas" title={`How might we better support this ${kind}?`}>
-          <ul className={`flex list-disc flex-col gap-2 ps-4 marker:text-muted ${BODY}`}>
-            {ideas.map((idea) => (
-              <li key={idea} className="ps-0.5">
-                {idea}
-              </li>
-            ))}
-          </ul>
+          <Points items={ideas} />
         </Section>
       )}
     </>

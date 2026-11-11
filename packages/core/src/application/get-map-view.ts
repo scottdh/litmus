@@ -11,23 +11,25 @@ export interface LightCount {
 }
 
 export interface QuoteView {
+  id: string;
   text: string;
   /** Null when nobody on the map matches who said it. */
   personaId: string | null;
   participant: string;
 }
 
-export interface PainPointView {
+/** A pain point or an idea. */
+export interface ResearchItemView {
+  id: string;
   text: string;
-  quotes: QuoteView[];
 }
 
 export interface ResearchView {
   summary: string;
-  pains: PainPointView[];
-  /** Only quotes not yet placed under a pain point. */
+  pains: ResearchItemView[];
+  /** Every quote, in the order it was written. */
   hearing: QuoteView[];
-  ideas: string[];
+  ideas: ResearchItemView[];
 }
 
 export interface StepView {
@@ -123,6 +125,7 @@ export const getMapView =
       return personaOrder.filter((id) => all.has(id));
     };
     const quoteOf = (quote: Quote): QuoteView => ({
+      id: quote.id,
       text: quote.text,
       personaId: quote.personaId !== undefined && personaOrder.includes(quote.personaId) ? quote.personaId : null,
       participant: quote.participant,
@@ -132,9 +135,9 @@ export const getMapView =
         ? null
         : {
             summary: research.summary,
-            pains: research.pains.map((pain) => ({ text: pain.text, quotes: pain.quotes.map(quoteOf) })),
+            pains: research.pains.map((pain) => ({ id: pain.id, text: pain.text })),
             hearing: research.hearing.map(quoteOf),
-            ideas: [...research.ideas],
+            ideas: research.ideas.map((idea) => ({ id: idea.id, text: idea.text })),
           };
 
     return {

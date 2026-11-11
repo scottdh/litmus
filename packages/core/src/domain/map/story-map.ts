@@ -6,6 +6,9 @@ export type TaskId = Brand<string, 'TaskId'>;
 export type StepId = Brand<string, 'StepId'>;
 export type TeamId = Brand<string, 'TeamId'>;
 export type PersonaId = Brand<string, 'PersonaId'>;
+export type PainPointId = Brand<string, 'PainPointId'>;
+export type QuoteId = Brand<string, 'QuoteId'>;
+export type IdeaId = Brand<string, 'IdeaId'>;
 
 /** Who's responsible for turning a task from grey to green. */
 export interface Team {
@@ -26,6 +29,7 @@ export interface Persona {
 
 /** Something a user said about a task, in their words. It isn't evidence for a light. */
 export interface Quote {
+  id: QuoteId;
   text: string;
   /** Who said it, when they match a persona on the map. */
   personaId?: PersonaId;
@@ -33,10 +37,16 @@ export interface Quote {
   participant: string;
 }
 
-/** Something that hurts, with the quotes that illustrate it. Several voices saying it is still one pain point. */
+/** Something that hurts. Quotes aren't placed under it: repeats are caught before they're added instead. */
 export interface PainPoint {
+  id: PainPointId;
   text: string;
-  quotes: Quote[];
+}
+
+/** A way we might better support the task. */
+export interface Idea {
+  id: IdeaId;
+  text: string;
 }
 
 /** What research says about a task, subtask or step. Each has its own; nothing rolls up. */
@@ -44,9 +54,9 @@ export interface Research {
   /** One to four sentences on what the task is and why it's hard. */
   summary: string;
   pains: PainPoint[];
-  /** Only quotes not yet placed under a pain point. */
+  /** Every quote, in the order it was written. */
   hearing: Quote[];
-  ideas: string[];
+  ideas: Idea[];
 }
 
 export interface Product {

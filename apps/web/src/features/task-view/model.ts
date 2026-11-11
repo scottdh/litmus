@@ -6,6 +6,7 @@ import type {
   MapView,
   PersonaView,
   QuoteView,
+  ResearchItemView,
   StoryPlace,
   TaskPageView,
   TeamView,
@@ -154,10 +155,10 @@ export interface TaskViewModel {
   /** A parent's subtasks by light. Empty for anything else. */
   mix: LightCount[];
   summary: string | null;
-  pains: { text: string; quotes: QuoteView[] }[];
-  /** Quotes not yet placed under a pain point. */
-  loose: QuoteView[];
-  ideas: string[];
+  pains: ResearchItemView[];
+  /** Every quote, in the order it was written. */
+  hearing: QuoteView[];
+  ideas: ResearchItemView[];
   /** Its subtasks or steps. */
   children: ChildRow[];
   history: HistoryLine[];
@@ -192,7 +193,7 @@ export function taskViewModel(map: MapView, page: TaskPageView): TaskViewModel |
     mix: isTask && subject.subtasks.length > 0 ? mix : [],
     summary: research?.summary.trim() ? research.summary.trim() : null,
     pains: research?.pains ?? [],
-    loose: research?.hearing ?? [],
+    hearing: research?.hearing ?? [],
     ideas: research?.ideas ?? [],
     children:
       subject.kind === 'step'
