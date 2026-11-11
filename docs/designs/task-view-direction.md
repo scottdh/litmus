@@ -6,7 +6,7 @@ Decided by Scott on 2026-11-10, from a live prototype with three working directi
 
 **Chosen: Split.** A page of its own, with the whole story in a column beside it.
 
-**What must stay true:** this is not a research repository. The view holds enough to build empathy and show pain points and opportunities. It doesn't hold every quote from every interview with a link to its source. Quotes sit under the pain point they illustrate, so a pile of quotes saying the same thing shows as one pain point with several voices, not as a longer list.
+**What must stay true:** this is not a research repository. The view holds enough to build empathy and show pain points and opportunities. It doesn't hold every quote from every interview with a link to its source. Pain points and quotes are two flat lists, and repeats are caught before they're added (changed on 2026-11-11 from quotes under pain points: `docs/designs/task-research-editing-direction.md`).
 
 ## The page
 
@@ -25,7 +25,7 @@ At `/task/[id]`, for a task, a subtask or a step. Each has its own page, because
 2. **Who and Team**, as a two-column list at 13 px. Labels "Who" and "Team" are muted, and values are ink with their glyphs. It's the drawer's own list, so they can be changed here and read alike in both. The map leaves them unlabelled to save room.
 3. **The light now.** Its mark and name. A leaf shows its latest review. A parent shows the mix bar and "Set by its subtasks: 1 green, 2 yellow, 3 red, 1 grey, 1 out of scope."
 4. **Summary.** One to four sentences.
-5. **Pain points.** Each pain point, with the quotes that illustrate it set under it behind a 2 px rule, each with its persona's glyph and a participant label such as "P3, mechanic". Quotes not yet placed under a pain point go last, under "Heard, but not yet placed under a pain point".
+5. **Pain points**, then **What we're hearing**: two flat lists, each quote with its persona's glyph and a participant label such as "P3, mechanic". Recorded in place, as `docs/designs/task-research-editing-direction.md` describes.
 6. **How might we better support this task?** The ideas. Says "subtask" or "step" as fitting.
 7. **History.** Every change to the light, newest first. Each shows the day ("4 Nov"), the move ("Red, down from yellow", "Yellow, up from red", "Added, grey", "Review updated"), and the note written with it. There's no author until there are accounts. A parent's changes each name and link the subtask that caused them.
 8. **Before and after.** At the foot, the tasks either side in story order: siblings for a task, the parent's other subtasks for a subtask, the subtask's other steps for a step.
@@ -64,7 +64,7 @@ One PR each, in order, red-green-refactor commits.
 2. **Quotes under pain points** (#100). `Research.pains` becomes `{ text, quotes }[]`, and `hearing` keeps only quotes not yet placed. Invented sample research moves to the new shape. The drawer's "What we're hearing" shows up to five quotes, pain points' first. Scope: `domain/map/story-map.ts`, `adapters/in-memory/sample-research.ts`, `apps/web/src/features/map/research.ts`. Tests: `research.app.test.ts`, `research.unit.test.ts`. Can run beside 1.
 3. **The page** (#102). `/task/[id]`, read-only, as described above. Moves the prototype's sections out of `proto-task-view/` into `features/task-view/`, wires them to `getTaskView`, and deletes the picker, Page, Sheet and `/proto-task`. The drawer's "Open task view" becomes a plain link. Fixes the three findings left on #96: the screencast mark that doesn't play (gone, with support today), the outline's focus ring, and scrolling to the current task when the phone outline opens. Scope: a new `task` route in `apps/web/src/app`, a new `task-view` folder in `apps/web/src/features`, and `features/map/drawer.tsx`. Tests: new `task-view.unit.test.ts` for the outline's branch and the history's wording. After 1 and 2. Design pass before it lands.
 4. **Set the light from the page** (#103). The drawer's rating control, under "The light now", adding to the log. Scope: `features/task-view/`. After 3.
-5. **Recording research** (#104). Design first, as its own prototype: adding and editing the summary, pain points, quotes and ideas, and placing a loose quote under a pain point. Not built from this doc.
+5. **Recording research** (#104). Designed from its own prototype: `docs/designs/task-research-editing-direction.md`, which also undoes 2's nesting.
 
 ## Cut for now
 
@@ -75,4 +75,4 @@ One PR each, in order, red-green-refactor commits.
 1. **Who wrote a change:** left out until there are accounts. History shows the day and the note.
 2. **Screenshots and screencasts:** wait for uploads.
 3. **A parent's history:** worked out from its subtasks' logs, not stored.
-4. **Quotes in the drawer:** "What we're hearing" stays, with up to five quotes, pain points' first.
+4. **Quotes in the drawer:** "What we're hearing" stays, with up to five quotes. ("Pain points' first" went with nesting on 2026-11-11.)
