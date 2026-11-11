@@ -4,12 +4,13 @@
 import { UndoToast } from '../../map/undo-toast';
 import type { TaskViewModel } from '../model';
 import { EditMode } from './edit-mode';
+import { Flat } from './flat';
 import { InPlace } from './in-place';
 import { useVariant } from './picker';
 import { QuoteFirst } from './quote-first';
 import { seed, useResearch } from './store';
 
-const DIRECTIONS = [InPlace, EditMode, QuoteFirst];
+const DIRECTIONS = [InPlace, EditMode, QuoteFirst, Flat];
 
 export function ProtoResearch({ model }: { model: TaskViewModel }) {
   const store = useResearch(seed(model));

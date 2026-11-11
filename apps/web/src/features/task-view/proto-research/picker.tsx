@@ -16,7 +16,7 @@ const CSS = `
 .proto-picker[data-position="top"] { bottom: auto; top: 24px; }
 `;
 
-export const VARIANTS = ['In place', 'Edit mode', 'Quote first'] as const;
+export const VARIANTS = ['In place', 'Edit mode', 'Quote first', 'Flat'] as const;
 
 const listeners = new Set<() => void>();
 const read = () => {

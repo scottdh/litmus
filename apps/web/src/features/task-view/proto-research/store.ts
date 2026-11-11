@@ -31,12 +31,14 @@ export function seed(input: {
   loose: QuoteView[];
   ideas: string[];
 }): PResearch {
-  const quote = (q: QuoteView): PQuote => ({ ...q, id: newId('q') });
+  // Fixed ids for what's seeded, so the server and the browser agree. New things get counted ids.
+  let q = 0;
+  const quote = (v: QuoteView): PQuote => ({ ...v, id: `sq${String(q++)}` });
   return {
     summary: input.summary ?? '',
-    pains: input.pains.map((p) => ({ id: newId('p'), text: p.text, quotes: p.quotes.map(quote) })),
+    pains: input.pains.map((p, i) => ({ id: `sp${String(i)}`, text: p.text, quotes: p.quotes.map(quote) })),
     loose: input.loose.map(quote),
-    ideas: input.ideas.map((text) => ({ id: newId('i'), text })),
+    ideas: input.ideas.map((text, i) => ({ id: `si${String(i)}`, text })),
   };
 }
 
