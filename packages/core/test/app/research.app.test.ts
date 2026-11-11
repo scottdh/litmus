@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
   getMapView,
+  type IdeaId,
   type MapId,
+  type PainPointId,
   type PersonaId,
   type ProductId,
+  type QuoteId,
   type Research,
   type StepId,
   type StoryMap,
@@ -22,17 +25,20 @@ const MECHANIC = 'ps_mechanic' as PersonaId;
 const research = (summary: string): Research => ({
   summary,
   pains: [
-    {
-      text: 'Counts drift.',
-      quotes: [
-        { text: 'I just walk over and look.', personaId: MECHANIC, participant: 'P3, mechanic' },
-        { text: 'The screen said four.', personaId: 'ps_gone' as PersonaId, participant: 'P5, mechanic' },
-      ],
-    },
-    { text: 'Nobody hears when a part arrives.', quotes: [] },
+    { id: 'pain_1' as PainPointId, text: 'Counts drift.' },
+    { id: 'pain_2' as PainPointId, text: 'Nobody hears when a part arrives.' },
   ],
-  hearing: [{ text: 'No idea who said this.', participant: 'P9' }],
-  ideas: ['Show how fresh a count is.'],
+  hearing: [
+    { id: 'qt_1' as QuoteId, text: 'I just walk over and look.', personaId: MECHANIC, participant: 'P3, mechanic' },
+    {
+      id: 'qt_2' as QuoteId,
+      text: 'The screen said four.',
+      personaId: 'ps_gone' as PersonaId,
+      participant: 'P5, mechanic',
+    },
+    { id: 'qt_3' as QuoteId, text: 'No idea who said this.', participant: 'P9' },
+  ],
+  ideas: [{ id: 'idea_1' as IdeaId, text: 'Show how fresh a count is.' }],
 });
 
 const map: StoryMap = {
@@ -84,37 +90,40 @@ describe('research in the map view', () => {
     expect(tasks?.[0]?.subtasks[1]?.steps[0]?.research).toBeNull();
   });
 
-  it('holds each quote under the pain point it illustrates, in the order they were written', async () => {
+  it('holds pain points and ideas as flat lists, each with its id, in the order they were written', async () => {
     const view = await getMapView({ maps })(MAP_ID);
     const research = view.activities[0]?.tasks[0]?.research;
-    expect(research?.pains.map((pain) => [pain.text, pain.quotes.map((quote) => quote.text)])).toEqual([
-      ['Counts drift.', ['I just walk over and look.', 'The screen said four.']],
-      ['Nobody hears when a part arrives.', []],
+    expect(research?.pains).toEqual([
+      { id: 'pain_1', text: 'Counts drift.' },
+      { id: 'pain_2', text: 'Nobody hears when a part arrives.' },
     ]);
-    expect(research?.ideas).toEqual(['Show how fresh a count is.']);
+    expect(research?.ideas).toEqual([{ id: 'idea_1', text: 'Show how fresh a count is.' }]);
   });
 
-  it('keeps only the quotes not yet placed under a pain point in what we’re hearing', async () => {
+  it('holds every quote in what we’re hearing, each with its id, naming its persona only while it’s on the map', async () => {
     const view = await getMapView({ maps })(MAP_ID);
     expect(view.activities[0]?.tasks[0]?.research?.hearing).toEqual([
-      { text: 'No idea who said this.', personaId: null, participant: 'P9' },
+      { id: 'qt_1', text: 'I just walk over and look.', personaId: MECHANIC, participant: 'P3, mechanic' },
+      { id: 'qt_2', text: 'The screen said four.', personaId: null, participant: 'P5, mechanic' },
+      { id: 'qt_3', text: 'No idea who said this.', personaId: null, participant: 'P9' },
     ]);
   });
 
-  it('names a quote’s persona only while that persona is on the map, wherever the quote sits', async () => {
-    const view = await getMapView({ maps })(MAP_ID);
-    expect(view.activities[0]?.tasks[0]?.research?.pains[0]?.quotes).toEqual([
-      { text: 'I just walk over and look.', personaId: MECHANIC, participant: 'P3, mechanic' },
-      { text: 'The screen said four.', personaId: null, participant: 'P5, mechanic' },
-    ]);
-  });
-
-  it('gives the sample research both quotes under pain points and quotes not yet placed', async () => {
+  it('keeps every invented sample quote, and gives every sample item an id of its own', async () => {
     const view = await getMapView({ maps: createSampleMapRepository() })(SAMPLE_MAP_ID);
-    const all = view.activities.flatMap((activity) =>
-      activity.tasks.flatMap((task) => [task.research, ...task.subtasks.map((sub) => sub.research)]),
+    const all = view.activities
+      .flatMap((activity) =>
+        activity.tasks.flatMap((task) => [
+          task.research,
+          ...task.subtasks.flatMap((sub) => [sub.research, ...sub.steps.map((step) => step.research)]),
+        ]),
+      )
+      .filter((research) => research !== null);
+    expect(all.flatMap((research) => research.hearing)).toHaveLength(13);
+    const ids = all.flatMap((research) =>
+      [...research.pains, ...research.hearing, ...research.ideas].map((item) => item.id),
     );
-    expect(all.some((research) => research?.pains.some((pain) => pain.quotes.length > 0))).toBe(true);
-    expect(all.some((research) => (research?.hearing.length ?? 0) > 0)).toBe(true);
+    expect(ids.every((itemId) => itemId !== '')).toBe(true);
+    expect(new Set(ids).size).toBe(ids.length);
   });
 });

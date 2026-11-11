@@ -33,7 +33,7 @@ const map: MapView = {
           earlierReview: null,
           research: {
             summary: 'People give up.',
-            hearing: [{ text: 'I gave up.', personaId: 'ps_rider', participant: 'P1, rider' }],
+            hearing: [{ id: 'qt_1', text: 'I gave up.', personaId: 'ps_rider', participant: 'P1, rider' }],
             pains: [],
             ideas: [],
           },
@@ -181,7 +181,7 @@ describe('findSubject', () => {
       earlierReview: null,
       research: {
         summary: 'People give up.',
-        hearing: [{ text: 'I gave up.', personaId: 'ps_rider', participant: 'P1, rider' }],
+        hearing: [{ id: 'qt_1', text: 'I gave up.', personaId: 'ps_rider', participant: 'P1, rider' }],
         pains: [],
         ideas: [],
       },
