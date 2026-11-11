@@ -5,6 +5,7 @@ import {
   addPersonaToMap,
   addTeamToMap,
   DomainError,
+  editResearchInMap,
   getTaskView,
   assignTeamInMap,
   getMapView,
@@ -32,6 +33,7 @@ import {
   type MapRepository,
   type MoveDestination,
   type PersonaIcon,
+  type ResearchEdit,
   type PersonaId,
   type StepDestination,
   type StepId,
@@ -194,6 +196,21 @@ export async function removePersonaOnMap({ mapId, personaId }: { mapId: string; 
     personaId: personaId as PersonaId,
   });
   return { undoToken: remember(mapId as MapId, before, after) };
+}
+
+/** Adding and removing can be undone. A typed edit can't, because Esc puts it back while it's being written. */
+export async function editResearchOnMap({
+  mapId,
+  itemId,
+  edit,
+}: {
+  mapId: string;
+  itemId: string;
+  edit: ResearchEdit;
+}) {
+  const { id, before, after } = await editResearchInMap({ maps, newId })({ mapId: mapId as MapId, itemId, edit });
+  const undoable = edit.action === 'add' || edit.action === 'remove';
+  return { id, undoToken: undoable ? remember(mapId as MapId, before, after) : null };
 }
 
 /** Only the latest move or add can be undone. */

@@ -12,6 +12,8 @@ export function AddField({
   placeholder,
   keepGoing,
   className = '',
+  describedBy,
+  onDraft,
   onAdd,
   onFinish,
 }: {
@@ -19,6 +21,9 @@ export function AddField({
   placeholder: string;
   keepGoing: boolean;
   className?: string;
+  describedBy?: string | undefined;
+  /** Every keystroke, for a note that reacts to what's typed. */
+  onDraft?: (text: string) => void;
   onAdd: (name: string) => void;
   /** `byKey` means the person is still here, so focus needs somewhere to land. */
   onFinish: (byKey: boolean) => void;
@@ -46,11 +51,13 @@ export function AddField({
       rows={1}
       value={draft}
       aria-label={label}
+      aria-describedby={describedBy}
       enterKeyHint={keepGoing ? 'next' : 'done'}
       placeholder={placeholder}
       className={`${LINE_FIELD} scroll-mx-6 ${className}`}
       onChange={(event) => {
         setDraft(event.target.value);
+        onDraft?.(event.target.value);
       }}
       onKeyDown={(event) => {
         if (event.key === 'Escape') {
@@ -64,6 +71,7 @@ export function AddField({
           if (hasName) onAdd(draft);
           if (hasName && keepGoing) {
             setDraft('');
+            onDraft?.('');
             return;
           }
           leaving.current = true;

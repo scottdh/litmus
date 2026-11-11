@@ -11,7 +11,9 @@ import type { ReactNode } from 'react';
 import type { Rate, UndoChange } from '../map/rename-result';
 import { LightControl } from './light-control';
 import type { OutlineChapter, TaskViewModel } from './model';
-import { Children, Heading, History, LightNow, Neighbours, Research, taskViewHref, type WhoActions } from './sections';
+import type { EditResearch } from './model';
+import { ResearchEditor } from './research-editor';
+import { Children, Heading, History, LightNow, Neighbours, taskViewHref, type WhoActions } from './sections';
 
 function Chevron() {
   return (
@@ -173,33 +175,40 @@ function BackLink({ model }: { model: TaskViewModel }) {
 }
 
 /**
- * A page of its own for a task, subtask or step, with the whole story beside it. Its light, personas and team are
- * set here.
+ * A page of its own for a task, subtask or step, with the whole story beside it. Its light, personas, team and
+ * research are set here.
  */
 export function TaskView({
   model,
   rate,
   undoChange,
   who,
+  editResearch,
 }: {
   model: TaskViewModel;
   rate: Rate;
   undoChange: UndoChange;
   who: WhoActions;
+  editResearch: EditResearch;
 }) {
   const { page } = model;
-  const [lastChange, setLastChange] = useState<{ token: string; message: string } | null>(null);
-  const [changeProblem, setChangeProblem] = useState<string | null>(null);
+  // A change with its Undo, or a problem with none, in the toast's place.
+  const [toast, setToast] = useState<{ key: string; message: string; undoToken: string | null } | null>(null);
+  const showChange = (change: { token: string; message: string }) => {
+    setToast({ key: change.token, message: change.message, undoToken: change.token });
+  };
+  const showProblem = (message: string) => {
+    setToast({ key: crypto.randomUUID(), message, undoToken: null });
+  };
   const undoLastChange = () => {
-    if (lastChange === null) return;
-    const { token } = lastChange;
-    setLastChange(null);
+    const token = toast?.undoToken;
+    if (token == null) return;
+    setToast(null);
     const failed = () => {
-      setChangeProblem('That can’t be undone, because the map has changed since.');
+      showProblem('Couldn’t undo that. Something has changed since.');
     };
     void undoChange(token).then((result) => {
-      if (result.ok) setChangeProblem(null);
-      else failed();
+      if (!result.ok) failed();
     }, failed);
   };
   const wide = useRef<HTMLElement>(null);
@@ -264,21 +273,20 @@ export function TaskView({
                   light={page.light}
                   review={model.review}
                   rate={rate}
-                  onRated={(change) => {
-                    setChangeProblem(null);
-                    setLastChange(change);
-                  }}
+                  onRated={showChange}
                 />
               )
             }
           />
-          {changeProblem !== null && (
-            <p role="alert" className="text-[13px] leading-snug text-pretty">
-              {changeProblem}
-            </p>
-          )}
         </div>
-        <Research model={model} />
+        <ResearchEditor
+          // Fresh drafts for each page.
+          key={page.id}
+          model={model}
+          edit={editResearch}
+          onChange={showChange}
+          onProblem={showProblem}
+        />
         <History model={model} />
         {model.children.length > 0 && (
           <div className="lg:hidden">
@@ -289,12 +297,12 @@ export function TaskView({
       </main>
       {/* The toast isn't a live region, so this says what changed. */}
       <p role="status" className="sr-only">
-        {lastChange?.message ?? ''}
+        {toast?.message ?? ''}
       </p>
       <UndoToast
-        token={lastChange?.token ?? null}
-        text={lastChange?.message ?? ''}
-        onUndo={undoLastChange}
+        token={toast?.key ?? null}
+        text={toast?.message ?? ''}
+        onUndo={toast?.undoToken == null ? undefined : undoLastChange}
         besideDrawer={false}
       />
     </div>

@@ -1,10 +1,8 @@
 import Link from 'next/link';
-import type { PersonaView, QuoteView, ResearchItemView } from '@litmus/core';
 import type { ReactNode } from 'react';
 import { LightMark } from '../map/light-mark';
 import { LIGHT_COPY, MARK_COLOUR, describeMix } from '../map/lights';
 import { MixBar } from '../map/mix-bar';
-import { PersonaGlyph } from '../map/persona-icon';
 import { StepMark } from '../map/step-mark';
 import { WhoList } from '../map/who-list';
 import { formatDay, type TaskViewModel } from './model';
@@ -12,10 +10,9 @@ import { formatDay, type TaskViewModel } from './model';
 export const taskViewHref = (id: string) => `/task/${id}`;
 
 const BODY = 'text-[15px] leading-[1.6] text-pretty';
-const QUIET = 'text-[14px] leading-snug text-pretty text-muted';
 const ROW_LINK = 'transition-colors duration-150 ease-out hover:bg-sunken';
 
-function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
+export function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
     <section aria-labelledby={id} className="flex flex-col gap-3">
       <h2 id={id} className="text-[15px] leading-snug font-semibold text-balance">
@@ -111,76 +108,6 @@ export function LightNow({ model, control }: { model: TaskViewModel; control?: R
           model.review !== '' && <p className={`${BODY} whitespace-pre-wrap`}>{model.review}</p>
         ))}
     </div>
-  );
-}
-
-function Quote({ quote, personas }: { quote: QuoteView; personas: PersonaView[] }) {
-  const persona = personas.find((other) => other.id === quote.personaId);
-  return (
-    <figure className="flex flex-col gap-1">
-      {/* Hangs the opening quote mark, so the words line up. */}
-      <blockquote className="-indent-[0.4em] text-[14px] leading-[1.55] text-pretty">“{quote.text}”</blockquote>
-      <figcaption className="flex items-center gap-1.5 text-[13px] leading-snug text-muted">
-        {persona && <PersonaGlyph icon={persona.icon} label={persona.name} />}
-        {quote.participant}
-      </figcaption>
-    </figure>
-  );
-}
-
-function Quotes({ quotes, personas }: { quotes: QuoteView[]; personas: PersonaView[] }) {
-  return (
-    <ul className="flex flex-col gap-4">
-      {quotes.map((quote) => (
-        <li key={quote.id}>
-          <Quote quote={quote} personas={personas} />
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function Points({ items }: { items: ResearchItemView[] }) {
-  return (
-    <ul className={`flex list-disc flex-col gap-1 ps-4 marker:text-muted ${BODY}`}>
-      {items.map((item) => (
-        <li key={item.id} className="ps-0.5">
-          {item.text}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-/** The summary, pain points, what we're hearing and ideas, each its own list. Nothing rolls up from below. */
-export function Research({ model }: { model: TaskViewModel }) {
-  const { summary, pains, hearing, ideas, allPersonas } = model;
-  const kind = model.page.kind;
-  if (summary === null && pains.length === 0 && hearing.length === 0 && ideas.length === 0)
-    return <p className={QUIET}>No research on this {kind} yet.</p>;
-  return (
-    <>
-      {summary !== null && (
-        <Section id="tv-summary" title="Summary">
-          <p className={BODY}>{summary}</p>
-        </Section>
-      )}
-      {pains.length > 0 && (
-        <Section id="tv-pains" title="Pain points">
-          <Points items={pains} />
-        </Section>
-      )}
-      {hearing.length > 0 && (
-        <Section id="tv-hearing" title="What we’re hearing">
-          <Quotes quotes={hearing} personas={allPersonas} />
-        </Section>
-      )}
-      {ideas.length > 0 && (
-        <Section id="tv-ideas" title={`How might we better support this ${kind}?`}>
-          <Points items={ideas} />
-        </Section>
-      )}
-    </>
   );
 }
 

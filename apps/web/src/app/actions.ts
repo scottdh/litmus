@@ -6,6 +6,8 @@ import {
   type AddDestination,
   type Light,
   type MoveDestination,
+  type PersonaId,
+  type ResearchEdit,
   type StepDestination,
   type StepId,
   type TaskId,
@@ -13,6 +15,7 @@ import {
 import { revalidatePath } from 'next/cache';
 import {
   addChapterOnMap,
+  editResearchOnMap,
   addStepOnMap,
   addTaskOnMap,
   addPersonaOnMap,
@@ -29,6 +32,7 @@ import {
   undoChangeOnMap,
 } from '../composition';
 import type { AddResult, MoveResult, RenameResult } from '../features/map/rename-result';
+import type { ResearchResult } from '../features/task-view/model';
 
 /** Every page shows the map, the task view included, so a change refreshes them all. */
 const refresh = () => {
@@ -255,6 +259,53 @@ export async function removePersonaAction(input: { mapId: unknown; id: unknown }
     const { undoToken } = await removePersonaOnMap({ mapId, personaId: id });
     refresh();
     return { ok: true, undoToken };
+  } catch (error) {
+    if (error instanceof DomainError) return { ok: false, code: error.code };
+    throw error;
+  }
+}
+
+const LISTS = ['pains', 'hearing', 'ideas'] as const;
+
+function readQuote(quote: unknown): { text: string; participant: string; personaId?: PersonaId } | null {
+  if (typeof quote !== 'object' || quote === null) return null;
+  const { text, participant, personaId } = quote as { text?: unknown; participant?: unknown; personaId?: unknown };
+  if (typeof text !== 'string' || typeof participant !== 'string') return null;
+  if (personaId !== undefined && typeof personaId !== 'string') return null;
+  return { text, participant, ...(personaId === undefined ? {} : { personaId: personaId as PersonaId }) };
+}
+
+function readResearchEdit(edit: unknown): ResearchEdit | null {
+  if (typeof edit !== 'object' || edit === null) return null;
+  const { action, list, id, text, quote } = edit as Record<string, unknown>;
+  if (action === 'set-summary') return typeof text === 'string' ? { action, text } : null;
+  const known = LISTS.find((other) => other === list);
+  if (known === undefined) return null;
+  if (action === 'remove') return typeof id === 'string' ? { action, list: known, id } : null;
+  if (action !== 'add' && action !== 'edit') return null;
+  if (action === 'edit' && typeof id !== 'string') return null;
+  const where = action === 'edit' ? { action, id: id as string } : { action };
+  if (known === 'hearing') {
+    const read = readQuote(quote);
+    return read === null ? null : ({ ...where, list: known, quote: read } as ResearchEdit);
+  }
+  return typeof text === 'string' ? ({ ...where, list: known, text } as ResearchEdit) : null;
+}
+
+export async function editResearchAction(input: {
+  mapId: unknown;
+  itemId: unknown;
+  edit: unknown;
+}): Promise<ResearchResult> {
+  const { mapId, itemId } = input;
+  const edit = readResearchEdit(input.edit);
+  if (typeof mapId !== 'string' || typeof itemId !== 'string' || edit === null) {
+    return { ok: false, code: 'INVALID_INPUT' };
+  }
+  try {
+    const done = await editResearchOnMap({ mapId, itemId, edit });
+    refresh();
+    return { ok: true, ...done };
   } catch (error) {
     if (error instanceof DomainError) return { ok: false, code: error.code };
     throw error;
