@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { loadTaskView } from '../../../composition';
 import { taskViewModel } from '../../../features/task-view/model';
 import { TaskView } from '../../../features/task-view/task-view';
-import { assignTeamAction, rateAction, setPersonaAction, undoChangeAction } from '../../actions';
+import { assignTeamAction, editResearchAction, rateAction, setPersonaAction, undoChangeAction } from '../../actions';
 
 // The map can change, so it isn't prerendered.
 export const dynamic = 'force-dynamic';
@@ -27,6 +27,7 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
       rate={rateAction}
       undoChange={undoChangeAction}
       who={{ setPersona: setPersonaAction, assignTeam: assignTeamAction }}
+      editResearch={editResearchAction}
     />
   );
 }

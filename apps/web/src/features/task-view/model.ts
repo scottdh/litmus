@@ -6,6 +6,7 @@ import type {
   MapView,
   PersonaView,
   QuoteView,
+  ResearchEdit,
   ResearchItemView,
   StoryPlace,
   TaskPageView,
@@ -204,3 +205,25 @@ export function taskViewModel(map: MapView, page: TaskPageView): TaskViewModel |
     history: historyLines(page.light, page.history),
   };
 }
+
+export type ResearchList = 'pains' | 'hearing' | 'ideas';
+
+/** Past five pain points or six quotes, a nudge towards fewer, sharper ones. It never blocks. */
+export function growingLine(list: ResearchList, count: number): string | null {
+  if (list === 'pains' && count > 5) return `${String(count)} pain points. Fewer, sharper ones read better than many.`;
+  if (list === 'hearing' && count > 6)
+    return `${String(count)} voices. A few that say it clearly beat many that say it twice.`;
+  return null;
+}
+
+/** What the Undo toast and the status line say after an add or a remove. */
+export function researchMessage(action: 'add' | 'remove', list: ResearchList, participant = ''): string {
+  const done = action === 'add' ? 'Added' : 'Removed';
+  if (list === 'hearing') return `${done} what ${participant} said`;
+  return `${done} ${list === 'pains' ? 'a pain point' : 'an idea'}`;
+}
+
+/** An add hands back the new item's id. Only an add or a remove can be undone. */
+export type ResearchResult = { ok: true; id: string | null; undoToken: string | null } | { ok: false; code: string };
+
+export type EditResearch = (input: { mapId: string; itemId: string; edit: ResearchEdit }) => Promise<ResearchResult>;

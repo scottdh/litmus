@@ -8,6 +8,7 @@ const SHOW_FOR = 8000;
  * Puts Undo where the eye already is after a change. Neutral, never green, because green is a light on this map;
  * the check says "it worked" at a glance instead.
  * The status line already announces the change, so this isn't a live region.
+ * Without `onUndo` it only says something, such as a change that couldn't be saved.
  */
 export function UndoToast({
   token,
@@ -17,7 +18,7 @@ export function UndoToast({
 }: {
   token: string | null;
   text: string;
-  onUndo: () => void;
+  onUndo?: (() => void) | undefined;
   besideDrawer: boolean;
 }) {
   const [dismissed, setDismissed] = useState<string | null>(null);
@@ -78,16 +79,18 @@ export function UndoToast({
         </svg>
         <span className="text-[14px] leading-snug text-pretty">{text}</span>
       </span>
-      <Button
-        onClick={() => {
-          dismiss();
-          onUndo();
-        }}
-        variant="on-ink"
-        className="shrink-0"
-      >
-        Undo
-      </Button>
+      {onUndo && (
+        <Button
+          onClick={() => {
+            dismiss();
+            onUndo();
+          }}
+          variant="on-ink"
+          className="shrink-0"
+        >
+          Undo
+        </Button>
+      )}
       <button
         type="button"
         aria-label="Dismiss"

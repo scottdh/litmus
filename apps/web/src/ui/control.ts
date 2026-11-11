@@ -21,6 +21,8 @@ const SHAPE = {
   /** 32 px tall with its tap area stretched to 44 px, and a full 44 px on a phone. */
   text: 'h-8 px-2 text-[13px] font-medium before:absolute before:inset-x-0 before:-inset-y-1.5 max-lg:h-11 max-lg:before:inset-y-0',
   /** A 32 px square. On a phone it's 44 px tall and shares out the row's width, so a tap lands on one. */
+  /** A row's own small action, as tall as the row so it never adds height. 32 px wide, 44 px on a phone. */
+  row: 'flex w-8 shrink-0 justify-center self-stretch max-lg:w-11',
   icon: 'grid h-8 place-items-center before:absolute before:-inset-x-0.5 before:-inset-y-1.5 max-lg:h-11 max-lg:flex-1 max-lg:before:inset-y-0 lg:w-8',
 };
 
