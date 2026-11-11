@@ -2,13 +2,18 @@ import type { ResearchView } from '@litmus/core';
 import { describe, expect, it } from 'vitest';
 import { researchSections } from './research';
 
-const quote = (n: number) => ({ text: `Quote ${String(n)}`, personaId: null, participant: `P${String(n)}` });
-const pain = (text: string, quotes: number[] = []) => ({ text, quotes: quotes.map(quote) });
+const quote = (n: number) => ({
+  id: `qt_${String(n)}`,
+  text: `Quote ${String(n)}`,
+  personaId: null,
+  participant: `P${String(n)}`,
+});
+const pain = (text: string) => ({ id: `pain_${text}`, text });
 const full: ResearchView = {
   summary: 'What the task is.',
-  hearing: [7, 8].map(quote),
-  pains: [pain('One', [1, 2]), pain('Two'), pain('Three', [3, 4, 5, 6]), pain('Four'), pain('Five'), pain('Six')],
-  ideas: ['An idea'],
+  hearing: [1, 2, 3, 4, 5, 6, 7].map(quote),
+  pains: [pain('One'), pain('Two'), pain('Three'), pain('Four'), pain('Five'), pain('Six')],
+  ideas: [{ id: 'idea_1', text: 'An idea' }],
 };
 
 describe('researchSections', () => {
@@ -22,19 +27,7 @@ describe('researchSections', () => {
     ]);
   });
 
-  it('hears the pain points’ quotes first, then the ones not yet placed', () => {
-    const { folds } = researchSections(
-      { summary: '', hearing: [quote(9)], pains: [pain('One', [1]), pain('Two', [2])], ideas: [] },
-      'task',
-    );
-    expect(folds[0]?.key === 'hearing' && folds[0].quotes.map((q) => q.text)).toEqual([
-      'Quote 1',
-      'Quote 2',
-      'Quote 9',
-    ]);
-  });
-
-  it('shows at most five of each, and counts what it shows', () => {
+  it('shows the first five of each, in order, and counts what it shows', () => {
     const { folds } = researchSections(full, 'task');
     expect(folds[0]).toMatchObject({ key: 'hearing', count: 5 });
     expect(folds[0]?.key === 'hearing' && folds[0].quotes.map((q) => q.text)).toEqual([

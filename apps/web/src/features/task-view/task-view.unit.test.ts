@@ -1,4 +1,4 @@
-import type { HistoryEntry, Instant, Light, MapView, TaskPageView, TaskView } from '@litmus/core';
+import type { HistoryEntry, Instant, Light, MapView, ResearchView, TaskPageView, TaskView } from '@litmus/core';
 import { describe, expect, it } from 'vitest';
 import { formatDay, historyLines, outlineFor, taskViewModel } from './model';
 
@@ -202,5 +202,32 @@ describe('taskViewModel', () => {
 
   it('never lets a step take a light, as steps have none', () => {
     expect(taskViewModel(map, page('pump', 'step', null))?.rateable).toBe(false);
+  });
+
+  it('reads pain points, every quote and ideas as flat lists, in order', () => {
+    const research: ResearchView = {
+      summary: '  What the task is.  ',
+      pains: [
+        { id: 'pain_1', text: 'Counts drift.' },
+        { id: 'pain_2', text: 'Nobody hears.' },
+      ],
+      hearing: [
+        { id: 'qt_1', text: 'I walk over.', personaId: null, participant: 'P3, mechanic' },
+        { id: 'qt_2', text: 'It said four.', personaId: null, participant: 'P5, mechanic' },
+      ],
+      ideas: [{ id: 'idea_1', text: 'Show how fresh it is.' }],
+    };
+    const withResearch: MapView = {
+      ...map,
+      activities: map.activities.map((chapter) => ({
+        ...chapter,
+        tasks: chapter.tasks.map((row) => (row.id === 'book' ? { ...row, research } : row)),
+      })),
+    };
+    const model = taskViewModel(withResearch, page('book', 'task', 'grey'));
+    expect(model?.summary).toBe('What the task is.');
+    expect(model?.pains.map((pain) => pain.id)).toEqual(['pain_1', 'pain_2']);
+    expect(model?.hearing.map((quote) => quote.id)).toEqual(['qt_1', 'qt_2']);
+    expect(model?.ideas).toEqual([{ id: 'idea_1', text: 'Show how fresh it is.' }]);
   });
 });

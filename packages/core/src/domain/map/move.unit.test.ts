@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { DomainError } from '../../kernel/errors.ts';
 import { moveTaskInMap } from './move.ts';
-import type { MapId, Research, StepId, StoryMap, TaskId } from './story-map.ts';
+import type { MapId, PainPointId, Research, StepId, StoryMap, TaskId } from './story-map.ts';
 
 const id = (value: string) => value as TaskId;
 
@@ -200,7 +200,7 @@ describe('research', () => {
   const notes: Research = {
     summary: 'What we know.',
     hearing: [],
-    pains: [{ text: 'A pain.', quotes: [] }],
+    pains: [{ id: 'pain_1' as PainPointId, text: 'A pain.' }],
     ideas: [],
   };
   const withResearch = (ids: string[]): StoryMap => ({
