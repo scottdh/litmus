@@ -1,6 +1,6 @@
 import type { HistoryEntry, Instant, Light, MapView, ResearchView, TaskPageView, TaskView } from '@litmus/core';
 import { describe, expect, it } from 'vitest';
-import { formatDay, historyLines, outlineFor, taskViewModel } from './model';
+import { formatDay, growingLine, historyLines, outlineFor, researchMessage, taskViewModel } from './model';
 
 const task = (id: string, subtasks: TaskView['subtasks'] = []): TaskView => ({
   id,
@@ -229,5 +229,29 @@ describe('taskViewModel', () => {
     expect(model?.pains.map((pain) => pain.id)).toEqual(['pain_1', 'pain_2']);
     expect(model?.hearing.map((quote) => quote.id)).toEqual(['qt_1', 'qt_2']);
     expect(model?.ideas).toEqual([{ id: 'idea_1', text: 'Show how fresh it is.' }]);
+  });
+});
+
+describe('growingLine', () => {
+  it('says nothing up to five pain points or six quotes', () => {
+    expect(growingLine('pains', 5)).toBeNull();
+    expect(growingLine('hearing', 6)).toBeNull();
+    expect(growingLine('ideas', 20)).toBeNull();
+  });
+
+  it('suggests sharpening past them', () => {
+    expect(growingLine('pains', 6)).toBe('6 pain points. Fewer, sharper ones read better than many.');
+    expect(growingLine('hearing', 7)).toBe('7 voices. A few that say it clearly beat many that say it twice.');
+  });
+});
+
+describe('researchMessage', () => {
+  it('says what was added or removed, naming who said a quote', () => {
+    expect(researchMessage('add', 'pains')).toBe('Added a pain point');
+    expect(researchMessage('remove', 'pains')).toBe('Removed a pain point');
+    expect(researchMessage('add', 'hearing', 'P9, mechanic')).toBe('Added what P9, mechanic said');
+    expect(researchMessage('remove', 'hearing', 'P3, mechanic')).toBe('Removed what P3, mechanic said');
+    expect(researchMessage('add', 'ideas')).toBe('Added an idea');
+    expect(researchMessage('remove', 'ideas')).toBe('Removed an idea');
   });
 });
