@@ -95,7 +95,8 @@ function InPlaceField({
 
   const keep = (byKey: boolean) => {
     onDraft?.(null);
-    const text = draft.trim();
+    // A pasted line break has no place in a one-line item.
+    const text = (multiline ? draft : draft.replace(/\s*\n\s*/g, ' ')).trim();
     if (text === value.trim()) {
       setDraft(value);
       return;
@@ -314,7 +315,8 @@ function PointList({
           ))}
           {adding && (
             <li>
-              <div className="flex items-start gap-1">
+              {/* Ends where the rows' × begins, so the new item lines up with the rest. */}
+              <div className="flex items-start gap-1 pe-9 max-lg:pe-12">
                 <Disc />
                 <div className="min-w-0 flex-1">
                   <AddField
