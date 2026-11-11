@@ -26,6 +26,8 @@ import { likeness, ops, short, type PItem, type PQuote, type ResearchStore } fro
 const REVEAL =
   'opacity-0 transition-opacity duration-150 ease-out group-hover/row:opacity-100 group-focus-within/row:opacity-100 pointer-coarse:opacity-100';
 const ADD = 'flex items-center gap-1.5 self-start -ms-2';
+// The × keeps its size beside a line of text, and doesn't push the rows apart, so the lists read like the drawer's.
+const X = `${REVEAL} max-lg:w-11 max-lg:flex-none -my-1 max-lg:-my-2.5`;
 
 // Past these, a quiet line suggests sharpening rather than adding. Nothing stops another.
 const MANY_PAINS = 5;
@@ -41,6 +43,15 @@ function closest<T>(items: T[], text: string, of: (item: T) => string, exceptId?
     .map((item) => ({ item, score: likeness(text, of(item)) }))
     .filter((m) => m.score >= threshold)
     .sort((a, b) => b.score - a.score)[0]?.item;
+}
+
+/** The drawer's list marker: a small muted disc, centred on the first line. */
+function Disc() {
+  return (
+    <span aria-hidden="true" className="flex h-6 w-3.5 shrink-0 items-center">
+      <span className="size-[5px] rounded-full bg-muted" />
+    </span>
+  );
 }
 
 function Note({ children }: { children: React.ReactNode }) {
@@ -66,13 +77,14 @@ function Pains({ store }: { store: ResearchStore }) {
   return (
     <Section id="fl-pains" title="Pain points">
       {research.pains.length > 0 && (
-        <ol className="flex flex-col gap-2">
+        <ul className="flex flex-col gap-1">
           {research.pains.map((pain) => (
             <li key={pain.id} className="group/row flex items-start gap-1">
+              <Disc />
               <InPlaceText
                 value={pain.text}
                 label="Pain point"
-                className={`${BODY} font-medium`}
+                className={BODY}
                 onCommit={(t) => {
                   set(ops.editPain(research, pain.id, t));
                 }}
@@ -82,14 +94,14 @@ function Pains({ store }: { store: ResearchStore }) {
               />
               <RemoveButton
                 label="Remove this pain point"
-                className={REVEAL}
+                className={X}
                 onClick={() => {
                   change(ops.removePain(research, pain.id), 'Removed a pain point');
                 }}
               />
             </li>
           ))}
-        </ol>
+        </ul>
       )}
       {open ? (
         <div className="flex flex-col gap-2">
@@ -141,29 +153,29 @@ function Voice({ quote, store, personas }: { quote: PQuote; store: ResearchStore
     change(ops.removeQuote(research, quote.id), `Removed what ${quote.participant} said`);
   };
   return (
-    <li className="group/row flex flex-col gap-1">
-      <div className="flex items-start gap-1">
-        <span className="pt-px text-[14px] leading-[1.55] text-muted select-none" aria-hidden="true">
-          “
-        </span>
-        <InPlaceText
-          value={quote.text}
-          label={`What ${quote.participant} said`}
-          multiline
-          className="-ms-1.5 text-[14px] leading-[1.55] text-pretty"
-          onCommit={(text) => {
-            set(ops.editQuote(research, quote.id, { text }));
-          }}
-          onEmpty={remove}
-        />
-      </div>
-      <div className="flex min-h-8 items-center gap-1.5 ps-2.5">
+    <li className="group/row flex items-start gap-1">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div className="relative">
+          <span aria-hidden="true" className="absolute -start-[0.4em] top-0 text-[14px] leading-[1.55] select-none">
+            “
+          </span>
+          <InPlaceText
+            value={quote.text}
+            label={`What ${quote.participant} said`}
+            multiline
+            className="text-[14px] leading-[1.55] text-pretty"
+            onCommit={(text) => {
+              set(ops.editQuote(research, quote.id, { text }));
+            }}
+            onEmpty={remove}
+          />
+        </div>
         <span className="flex items-center gap-1.5 text-[13px] leading-snug text-muted">
           {persona && <PersonaGlyph icon={persona.icon} label={persona.name} />}
           {quote.participant}
         </span>
-        <RemoveButton label={`Remove what ${quote.participant} said`} className={REVEAL} onClick={remove} />
       </div>
+      <RemoveButton label={`Remove what ${quote.participant} said`} className={X} onClick={remove} />
     </li>
   );
 }
@@ -203,7 +215,7 @@ function Voices({ store, personas }: { store: ResearchStore; personas: PersonaVi
   return (
     <Section id="fl-voices" title="What we’re hearing">
       {list.length > 0 && (
-        <ul className="flex flex-col gap-3 border-s-2 border-line ps-4">
+        <ul className="flex flex-col gap-4">
           {list.map((q) => (
             <Voice key={q.id} quote={q} store={store} personas={personas} />
           ))}
@@ -251,9 +263,7 @@ function Ideas({ store, kind }: { store: ResearchStore; kind: string }) {
         <ul className="flex flex-col gap-1">
           {research.ideas.map((idea) => (
             <li key={idea.id} className="group/row flex items-start gap-1">
-              <span aria-hidden="true" className={`w-3 shrink-0 text-muted ${BODY}`}>
-                •
-              </span>
+              <Disc />
               <InPlaceText
                 value={idea.text}
                 label="Idea"
@@ -267,7 +277,7 @@ function Ideas({ store, kind }: { store: ResearchStore; kind: string }) {
               />
               <RemoveButton
                 label="Remove this idea"
-                className={REVEAL}
+                className={X}
                 onClick={() => {
                   change(ops.removeIdea(research, idea.id), 'Removed an idea');
                 }}
