@@ -99,6 +99,8 @@ One PR each, in order, red, green and refactor as separate commits.
 
    Text is trimmed, empty text is refused, and a quote needs words and a participant. Each returns the map before and after, for `undoChange`. Scope: `packages/core/src/application/`, `index.ts`. Tests: new `edit-research.app.test.ts`. After 1.
 
+   Built as one `editResearchInMap` command, with the pure change in `domain/map/research.ts`. Two calls the spec left open: a summary can be cleared, since clearing the field is how the page removes it, and research left with nothing in it is dropped, so the item reads as having none again.
+
 3. **Record research in the task view** (#119). The section above replaces the read-only research in `/task/[id]`, with server actions for each command and the existing Undo toast. The repeat check is a pure function in its own file. Scope: `apps/web/src/features/task-view/`, `apps/web/src/app/task/`. Tests: new `repeats.unit.test.ts` (overlap, stopwords, endings, the three-word floor, the threshold). After 2. Design pass (`emil-ui-review`, `emil-unslop-design`) and a check at 375 px before it lands.
 
 ## Questions for Scott
