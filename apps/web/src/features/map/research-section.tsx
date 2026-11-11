@@ -13,7 +13,7 @@ function Quotes({ quotes, personas }: { quotes: QuoteView[]; personas: PersonaVi
       {quotes.map((quote) => {
         const persona = personas.find((other) => other.id === quote.personaId);
         return (
-          <li key={quote.text}>
+          <li key={quote.id}>
             <figure className="flex flex-col gap-1">
               {/* Hangs the opening quote mark, so the words line up with everything else. */}
               <blockquote className={`${BODY} -indent-[0.4em]`}>“{quote.text}”</blockquote>

@@ -14,14 +14,11 @@ export function researchSections(
 ): { summary: string | null; folds: Fold[]; empty: boolean } {
   const summary = research?.summary.trim() ? research.summary.trim() : null;
   const folds: Fold[] = [];
-  const quotes = [...(research?.pains.flatMap((pain) => pain.quotes) ?? []), ...(research?.hearing ?? [])].slice(
-    0,
-    SHOWN,
-  );
+  const quotes = research?.hearing.slice(0, SHOWN) ?? [];
   if (quotes.length > 0) folds.push({ key: 'hearing', title: 'What we’re hearing', count: quotes.length, quotes });
   const pains = research?.pains.slice(0, SHOWN).map((pain) => pain.text) ?? [];
   if (pains.length > 0) folds.push({ key: 'pains', title: 'Pain points', count: pains.length, items: pains });
-  const ideas = research?.ideas.slice(0, SHOWN) ?? [];
+  const ideas = research?.ideas.slice(0, SHOWN).map((idea) => idea.text) ?? [];
   if (ideas.length > 0)
     folds.push({ key: 'ideas', title: `How might we better support this ${kind}?`, count: ideas.length, items: ideas });
   return { summary, folds, empty: summary === null && folds.length === 0 };
